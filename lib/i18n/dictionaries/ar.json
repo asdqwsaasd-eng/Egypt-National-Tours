@@ -1,0 +1,71 @@
+{
+  "site": {
+    "name": "إيجيبت ناشيونال تورز",
+    "tagline": "اكتشف سحر مصر",
+    "license": "مرخصة منذ عام 1990 في مصر والولايات المتحدة"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "services": "خدماتنا",
+    "egyptTours": "رحلات مصر",
+    "hajjUmrah": "الحج والعمرة",
+    "internationalTours": "رحلات دولية",
+    "aboutContact": "من نحن والاتصال",
+    "requestTrip": "اطلب رحلتك الآن"
+  },
+  "common": {
+    "learnMore": "اعرف المزيد",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "loading": "جاري التحميل...",
+    "required": "مطلوب",
+    "optional": "اختياري",
+    "chatWhatsApp": "تواصل معنا عبر واتساب",
+    "callUs": "اتصل بنا",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "notes": "ملاحظات",
+    "name": "الاسم الكامل",
+    "whatsapp": "رقم الواتساب",
+    "back": "رجوع",
+    "next": "التالي",
+    "viewDetails": "عرض التفاصيل",
+    "requestNow": "اطلب الآن",
+    "success": "تم بنجاح",
+    "error": "حدث خطأ"
+  },
+  "services": {
+    "flights": "تذاكر الطيران",
+    "hotels": "حجز الفنادق",
+    "egyptTours": "رحلات مصر",
+    "internationalTours": "رحلات دولية",
+    "visas": "خدمات التأشيرات",
+    "securityApprovals": "الموافقات الأمنية",
+    "hajj": "الحج",
+    "umrah": "العمرة",
+    "transportation": "النقل السياحي",
+    "customTours": "رحلات مخصصة"
+  },
+  "footer": {
+    "rights": "جميع الحقوق محفوظة",
+    "workingHours": "أوقات العمل",
+    "workingDays": "الأحد - الخميس: 10:30 صباحاً - 5:00 مساءً",
+    "offDays": "الجمعة والسبت: مغلق",
+    "onlineNote": "يمكنك إرسال طلباتك عبر الموقع في أي وقت"
+  },
+  "forms": {
+    "yourName": "اسمك الكامل",
+    "phoneWhatsApp": "رقم الهاتف / واتساب",
+    "emailAddress": "البريد الإلكتروني",
+    "travelDate": "تاريخ السفر",
+    "returnDate": "تاريخ العودة",
+    "adults": "بالغين",
+    "children": "أطفال",
+    "infants": "رضع",
+    "notes": "ملاحظات إضافية",
+    "submitRequest": "إرسال الطلب",
+    "requestSuccess": "تم استلام طلبك بنجاح!",
+    "referenceNumber": "رقم المرجع",
+    "successMessage": "سنتواصل معك في أقرب وقت. يمكنك أيضاً التواصل معنا عبر واتساب لمتابعة طلبك."
+  }
+}

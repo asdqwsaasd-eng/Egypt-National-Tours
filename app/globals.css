@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* ─── Google Fonts ─── */
+/* Cairo and Inter are loaded via next/font in fonts.ts */
+
+/* ─── Design Tokens (Doc 03: Brand & UI Design System) ─── */
+@theme {
+  /* Brand Colors */
+  --color-brand-red: #C91F2E;
+  --color-brand-red-dark: #A91522;
+  --color-brand-gold: #F4C400;
+  --color-brand-gold-light: #FFF3B0;
+
+  /* Surface Colors */
+  --color-sand: #F7F1E5;
+  --color-cream: #FCFAF5;
+
+  /* Text Colors */
+  --color-text-primary: #222222;
+  --color-text-secondary: #626262;
+  --color-text-muted: #858585;
+
+  /* Border */
+  --color-border: #E8E8E8;
+
+  /* Status Colors */
+  --color-success: #2E7D32;
+  --color-error: #C62828;
+  --color-info: #1565C0;
+
+  /* Typography — font families are set by next/font via CSS variables on <html> */
+  /* --font-cairo and --font-inter are injected by next/font className */
+
+  /* Shadows */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* Border Radius */
+  --radius-button: 10px;
+  --radius-card: 16px;
+  --radius-input: 10px;
+  --radius-image: 20px;
+}
+
+/* ─── Base Styles ─── */
+@layer base {
+  body {
+    font-family: var(--font-cairo), var(--font-inter), system-ui, sans-serif;
+    color: var(--color-text-primary);
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* RTL font priority: Arabic uses Cairo first */
+  [dir="rtl"] body {
+    font-family: var(--font-cairo), var(--font-inter), system-ui, sans-serif;
+  }
+
+  /* LTR font priority: English uses Inter first */
+  [dir="ltr"] body {
+    font-family: var(--font-inter), var(--font-cairo), system-ui, sans-serif;
+  }
+
+  /* Smooth scrolling (respects prefers-reduced-motion) */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}

@@ -1,0 +1,501 @@
+// ─────────────────────────────────────────────────────────────
+// Egypt National Tours — Prisma Schema
+// Database: PostgreSQL (Decision 001)
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────
+
+enum AdminRole {
+  admin
+}
+
+enum SupportedLocale {
+  ar
+  en
+}
+
+enum RequestType {
+  flight
+  hotel
+  egypt_tour
+  international_tour
+  visa
+  security_approval
+  hajj
+  umrah
+  transportation
+  general
+}
+
+enum RequestStatus {
+  new_request  @map("new")
+  contacted
+  in_progress
+  completed
+  cancelled
+}
+
+enum RequestSource {
+  website
+  whatsapp
+  admin
+}
+
+enum ContentStatus {
+  draft
+  published
+  archived
+}
+
+enum TourType {
+  egypt
+  international
+}
+
+// ─── Models ──────────────────────────────────────────────────
+
+/// Admin user account for CMS access.
+model AdminUser {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  displayName   String    @map("display_name")
+  role          AdminRole @default(admin)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+
+  requestNotes  RequestNote[]
+  requestEvents RequestEvent[]
+
+  @@map("admin_users")
+}
+
+/// Customer who submits a service request.
+model Customer {
+  id                 String          @id @default(uuid()) @db.Uuid
+  fullName           String          @map("full_name")
+  email              String
+  phone              String
+  whatsapp           String?
+  preferredLanguage  SupportedLocale @default(ar) @map("preferred_language")
+  nationalityCountryId String?       @map("nationality_country_id") @db.Uuid
+  residenceCountryId String?         @map("residence_country_id") @db.Uuid
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+
+  nationalityCountry Country? @relation("CustomerNationality", fields: [nationalityCountryId], references: [id])
+  residenceCountry   Country? @relation("CustomerResidence", fields: [residenceCountryId], references: [id])
+  requests           Request[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("customers")
+}
+
+/// Service category (Flights, Hotels, Tours, etc.).
+model Service {
+  id                    String        @id @default(uuid()) @db.Uuid
+  serviceKey            String        @unique @map("service_key")
+  titleAr               String        @map("title_ar")
+  titleEn               String        @map("title_en")
+  shortDescriptionAr    String?       @map("short_description_ar")
+  shortDescriptionEn    String?       @map("short_description_en")
+  descriptionAr         String?       @map("description_ar") @db.Text
+  descriptionEn         String?       @map("description_en") @db.Text
+  iconOrMediaId         String?       @map("icon_or_media_id") @db.Uuid
+  requestFormType       String?       @map("request_form_type")
+  displayOrder          Int           @default(0) @map("display_order")
+  isFeatured            Boolean       @default(false) @map("is_featured")
+  status                ContentStatus @default(draft)
+  slug                  String        @unique
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+
+  iconOrMedia Media?    @relation(fields: [iconOrMediaId], references: [id])
+  requests    Request[]
+
+  @@index([displayOrder])
+  @@map("services")
+}
+
+/// Customer service request.
+model Request {
+  id                 String          @id @default(uuid()) @db.Uuid
+  reference          String          @unique
+  customerId         String          @map("customer_id") @db.Uuid
+  serviceId          String          @map("service_id") @db.Uuid
+  requestType        RequestType     @map("request_type")
+  status             RequestStatus   @default(new_request)
+  preferredLanguage  SupportedLocale @default(ar) @map("preferred_language")
+  source             RequestSource   @default(website)
+  detailsJson        Json?           @map("details_json")
+  notificationStatus String?         @map("notification_status")
+  notificationError  String?         @map("notification_error")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  contactedAt        DateTime?       @map("contacted_at")
+  completedAt        DateTime?       @map("completed_at")
+
+  customer Customer      @relation(fields: [customerId], references: [id])
+  service  Service        @relation(fields: [serviceId], references: [id])
+  notes    RequestNote[]
+  events   RequestEvent[]
+
+  @@index([reference])
+  @@index([customerId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([requestType])
+  @@map("requests")
+}
+
+/// Private admin note on a request.
+model RequestNote {
+  id          String   @id @default(uuid()) @db.Uuid
+  requestId   String   @map("request_id") @db.Uuid
+  adminUserId String   @map("admin_user_id") @db.Uuid
+  note        String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  request   Request   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  adminUser AdminUser @relation(fields: [adminUserId], references: [id])
+
+  @@index([requestId])
+  @@map("request_notes")
+}
+
+/// Audit trail event for a request.
+model RequestEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  requestId   String   @map("request_id") @db.Uuid
+  adminUserId String?  @map("admin_user_id") @db.Uuid
+  eventType   String   @map("event_type")
+  oldValue    String?  @map("old_value")
+  newValue    String?  @map("new_value")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  request   Request    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  adminUser AdminUser? @relation(fields: [adminUserId], references: [id])
+
+  @@index([requestId])
+  @@map("request_events")
+}
+
+/// Tour program (Egypt or International).
+model Tour {
+  id                    String        @id @default(uuid()) @db.Uuid
+  tourType              TourType      @map("tour_type")
+  titleAr               String        @map("title_ar")
+  titleEn               String        @map("title_en")
+  shortDescriptionAr    String?       @map("short_description_ar") @db.Text
+  shortDescriptionEn    String?       @map("short_description_en") @db.Text
+  descriptionAr         String?       @map("description_ar") @db.Text
+  descriptionEn         String?       @map("description_en") @db.Text
+  durationTextAr        String?       @map("duration_text_ar")
+  durationTextEn        String?       @map("duration_text_en")
+  price                 Decimal?      @db.Decimal(10, 2)
+  currency              String        @default("USD")
+  mainMediaId           String?       @map("main_media_id") @db.Uuid
+  slug                  String        @unique
+  isFeatured            Boolean       @default(false) @map("is_featured")
+  seoTitleAr            String?       @map("seo_title_ar")
+  seoTitleEn            String?       @map("seo_title_en")
+  metaDescriptionAr     String?       @map("meta_description_ar") @db.Text
+  metaDescriptionEn     String?       @map("meta_description_en") @db.Text
+  status                ContentStatus @default(draft)
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+  publishedAt           DateTime?     @map("published_at")
+
+  mainMedia    Media?            @relation(fields: [mainMediaId], references: [id])
+  destinations TourDestination[]
+  days         TourDay[]
+  gallery      TourGalleryItem[]
+
+  @@index([tourType])
+  @@index([status])
+  @@index([isFeatured])
+  @@map("tours")
+}
+
+/// Tour destination within a tour.
+model TourDestination {
+  id                String @id @default(uuid()) @db.Uuid
+  tourId            String @map("tour_id") @db.Uuid
+  destinationNameAr String @map("destination_name_ar")
+  destinationNameEn String @map("destination_name_en")
+  displayOrder      Int    @default(0) @map("display_order")
+
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId])
+  @@map("tour_destinations")
+}
+
+/// Day-by-day itinerary entry for a tour.
+model TourDay {
+  id            String @id @default(uuid()) @db.Uuid
+  tourId        String @map("tour_id") @db.Uuid
+  dayNumber     Int    @map("day_number")
+  titleAr       String @map("title_ar")
+  titleEn       String @map("title_en")
+  descriptionAr String @map("description_ar") @db.Text
+  descriptionEn String @map("description_en") @db.Text
+  displayOrder  Int    @default(0) @map("display_order")
+
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, dayNumber])
+  @@index([tourId])
+  @@map("tour_days")
+}
+
+/// Gallery image for a tour.
+model TourGalleryItem {
+  id           String  @id @default(uuid()) @db.Uuid
+  tourId       String  @map("tour_id") @db.Uuid
+  mediaId      String  @map("media_id") @db.Uuid
+  displayOrder Int     @default(0) @map("display_order")
+  altTextAr    String? @map("alt_text_ar")
+  altTextEn    String? @map("alt_text_en")
+
+  tour  Tour  @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id])
+
+  @@index([tourId])
+  @@map("tour_gallery_items")
+}
+
+/// Hajj program managed via CMS.
+model HajjProgram {
+  id                   String        @id @default(uuid()) @db.Uuid
+  titleAr              String        @map("title_ar")
+  titleEn              String        @map("title_en")
+  descriptionAr        String?       @map("description_ar") @db.Text
+  descriptionEn        String?       @map("description_en") @db.Text
+  programImageMediaId  String?       @map("program_image_media_id") @db.Uuid
+  price                Decimal?      @db.Decimal(10, 2)
+  currency             String        @default("USD")
+  isCurrent            Boolean       @default(true) @map("is_current")
+  status               ContentStatus @default(draft)
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  publishedAt          DateTime?     @map("published_at")
+
+  programImage Media? @relation("HajjProgramImage", fields: [programImageMediaId], references: [id])
+
+  @@map("hajj_programs")
+}
+
+/// Umrah program managed via CMS.
+model UmrahProgram {
+  id                   String        @id @default(uuid()) @db.Uuid
+  titleAr              String        @map("title_ar")
+  titleEn              String        @map("title_en")
+  descriptionAr        String?       @map("description_ar") @db.Text
+  descriptionEn        String?       @map("description_en") @db.Text
+  programImageMediaId  String?       @map("program_image_media_id") @db.Uuid
+  price                Decimal?      @db.Decimal(10, 2)
+  currency             String        @default("USD")
+  isCurrent            Boolean       @default(true) @map("is_current")
+  status               ContentStatus @default(draft)
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  publishedAt          DateTime?     @map("published_at")
+
+  programImage Media? @relation("UmrahProgramImage", fields: [programImageMediaId], references: [id])
+
+  @@map("umrah_programs")
+}
+
+/// Visa destination country available for visa services.
+model VisaDestination {
+  id           String  @id @default(uuid()) @db.Uuid
+  countryId    String? @map("country_id") @db.Uuid
+  titleAr      String  @map("title_ar")
+  titleEn      String  @map("title_en")
+  displayOrder Int     @default(0) @map("display_order")
+  isActive     Boolean @default(true) @map("is_active")
+
+  country Country? @relation(fields: [countryId], references: [id])
+
+  @@index([isActive])
+  @@map("visa_destinations")
+}
+
+/// ISO country catalog (powers all country dropdowns).
+model Country {
+  id       String  @id @default(uuid()) @db.Uuid
+  iso2     String  @unique @db.VarChar(2)
+  iso3     String  @unique @db.VarChar(3)
+  nameAr   String  @map("name_ar")
+  nameEn   String  @map("name_en")
+  isActive Boolean @default(true) @map("is_active")
+
+  nationalityCustomers Customer[]        @relation("CustomerNationality")
+  residenceCustomers   Customer[]        @relation("CustomerResidence")
+  visaDestinations     VisaDestination[]
+  reviews              Review[]
+
+  @@index([iso2])
+  @@index([iso3])
+  @@map("countries")
+}
+
+/// Transportation service type.
+model TransportationOption {
+  id            String  @id @default(uuid()) @db.Uuid
+  key           String  @unique
+  titleAr       String  @map("title_ar")
+  titleEn       String  @map("title_en")
+  descriptionAr String? @map("description_ar") @db.Text
+  descriptionEn String? @map("description_en") @db.Text
+  displayOrder  Int     @default(0) @map("display_order")
+  isActive      Boolean @default(true) @map("is_active")
+
+  @@map("transportation_options")
+}
+
+/// Customer review / testimonial.
+model Review {
+  id            String        @id @default(uuid()) @db.Uuid
+  customerName  String        @map("customer_name")
+  countryId     String?       @map("country_id") @db.Uuid
+  reviewAr      String?       @map("review_ar") @db.Text
+  reviewEn      String?       @map("review_en") @db.Text
+  rating        Int           @default(5)
+  reviewDate    DateTime?     @map("review_date") @db.Date
+  avatarMediaId String?       @map("avatar_media_id") @db.Uuid
+  isFeatured    Boolean       @default(false) @map("is_featured")
+  isDemo        Boolean       @default(false) @map("is_demo")
+  status        ContentStatus @default(draft)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  publishedAt   DateTime?     @map("published_at")
+
+  country     Country? @relation(fields: [countryId], references: [id])
+  avatarMedia Media?   @relation("ReviewAvatar", fields: [avatarMediaId], references: [id])
+
+  @@index([status])
+  @@index([isFeatured])
+  @@map("reviews")
+}
+
+/// Media asset (image, file).
+model Media {
+  id         String   @id @default(uuid()) @db.Uuid
+  fileName   String   @map("file_name")
+  storageKey String   @map("storage_key")
+  mimeType   String   @map("mime_type")
+  fileSize   Int      @map("file_size")
+  width      Int?
+  height     Int?
+  altTextAr  String?  @map("alt_text_ar")
+  altTextEn  String?  @map("alt_text_en")
+  captionAr  String?  @map("caption_ar")
+  captionEn  String?  @map("caption_en")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  services         Service[]
+  tours            Tour[]
+  tourGalleryItems TourGalleryItem[]
+  hajjPrograms     HajjProgram[]  @relation("HajjProgramImage")
+  umrahPrograms    UmrahProgram[] @relation("UmrahProgramImage")
+  reviewAvatars    Review[]       @relation("ReviewAvatar")
+  pageMedia        Page[]         @relation("PageFeaturedMedia")
+  siteLogos        SiteSettings[] @relation("SiteLogo")
+  siteFavicons     SiteSettings[] @relation("SiteFavicon")
+  seoOgImages      SeoSettings[]  @relation("SeoOgImage")
+
+  @@index([fileName])
+  @@map("media")
+}
+
+/// Static/CMS-managed page content.
+model Page {
+  id                String        @id @default(uuid()) @db.Uuid
+  pageKey           String        @unique @map("page_key")
+  titleAr           String        @map("title_ar")
+  titleEn           String        @map("title_en")
+  contentAr         String?       @map("content_ar") @db.Text
+  contentEn         String?       @map("content_en") @db.Text
+  featuredMediaId   String?       @map("featured_media_id") @db.Uuid
+  slug              String        @unique
+  seoTitleAr        String?       @map("seo_title_ar")
+  seoTitleEn        String?       @map("seo_title_en")
+  metaDescriptionAr String?       @map("meta_description_ar") @db.Text
+  metaDescriptionEn String?       @map("meta_description_en") @db.Text
+  status            ContentStatus @default(draft)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  publishedAt       DateTime?     @map("published_at")
+
+  featuredMedia Media? @relation("PageFeaturedMedia", fields: [featuredMediaId], references: [id])
+
+  @@map("pages")
+}
+
+/// Global site settings (singleton).
+model SiteSettings {
+  id              String          @id @default(uuid()) @db.Uuid
+  defaultLanguage SupportedLocale @default(ar) @map("default_language")
+  companyNameAr   String          @map("company_name_ar")
+  companyNameEn   String          @map("company_name_en")
+  logoMediaId     String?         @map("logo_media_id") @db.Uuid
+  faviconMediaId  String?         @map("favicon_media_id") @db.Uuid
+  footerTextAr    String?         @map("footer_text_ar") @db.Text
+  footerTextEn    String?         @map("footer_text_en") @db.Text
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  logoMedia    Media? @relation("SiteLogo", fields: [logoMediaId], references: [id])
+  faviconMedia Media? @relation("SiteFavicon", fields: [faviconMediaId], references: [id])
+
+  @@map("site_settings")
+}
+
+/// Global contact information (singleton).
+model ContactSettings {
+  id              String   @id @default(uuid()) @db.Uuid
+  whatsappNumber  String   @map("whatsapp_number")
+  phonePrimary    String   @map("phone_primary")
+  phoneSecondary  String?  @map("phone_secondary")
+  email           String
+  facebookUrl     String?  @map("facebook_url")
+  googleMapsUrl   String?  @map("google_maps_url")
+  addressAr       String?  @map("address_ar") @db.Text
+  addressEn       String?  @map("address_en") @db.Text
+  workingHoursAr  String?  @map("working_hours_ar") @db.Text
+  workingHoursEn  String?  @map("working_hours_en") @db.Text
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_settings")
+}
+
+/// Global SEO settings (singleton).
+model SeoSettings {
+  id                      String  @id @default(uuid()) @db.Uuid
+  siteTitleAr             String  @map("site_title_ar")
+  siteTitleEn             String  @map("site_title_en")
+  defaultMetaDescriptionAr String? @map("default_meta_description_ar") @db.Text
+  defaultMetaDescriptionEn String? @map("default_meta_description_en") @db.Text
+  defaultOgImageId        String? @map("default_og_image_id") @db.Uuid
+  robotsMode              String  @default("index, follow") @map("robots_mode")
+  organizationSchemaEnabled Boolean @default(true) @map("organization_schema_enabled")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  defaultOgImage Media? @relation("SeoOgImage", fields: [defaultOgImageId], references: [id])
+
+  @@map("seo_settings")
+}

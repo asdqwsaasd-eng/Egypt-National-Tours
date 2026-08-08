@@ -1,0 +1,71 @@
+{
+  "site": {
+    "name": "Egypt National Tours",
+    "tagline": "Discover the Charm of Egypt",
+    "license": "Licensed since 1990 in Egypt & USA"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "egyptTours": "Egypt Tours",
+    "hajjUmrah": "Hajj & Umrah",
+    "internationalTours": "International Tours",
+    "aboutContact": "About & Contact",
+    "requestTrip": "Request Your Trip"
+  },
+  "common": {
+    "learnMore": "Learn More",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "required": "Required",
+    "optional": "Optional",
+    "chatWhatsApp": "Chat on WhatsApp",
+    "callUs": "Call Us",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes",
+    "name": "Full Name",
+    "whatsapp": "WhatsApp Number",
+    "back": "Back",
+    "next": "Next",
+    "viewDetails": "View Details",
+    "requestNow": "Request Now",
+    "success": "Success",
+    "error": "Error"
+  },
+  "services": {
+    "flights": "Flight Tickets",
+    "hotels": "Hotel Reservations",
+    "egyptTours": "Egypt Tours",
+    "internationalTours": "International Tours",
+    "visas": "Visa Services",
+    "securityApprovals": "Security Approvals",
+    "hajj": "Hajj",
+    "umrah": "Umrah",
+    "transportation": "Tourist Transportation",
+    "customTours": "Custom Tours"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "workingHours": "Working Hours",
+    "workingDays": "Sunday – Thursday: 10:30 AM – 5:00 PM",
+    "offDays": "Friday & Saturday: Closed",
+    "onlineNote": "Online requests are accepted anytime"
+  },
+  "forms": {
+    "yourName": "Your Full Name",
+    "phoneWhatsApp": "Phone / WhatsApp",
+    "emailAddress": "Email Address",
+    "travelDate": "Travel Date",
+    "returnDate": "Return Date",
+    "adults": "Adults",
+    "children": "Children",
+    "infants": "Infants",
+    "notes": "Additional Notes",
+    "submitRequest": "Submit Request",
+    "requestSuccess": "Your request has been received!",
+    "referenceNumber": "Reference Number",
+    "successMessage": "We will contact you shortly. You can also reach us on WhatsApp to follow up on your request."
+  }
+}
