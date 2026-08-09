@@ -15,6 +15,18 @@ function getSecretKey(): string {
 }
 
 /**
+ * Constant-time string comparison to prevent timing attacks on HMAC signatures.
+ */
+function constantTimeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+/**
  * Web Crypto HMAC-SHA256 signature generator (Edge & Node.js compatible)
  */
 async function signBase64(base64Payload: string): Promise<string> {
@@ -46,7 +58,7 @@ export async function createSessionToken(payload: AdminUserPayload): Promise<str
 }
 
 /**
- * Decodes and verifies session token signature.
+ * Decodes and verifies session token signature using constant-time comparison.
  */
 export async function verifySessionToken(token: string): Promise<AdminUserPayload | null> {
   try {
@@ -56,7 +68,7 @@ export async function verifySessionToken(token: string): Promise<AdminUserPayloa
     if (!base64Payload || !signature) return null;
 
     const expectedSignature = await signBase64(base64Payload);
-    if (signature !== expectedSignature) return null;
+    if (!constantTimeCompare(signature, expectedSignature)) return null;
 
     const jsonString = Buffer.from(base64Payload, 'base64url').toString('utf-8');
     const payload = JSON.parse(jsonString) as AdminUserPayload;

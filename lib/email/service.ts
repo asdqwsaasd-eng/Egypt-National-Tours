@@ -4,6 +4,18 @@ import {
   EmailResult,
 } from './adapter';
 
+/**
+ * Escapes HTML entities to prevent HTML injection in email clients.
+ */
+function escapeHtml(str: string): string {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export class EmailNotificationServiceImpl implements EmailNotificationService {
   private provider: string;
   private apiKey: string;
@@ -19,14 +31,24 @@ export class EmailNotificationServiceImpl implements EmailNotificationService {
    * Format structured HTML email for notification recipient.
    */
   private formatHtmlEmail(params: RequestNotificationParams): string {
+    const safeRef = escapeHtml(params.reference);
+    const safeType = escapeHtml(params.requestType);
+    const safeName = escapeHtml(params.customerName);
+    const safeEmail = escapeHtml(params.customerEmail);
+    const safePhone = escapeHtml(params.customerPhone);
+    const safeTimestamp = escapeHtml(params.timestamp);
+
     const detailsRows = Object.entries(params.details)
       .map(([key, val]) => {
+        const keyEscaped = escapeHtml(key);
         const valueString =
           typeof val === 'object' && val !== null ? JSON.stringify(val, null, 2) : String(val ?? '');
+        const valEscaped = escapeHtml(valueString);
+
         return `
           <tr>
-            <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: bold; background-color: #f9fafb;">${key}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">${valueString}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: bold; background-color: #f9fafb;">${keyEscaped}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">${valEscaped}</td>
           </tr>
         `;
       })
@@ -37,21 +59,21 @@ export class EmailNotificationServiceImpl implements EmailNotificationService {
       <html>
         <head>
           <meta charset="utf-8">
-          <title>New Service Request - ${params.reference}</title>
+          <title>New Service Request - ${safeRef}</title>
         </head>
         <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6; margin: 0; padding: 20px;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden;">
             <div style="background-color: #990000; color: #ffffff; padding: 20px; text-align: center;">
-              <h1 style="margin: 0; font-size: 20px;">New Request: ${params.reference}</h1>
-              <p style="margin: 5px 0 0 0; font-size: 14px;">Egypt National Tours — ${params.requestType.toUpperCase()}</p>
+              <h1 style="margin: 0; font-size: 20px;">New Request: ${safeRef}</h1>
+              <p style="margin: 5px 0 0 0; font-size: 14px;">Egypt National Tours — ${safeType.toUpperCase()}</p>
             </div>
             
             <div style="padding: 20px;">
               <h2 style="font-size: 16px; border-bottom: 2px solid #d4af37; padding-bottom: 5px; color: #990000;">Customer Contact Information</h2>
-              <p style="margin: 4px 0;"><strong>Name:</strong> ${params.customerName}</p>
-              <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${params.customerEmail}">${params.customerEmail}</a></p>
-              <p style="margin: 4px 0;"><strong>Phone / WhatsApp:</strong> ${params.customerPhone}</p>
-              <p style="margin: 4px 0;"><strong>Date:</strong> ${params.timestamp}</p>
+              <p style="margin: 4px 0;"><strong>Name:</strong> ${safeName}</p>
+              <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+              <p style="margin: 4px 0;"><strong>Phone / WhatsApp:</strong> ${safePhone}</p>
+              <p style="margin: 4px 0;"><strong>Date:</strong> ${safeTimestamp}</p>
 
               <h2 style="font-size: 16px; border-bottom: 2px solid #d4af37; padding-bottom: 5px; color: #990000; margin-top: 20px;">Request Payload Details</h2>
               <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
