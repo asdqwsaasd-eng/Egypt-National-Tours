@@ -1,12 +1,31 @@
 import * as React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
-import { Container, SectionHeader, LinkButton, Card, CardHeader, CardContent, CardFooter } from '@/components/ui';
+import { Container, SectionHeader, LinkButton, Card, CardContent, CardFooter } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
+import { generatePageMetadata } from '@/lib/seo/metadata';
 import { Compass, Moon } from 'lucide-react';
 
 interface HajjUmrahPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: HajjUmrahPageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  return generatePageMetadata({
+    title: isAr ? 'برامج الحج والعمرة والخدمات الدينية' : 'Hajj & Umrah Packages',
+    description: isAr
+      ? 'خدمات سياحة دينية متكاملة لضيوف الرحمن بإقامة مريحة في مكة المكرمة والمدينة المنورة.'
+      : 'Comprehensive religious travel packages and pilgrim care in Makkah and Madinah.',
+    locale,
+    path: '/hajj-umrah',
+  });
 }
 
 export default async function HajjUmrahPage({ params }: HajjUmrahPageProps) {

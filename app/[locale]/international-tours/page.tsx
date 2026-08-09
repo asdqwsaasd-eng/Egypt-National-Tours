@@ -1,12 +1,31 @@
 import * as React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { INTERNATIONAL_TOURS } from '@/lib/data/tours';
 import { Container, SectionHeader, TourCard, LinkButton } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
+import { generatePageMetadata } from '@/lib/seo/metadata';
 
 interface InternationalToursPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: InternationalToursPageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  return generatePageMetadata({
+    title: isAr ? 'برامج السياحة الدولية والرحلات الخارجية' : 'International Tour Packages',
+    description: isAr
+      ? 'استكشف أجمل الوجهات السياحية العالمية والرحلات الخارجية المنظمة من إيجيبت ناشيونال تورز.'
+      : 'Explore international holiday packages and outbound tours around the world with Egypt National Tours.',
+    locale,
+    path: '/international-tours',
+  });
 }
 
 export default async function InternationalToursPage({ params }: InternationalToursPageProps) {
