@@ -1,6 +1,7 @@
 import * as React from 'react';
+import Link from 'next/link';
 import { SectionHeader, Badge } from '@/components/ui';
-import { Eye } from 'lucide-react';
+import { Edit, Eye } from 'lucide-react';
 
 export default function AdminServicesPage() {
   const services = [
@@ -48,11 +49,18 @@ export default function AdminServicesPage() {
                 </td>
                 <td className="p-3.5 text-left">
                   <div className="inline-flex items-center gap-2">
+                    <Link
+                      href={`/admin/services/${srv.key}`}
+                      className="p-1.5 rounded-md bg-sand/60 hover:bg-sand text-text-primary transition-colors inline-block"
+                      title="تعديل الخدمة"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Link>
                     <a
                       href={`/ar/services/${srv.slug.replace('services/', '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-md bg-sand/60 hover:bg-sand text-text-primary transition-colors"
+                      className="p-1.5 rounded-md bg-sand/60 hover:bg-sand text-text-primary transition-colors inline-block"
                       title="معاينة بالموقع"
                     >
                       <Eye className="h-3.5 w-3.5" />

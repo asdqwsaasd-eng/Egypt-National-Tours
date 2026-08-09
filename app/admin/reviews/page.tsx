@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { SectionHeader, Badge } from '@/components/ui';
-import { Star, Info } from 'lucide-react';
+import Link from 'next/link';
+import { SectionHeader, Badge, Button } from '@/components/ui';
+import { Star, Info, Plus, Edit } from 'lucide-react';
 
 export default function AdminReviewsPage() {
   const reviews = [
@@ -28,12 +29,18 @@ export default function AdminReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <SectionHeader
           title="إدارة آراء وتقييمات العملاء"
           subtitle="مراجعة واعتماد آراء المسافرين وتصفية التعليقات الحقيقية"
           align="start"
         />
+        <Link href="/admin/reviews/new">
+          <Button variant="primary" size="md" className="shadow-md">
+            <Plus className="h-4 w-4 ml-1" />
+            إضافة تقييم جديد
+          </Button>
+        </Link>
       </div>
 
       <div className="p-4 rounded-xl bg-sand/60 border border-brand-gold/30 text-xs text-text-secondary flex items-start gap-2">
@@ -53,6 +60,7 @@ export default function AdminReviewsPage() {
               <th className="p-3.5">التعليق / الرأي</th>
               <th className="p-3.5">التاريخ</th>
               <th className="p-3.5">الحالة</th>
+              <th className="p-3.5 text-left">تعديل</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -70,6 +78,15 @@ export default function AdminReviewsPage() {
                 <td className="p-3.5 text-text-muted dir-ltr text-right">{rev.createdAt}</td>
                 <td className="p-3.5">
                   <Badge variant="gold">معتمد ومقبول</Badge>
+                </td>
+                <td className="p-3.5 text-left">
+                  <Link
+                    href={`/admin/reviews/${rev.id}`}
+                    className="p-1.5 rounded-md bg-sand/60 hover:bg-sand text-text-primary transition-colors inline-block"
+                    title="تعديل"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                  </Link>
                 </td>
               </tr>
             ))}
