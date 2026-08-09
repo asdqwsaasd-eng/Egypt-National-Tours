@@ -63,8 +63,11 @@ export async function loginAdminAction(payload: unknown): Promise<LoginActionRes
       }
     }
 
-    // Default Seed / Disconnected Fallback Account
-    if (!authenticatedAdmin) {
+    // Default Seed / Disconnected Fallback Account (Disabled in production unless ALLOW_DEFAULT_ADMIN === 'true')
+    const allowDefaultAdmin =
+      process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEFAULT_ADMIN === 'true';
+
+    if (!authenticatedAdmin && allowDefaultAdmin) {
       const defaultEmail = 'admin@egyptnationaltours.com';
       const defaultPass = 'Admin@ENT2026';
 
