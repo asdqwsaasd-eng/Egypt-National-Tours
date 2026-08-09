@@ -3,10 +3,10 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { INTERNATIONAL_TOURS } from '@/lib/data/tours';
-import { Container, SectionHeader, LinkButton, Badge } from '@/components/ui';
+import { Container, Badge } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
-import { Clock, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle } from 'lucide-react';
-import { CONTACT } from '@/lib/utils/constants';
+import { TourProgramRequestForm } from '@/components/forms';
+import { Clock, MapPin, CheckCircle2, XCircle } from 'lucide-react';
 
 interface InternationalTourDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -63,12 +63,6 @@ export default async function InternationalTourDetailPage({ params }: Internatio
                 <span>{tour.destinations[locale].join(', ')}</span>
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
-            <LinkButton href={`/${locale}/request?service=international_tour&tour=${tour.slug}`} variant="primary" size="lg">
-              {isAr ? 'اطلب هذه الرحلة' : 'Request This Tour'}
-            </LinkButton>
           </div>
         </div>
 
@@ -137,24 +131,31 @@ export default async function InternationalTourDetailPage({ params }: Internatio
                 </ul>
               </div>
             </section>
+
+            {/* Interactive Request Form */}
+            <div className="pt-4 border-t border-border">
+              <h2 className="text-2xl font-bold text-text-primary mb-6">
+                {isAr ? 'حجز هذه الرحلة الدولية' : 'Book International Tour'}
+              </h2>
+              <TourProgramRequestForm
+                locale={locale}
+                tourSlug={tour.slug}
+                tourTitle={tour.title[locale]}
+                tourType="international_tour"
+              />
+            </div>
           </div>
 
           <div className="lg:col-span-4">
             <div className="sticky top-24 bg-sand/60 p-6 rounded-[var(--radius-card)] border border-border flex flex-col gap-4">
               <h3 className="text-lg font-bold text-text-primary">
-                {isAr ? 'استفسار أو حجز الرحلة' : 'Tour Booking Assistance'}
+                {isAr ? 'استفسارات وحجوزات السفر' : 'Booking Assistance'}
               </h3>
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-text-secondary leading-relaxed">
                 {isAr
-                  ? 'يمكن إضافة أو استبدال الطيران والفنادق والجولات حسب ميزانيتك.'
+                  ? 'يمكن تعديل وتنسيق مواعيد المغادرة وفئات الفنادق حسب ميزانيتك.'
                   : 'Customize flight options and accommodation tiers with our advisors.'}
               </p>
-              <LinkButton href={`/${locale}/request?service=international_tour&tour=${tour.slug}`} variant="primary" size="lg" fullWidth>
-                {isAr ? 'اطلب هذه الرحلة الدولية' : 'Request International Tour'}
-              </LinkButton>
-              <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="md" fullWidth>
-                {isAr ? 'تواصل عبر واتساب' : 'Inquire via WhatsApp'}
-              </LinkButton>
             </div>
           </div>
         </div>

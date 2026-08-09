@@ -2,17 +2,17 @@ import * as React from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
-import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
-import { Container, SectionHeader, LinkButton, Badge } from '@/components/ui';
+import { FEATURED_EGYPT_TOURS, TourProgram } from '@/lib/data/tours';
+import { Container, Badge } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
-import { Clock, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle } from 'lucide-react';
-import { CONTACT } from '@/lib/utils/constants';
+import { TourProgramRequestForm } from '@/components/forms';
+import { Clock, MapPin, CheckCircle2, XCircle } from 'lucide-react';
 
-interface EgyptTourDetailPageProps {
+interface TourDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPageProps) {
+export default async function TourDetailPage({ params }: TourDetailPageProps) {
   const { locale: rawLocale, slug } = await params;
   if (!isValidLocale(rawLocale)) {
     notFound();
@@ -21,7 +21,7 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
   const locale = rawLocale as SupportedLocale;
   const isAr = locale === 'ar';
 
-  const tour = FEATURED_EGYPT_TOURS.find((t) => t.slug === slug);
+  const tour = FEATURED_EGYPT_TOURS.find((t: TourProgram) => t.slug === slug);
   if (!tour) {
     notFound();
   }
@@ -37,7 +37,6 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
           ]}
         />
 
-        {/* 1. Hero Image */}
         <div className="relative aspect-[21/9] w-full overflow-hidden rounded-[var(--radius-image)] border border-border shadow-md my-6 bg-sand">
           <Image
             src={tour.imageSrc}
@@ -49,7 +48,6 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
           />
         </div>
 
-        {/* 2. Title & Duration Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border mb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-text-primary mb-3">
@@ -66,31 +64,22 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
               </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
-            <LinkButton href={`/${locale}/request?service=egypt_tour&tour=${tour.slug}`} variant="primary" size="lg">
-              {isAr ? 'اطلب هذه الرحلة' : 'Request This Tour'}
-            </LinkButton>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Main Content (Overview, Itinerary, Inclusions) */}
           <div className="lg:col-span-8 space-y-12">
-            {/* Overview */}
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
-                {isAr ? 'نبذة عن البرنامج' : 'Tour Overview'}
+                {isAr ? 'نبذة عن الرحلة' : 'Tour Overview'}
               </h2>
               <p className="text-base text-text-secondary leading-relaxed">
                 {tour.overview[locale]}
               </p>
             </section>
 
-            {/* Daily Itinerary */}
             <section className="space-y-6">
               <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
-                {isAr ? 'خط السير اليومي' : 'Detailed Itinerary'}
+                {isAr ? 'برنامج الجولة اليومي' : 'Daily Itinerary'}
               </h2>
               <div className="space-y-4">
                 {tour.itinerary.map((dayItem) => (
@@ -111,16 +100,14 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
               </div>
             </section>
 
-            {/* Included & Excluded */}
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Included */}
               <div className="bg-success/5 border border-success/20 p-6 rounded-[var(--radius-card)] space-y-4">
                 <h3 className="text-lg font-bold text-success flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5" />
                   <span>{isAr ? 'الخدمات المشمولة' : "What's Included"}</span>
                 </h3>
                 <ul className="space-y-2 text-sm text-text-secondary">
-                  {tour.included[locale].map((inc, idx) => (
+                  {tour.included[locale].map((inc: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-success font-bold">✓</span>
                       <span>{inc}</span>
@@ -129,14 +116,13 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
                 </ul>
               </div>
 
-              {/* Excluded */}
               <div className="bg-error/5 border border-error/20 p-6 rounded-[var(--radius-card)] space-y-4">
                 <h3 className="text-lg font-bold text-error flex items-center gap-2">
                   <XCircle className="h-5 w-5" />
                   <span>{isAr ? 'غير مشمول' : "What's Excluded"}</span>
                 </h3>
                 <ul className="space-y-2 text-sm text-text-secondary">
-                  {tour.excluded[locale].map((exc, idx) => (
+                  {tour.excluded[locale].map((exc: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-error font-bold">✗</span>
                       <span>{exc}</span>
@@ -145,25 +131,31 @@ export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPag
                 </ul>
               </div>
             </section>
+
+            {/* Interactive Request Form */}
+            <div className="pt-4 border-t border-border">
+              <h2 className="text-2xl font-bold text-text-primary mb-6">
+                {isAr ? 'حجز هذه الجولة السياحية' : 'Book This Tour'}
+              </h2>
+              <TourProgramRequestForm
+                locale={locale}
+                tourSlug={tour.slug}
+                tourTitle={tour.title[locale]}
+                tourType="egypt_tour"
+              />
+            </div>
           </div>
 
-          {/* Sidebar CTA Box */}
           <div className="lg:col-span-4">
             <div className="sticky top-24 bg-sand/60 p-6 rounded-[var(--radius-card)] border border-border flex flex-col gap-4">
               <h3 className="text-lg font-bold text-text-primary">
-                {isAr ? 'هل تريد استفساراً أو تعديلاً على هذا البرنامج؟' : 'Have Questions About This Tour?'}
+                {isAr ? 'تأكيد الحجز والتعديل' : 'Tour Customization'}
               </h3>
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-text-secondary leading-relaxed">
                 {isAr
-                  ? 'يمكن لمستشارينا تخصيص الفنادق والمواعيد والمزارات حسب رغبتك.'
-                  : 'Our travel team can adapt hotels, dates, and sights according to your wishes.'}
+                  ? 'يمكن تعديل الفنادق أو إضافة ليالي إضافية في القاهرة أو الأقصر حسب ميزانيتك ورغبتك.'
+                  : 'Flight options, additional nights, and hotel upgrades can be tailored by our team.'}
               </p>
-              <LinkButton href={`/${locale}/request?service=egypt_tour&tour=${tour.slug}`} variant="primary" size="lg" fullWidth>
-                {isAr ? 'اطلب هذه الرحلة الآن' : 'Request This Tour'}
-              </LinkButton>
-              <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="md" fullWidth>
-                {isAr ? 'تواصل عبر واتساب' : 'Inquire via WhatsApp'}
-              </LinkButton>
             </div>
           </div>
         </div>
