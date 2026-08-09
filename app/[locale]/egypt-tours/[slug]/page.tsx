@@ -1,0 +1,173 @@
+import * as React from 'react';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
+import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
+import { Container, SectionHeader, LinkButton, Badge } from '@/components/ui';
+import { Breadcrumbs } from '@/components/layout';
+import { Clock, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle } from 'lucide-react';
+import { CONTACT } from '@/lib/utils/constants';
+
+interface EgyptTourDetailPageProps {
+  params: Promise<{ locale: string; slug: string }>;
+}
+
+export default async function EgyptTourDetailPage({ params }: EgyptTourDetailPageProps) {
+  const { locale: rawLocale, slug } = await params;
+  if (!isValidLocale(rawLocale)) {
+    notFound();
+  }
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  const tour = FEATURED_EGYPT_TOURS.find((t) => t.slug === slug);
+  if (!tour) {
+    notFound();
+  }
+
+  return (
+    <div className="py-8 pb-16">
+      <Container size="default">
+        <Breadcrumbs
+          locale={locale}
+          items={[
+            { label: isAr ? 'رحلات مصر' : 'Egypt Tours', href: `/${locale}/egypt-tours` },
+            { label: tour.title[locale] },
+          ]}
+        />
+
+        {/* 1. Hero Image */}
+        <div className="relative aspect-[21/9] w-full overflow-hidden rounded-[var(--radius-image)] border border-border shadow-md my-6 bg-sand">
+          <Image
+            src={tour.imageSrc}
+            alt={tour.imageAlt[locale]}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* 2. Title & Duration Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-text-primary mb-3">
+              {tour.title[locale]}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+              <Badge variant="gold" size="md" className="inline-flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-brand-red shrink-0" />
+                <span>{tour.duration[locale]}</span>
+              </Badge>
+              <div className="flex items-center gap-1 text-text-secondary">
+                <MapPin className="h-4 w-4 text-brand-red shrink-0" />
+                <span>{tour.destinations[locale].join(', ')}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
+            <LinkButton href={`/${locale}/request?service=egypt_tour&tour=${tour.slug}`} variant="primary" size="lg">
+              {isAr ? 'اطلب هذه الرحلة' : 'Request This Tour'}
+            </LinkButton>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Main Content (Overview, Itinerary, Inclusions) */}
+          <div className="lg:col-span-8 space-y-12">
+            {/* Overview */}
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
+                {isAr ? 'نبذة عن البرنامج' : 'Tour Overview'}
+              </h2>
+              <p className="text-base text-text-secondary leading-relaxed">
+                {tour.overview[locale]}
+              </p>
+            </section>
+
+            {/* Daily Itinerary */}
+            <section className="space-y-6">
+              <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
+                {isAr ? 'خط السير اليومي' : 'Detailed Itinerary'}
+              </h2>
+              <div className="space-y-4">
+                {tour.itinerary.map((dayItem) => (
+                  <div key={dayItem.day} className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="h-8 w-8 rounded-full bg-brand-gold-light text-brand-red font-bold flex items-center justify-center text-sm shrink-0">
+                        {dayItem.day}
+                      </span>
+                      <h3 className="text-lg font-bold text-text-primary">
+                        {dayItem.title[locale]}
+                      </h3>
+                    </div>
+                    <p className="text-sm text-text-secondary ps-11 leading-relaxed">
+                      {dayItem.description[locale]}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Included & Excluded */}
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Included */}
+              <div className="bg-success/5 border border-success/20 p-6 rounded-[var(--radius-card)] space-y-4">
+                <h3 className="text-lg font-bold text-success flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>{isAr ? 'الخدمات المشمولة' : "What's Included"}</span>
+                </h3>
+                <ul className="space-y-2 text-sm text-text-secondary">
+                  {tour.included[locale].map((inc, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-success font-bold">✓</span>
+                      <span>{inc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Excluded */}
+              <div className="bg-error/5 border border-error/20 p-6 rounded-[var(--radius-card)] space-y-4">
+                <h3 className="text-lg font-bold text-error flex items-center gap-2">
+                  <XCircle className="h-5 w-5" />
+                  <span>{isAr ? 'غير مشمول' : "What's Excluded"}</span>
+                </h3>
+                <ul className="space-y-2 text-sm text-text-secondary">
+                  {tour.excluded[locale].map((exc, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-error font-bold">✗</span>
+                      <span>{exc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          </div>
+
+          {/* Sidebar CTA Box */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 bg-sand/60 p-6 rounded-[var(--radius-card)] border border-border flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-text-primary">
+                {isAr ? 'هل تريد استفساراً أو تعديلاً على هذا البرنامج؟' : 'Have Questions About This Tour?'}
+              </h3>
+              <p className="text-sm text-text-secondary">
+                {isAr
+                  ? 'يمكن لمستشارينا تخصيص الفنادق والمواعيد والمزارات حسب رغبتك.'
+                  : 'Our travel team can adapt hotels, dates, and sights according to your wishes.'}
+              </p>
+              <LinkButton href={`/${locale}/request?service=egypt_tour&tour=${tour.slug}`} variant="primary" size="lg" fullWidth>
+                {isAr ? 'اطلب هذه الرحلة الآن' : 'Request This Tour'}
+              </LinkButton>
+              <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="md" fullWidth>
+                {isAr ? 'تواصل عبر واتساب' : 'Inquire via WhatsApp'}
+              </LinkButton>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+}
