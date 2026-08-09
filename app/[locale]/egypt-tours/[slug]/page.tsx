@@ -1,15 +1,34 @@
 import * as React from 'react';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { FEATURED_EGYPT_TOURS, TourProgram } from '@/lib/data/tours';
 import { Container, Badge } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { TourProgramRequestForm } from '@/components/forms';
+import { generatePageMetadata, generateTourSchema, generateBreadcrumbSchema } from '@/lib/seo/metadata';
 import { Clock, MapPin, CheckCircle2, XCircle } from 'lucide-react';
 
 interface TourDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
+}
+
+export async function generateMetadata({ params }: TourDetailPageProps): Promise<Metadata> {
+  const { locale: rawLocale, slug } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const tour = FEATURED_EGYPT_TOURS.find((t) => t.slug === slug);
+  if (!tour) return {};
+
+  return generatePageMetadata({
+    title: tour.title[locale],
+    description: tour.summary[locale],
+    locale,
+    path: `/egypt-tours/${slug}`,
+    ogImage: tour.imageSrc,
+  });
 }
 
 export default async function TourDetailPage({ params }: TourDetailPageProps) {
@@ -25,6 +44,11 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   if (!tour) {
     notFound();
   }
+
+  const breadcrumbItems = [
+    { name: isAr ? 'رحلات مصر' : 'Egypt Tours', path: `/${locale}/egypt-tours` },
+    { name: tour.title[locale], path: `/${locale}/egypt-tours/${slug}` },
+  ];
 
   return (
     <div className="py-8 pb-16">
@@ -160,6 +184,27 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
           </div>
         </div>
       </Container>
+
+      {/* Schema.org Structured Data Scripts */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateTourSchema({
+              name: tour.title[locale],
+              description: tour.overview[locale],
+              url: `http://localhost:3000/${locale}/egypt-tours/${slug}`,
+              image: tour.imageSrc,
+            })
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateBreadcrumbSchema(breadcrumbItems)),
+        }}
+      />
     </div>
   );
 }

@@ -26,8 +26,6 @@ export function generatePageMetadata({
 }: PageMetadataOptions): Metadata {
   const fullTitle = `${title} | ${COMPANY.name[locale]}`;
   const canonicalUrl = `${siteUrl}/${locale}${path}`;
-  const alternateLang = locale === "ar" ? "en" : "ar";
-  const alternateUrl = `${siteUrl}/${alternateLang}${path}`;
 
   return {
     title: fullTitle,
@@ -90,5 +88,56 @@ export function generateOrganizationSchema() {
       },
     ],
     sameAs: [CONTACT.facebook],
+  };
+}
+
+/**
+ * Generate BreadcrumbList structured data (Schema.org BreadcrumbList).
+ */
+export function generateBreadcrumbSchema(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: item.name,
+      item: `${siteUrl}${item.path}`,
+    })),
+  };
+}
+
+/**
+ * Generate Tour/TouristAttraction structured data (Schema.org TouristAttraction & Offer).
+ */
+export function generateTourSchema(tour: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  category?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name: tour.name,
+    description: tour.description,
+    url: tour.url,
+    ...(tour.image && { image: tour.image }),
+    provider: {
+      "@type": "TravelAgency",
+      name: COMPANY.name.en,
+      url: siteUrl,
+    },
+    offers: {
+      "@type": "Offer",
+      availability: "https://schema.org/InStock",
+      url: tour.url,
+      priceCurrency: "USD",
+      seller: {
+        "@type": "TravelAgency",
+        name: COMPANY.name.en,
+      },
+    },
   };
 }

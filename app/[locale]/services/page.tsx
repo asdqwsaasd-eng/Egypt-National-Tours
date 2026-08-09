@@ -1,13 +1,32 @@
 import * as React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
 import { Container, SectionHeader, ServiceCard } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
+import { generatePageMetadata } from '@/lib/seo/metadata';
 import { Plane } from 'lucide-react';
 
 interface ServicesPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: ServicesPageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  return generatePageMetadata({
+    title: isAr ? 'خدمات السفر والسياحة الشاملة' : 'Travel & Tourism Services',
+    description: isAr
+      ? 'خدمات الطيران، الفنادق، التأشيرات، الموافقات الأمنية، رحلات مصر، السياحة الدولية، وبرامج الحج والعمرة.'
+      : 'Flight bookings, hotel reservations, visa services, security clearance, Egypt tours, international travel, and Hajj & Umrah packages.',
+    locale,
+    path: '/services',
+  });
 }
 
 export default async function ServicesPage({ params }: ServicesPageProps) {

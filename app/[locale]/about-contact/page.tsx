@@ -1,13 +1,32 @@
 import * as React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { COMPANY, CONTACT } from '@/lib/utils/constants';
 import { Container, SectionHeader, LinkButton, InfoCard } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
+import { generatePageMetadata } from '@/lib/seo/metadata';
 import { Award, Phone, Mail, MapPin, Clock, MessageCircle, ExternalLink, ShieldCheck } from 'lucide-react';
 
 interface AboutContactPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: AboutContactPageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  return generatePageMetadata({
+    title: isAr ? 'من نحن والاتصال' : 'About Us & Contact',
+    description: isAr
+      ? 'شركة إيجيبت ناشيونال تورز - شركة سياحة وسفر مرخصة منذ 1990 بجمهورية مصر العربية والولايات المتحدة الأمريكية.'
+      : 'Egypt National Tours - Travel and tourism company licensed since 1990 in Egypt & USA.',
+    locale,
+    path: '/about-contact',
+  });
 }
 
 export default async function AboutContactPage({ params }: AboutContactPageProps) {
@@ -63,7 +82,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
                   title={isAr ? 'استشارات سياحية' : 'Expert Consultancy'}
                   description={
                     isAr
-                      ? 'تقديم أفضل الحلول والخيارات المناسبة لميزانيتك واحتياجاتك.'
+                      ? 'تقديم أفضل الحلول والخيارات المناسبة لميزانيتك وااحتياجاتك.'
                       : 'Providing tailored recommendations to suit your exact budget and preferences.'
                   }
                 />

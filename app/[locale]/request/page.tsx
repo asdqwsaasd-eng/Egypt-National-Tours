@@ -1,16 +1,35 @@
 import * as React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
-import { Container, SectionHeader, Card, CardContent } from '@/components/ui';
+import { Container, SectionHeader } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { GeneralRequestForm } from '@/components/forms';
+import { generatePageMetadata } from '@/lib/seo/metadata';
 import { Plane, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface GeneralRequestPageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ service?: string; tour?: string }>;
+}
+
+export async function generateMetadata({ params }: GeneralRequestPageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+
+  const locale = rawLocale as SupportedLocale;
+  const isAr = locale === 'ar';
+
+  return generatePageMetadata({
+    title: isAr ? 'مركز طلب الخدمات والحجوزات' : 'Universal Request Center',
+    description: isAr
+      ? 'نموذج طلب خدمات السفر والسياحة الشامل - إيجيبت ناشيونال تورز.'
+      : 'Comprehensive trip and travel request entry portal - Egypt National Tours.',
+    locale,
+    path: '/request',
+  });
 }
 
 export default async function GeneralRequestPage({ params, searchParams }: GeneralRequestPageProps) {
@@ -23,7 +42,6 @@ export default async function GeneralRequestPage({ params, searchParams }: Gener
 
   const locale = rawLocale as SupportedLocale;
   const isAr = locale === 'ar';
-  const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
   const currentService = queryService || 'flights';
 
