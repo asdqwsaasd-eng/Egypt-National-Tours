@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isValidLocale, localeDirection, locales } from "@/lib/i18n/config";
+import { isValidLocale, localeDirection, locales, SupportedLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { cairoFont, interFont } from "@/lib/utils/fonts";
 import { COMPANY } from "@/lib/utils/constants";
 import { generateOrganizationSchema } from "@/lib/seo/metadata";
+import { Header, Footer, WhatsAppFloatingButton } from "@/components/layout";
+import { ToastProvider } from "@/components/ui";
 import "@/app/globals.css";
 
 export function generateStaticParams() {
@@ -20,10 +23,10 @@ export async function generateMetadata({
 
   return {
     title: {
-      default: COMPANY.name[locale],
-      template: `%s | ${COMPANY.name[locale]}`,
+      default: `${COMPANY.name[locale as SupportedLocale]} | ${COMPANY.tagline[locale as SupportedLocale]}`,
+      template: `%s | ${COMPANY.name[locale as SupportedLocale]}`,
     },
-    description: COMPANY.tagline[locale],
+    description: `${COMPANY.tagline[locale as SupportedLocale]} — ${COMPANY.license[locale as SupportedLocale]}`,
   };
 }
 
@@ -40,16 +43,23 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const dir = localeDirection[locale];
+  const validLocale = locale as SupportedLocale;
+  const dict = await getDictionary(validLocale);
+  const dir = localeDirection[validLocale];
   const fontClass =
-    locale === "ar"
+    validLocale === "ar"
       ? `${cairoFont.variable} ${interFont.variable}`
       : `${interFont.variable} ${cairoFont.variable}`;
 
   return (
-    <html lang={locale} dir={dir} className={fontClass}>
-      <body className="antialiased">
-        {children}
+    <html lang={validLocale} dir={dir} className={fontClass}>
+      <body className="antialiased flex flex-col min-h-screen bg-white text-text-primary">
+        <ToastProvider>
+          <Header locale={validLocale} dictionary={dict.nav} />
+          <main className="flex-1">{children}</main>
+          <Footer locale={validLocale} dictionary={dict.footer} />
+          <WhatsAppFloatingButton locale={validLocale} />
+        </ToastProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -60,4 +70,3 @@ export default async function LocaleLayout({
     </html>
   );
 }
-
