@@ -4,13 +4,21 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
+function createPrismaClient(): PrismaClient {
+  try {
+    return new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    });
+  } catch (err) {
+    // Return dummy object if Prisma constructor fails when database URL is unconfigured placeholder
+    return {} as PrismaClient;
+  }
+}
 
-if (process.env.NODE_ENV !== 'production') {
+export const prisma =
+  globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== 'production' && prisma && 'adminUser' in prisma) {
   globalForPrisma.prisma = prisma;
 }
 
@@ -19,7 +27,9 @@ if (process.env.NODE_ENV !== 'production') {
  */
 export async function isDatabaseConnected(): Promise<boolean> {
   try {
-    // Quick lightweight query to test connection
+    if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('placeholder')) {
+      return false;
+    }
     await prisma.$queryRaw`SELECT 1`;
     return true;
   } catch (error) {

@@ -5,13 +5,13 @@ import { ADMIN_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ─── ADMIN ROUTE SECURITY GUARD ───
   if (pathname.startsWith('/admin')) {
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME);
-    const session = sessionCookie?.value ? verifySessionToken(sessionCookie.value) : null;
+    const session = sessionCookie?.value ? await verifySessionToken(sessionCookie.value) : null;
     const isLoginPage = pathname === '/admin/login';
 
     if (isLoginPage) {

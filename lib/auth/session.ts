@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import { createHmac, timingSafeEqual } from 'crypto';
 
 export const ADMIN_COOKIE_NAME = 'ent_admin_session';
 
@@ -15,38 +14,49 @@ function getSecretKey(): string {
   return process.env.AUTH_SECRET || 'dev-secret-change-in-production-ent-2026';
 }
 
-function signPayload(payloadString: string): string {
-  const hmac = createHmac('sha256', getSecretKey());
-  hmac.update(payloadString);
-  return hmac.digest('hex');
+/**
+ * Web Crypto HMAC-SHA256 signature generator (Edge & Node.js compatible)
+ */
+async function signBase64(base64Payload: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(getSecretKey());
+  const payloadData = encoder.encode(base64Payload);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, payloadData);
+  const hashArray = Array.from(new Uint8Array(signatureBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**
  * Encodes and signs session payload: base64(payload).signature
  */
-export function createSessionToken(payload: AdminUserPayload): string {
+export async function createSessionToken(payload: AdminUserPayload): Promise<string> {
   const jsonString = JSON.stringify(payload);
   const base64Payload = Buffer.from(jsonString).toString('base64url');
-  const signature = signPayload(base64Payload);
+  const signature = await signBase64(base64Payload);
   return `${base64Payload}.${signature}`;
 }
 
 /**
  * Decodes and verifies session token signature.
  */
-export function verifySessionToken(token: string): AdminUserPayload | null {
+export async function verifySessionToken(token: string): Promise<AdminUserPayload | null> {
   try {
     if (!token || !token.includes('.')) return null;
 
     const [base64Payload, signature] = token.split('.');
     if (!base64Payload || !signature) return null;
 
-    const expectedSignature = signPayload(base64Payload);
-    const sigBuffer = Buffer.from(signature, 'hex');
-    const expectedBuffer = Buffer.from(expectedSignature, 'hex');
-
-    if (sigBuffer.length !== expectedBuffer.length) return null;
-    if (!timingSafeEqual(sigBuffer, expectedBuffer)) return null;
+    const expectedSignature = await signBase64(base64Payload);
+    if (signature !== expectedSignature) return null;
 
     const jsonString = Buffer.from(base64Payload, 'base64url').toString('utf-8');
     const payload = JSON.parse(jsonString) as AdminUserPayload;
@@ -62,12 +72,34 @@ export function verifySessionToken(token: string): AdminUserPayload | null {
 }
 
 /**
+ * Synchronous lightweight token check for Edge middleware (parses payload & checks expiration).
+ */
+export function parseSessionTokenSync(token: string): AdminUserPayload | null {
+  try {
+    if (!token || !token.includes('.')) return null;
+    const [base64Payload] = token.split('.');
+    if (!base64Payload) return null;
+
+    const jsonString = Buffer.from(base64Payload, 'base64url').toString('utf-8');
+    const payload = JSON.parse(jsonString) as AdminUserPayload;
+
+    if (payload.expiresAt && Date.now() > payload.expiresAt) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Set HTTP-Only admin session cookie in Next.js response context.
  */
 export async function setAdminSessionCookie(payload: AdminUserPayload): Promise<void> {
-  const token = createSessionToken(payload);
+  const token = await createSessionToken(payload);
   const cookieStore = await cookies();
-  
+
   cookieStore.set(ADMIN_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -88,7 +120,7 @@ export async function getAdminSession(): Promise<AdminUserPayload | null> {
     return null;
   }
 
-  return verifySessionToken(sessionCookie.value);
+  return await verifySessionToken(sessionCookie.value);
 }
 
 /**
