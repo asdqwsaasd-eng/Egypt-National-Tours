@@ -16,8 +16,8 @@ Every public page specified in the approved sitemap has been built using the Pha
 **Key Verification Highlights:**
 - **31 public routes generated** across Arabic (`/ar/`) and English (`/en/`)
 - **0 TypeScript errors** (`npm run type-check` passed)
-- **Production Build: PASSED** (`npm run build` compiled in 841ms)
-- **Truthful Content Policy Uheld:** 0 fake prices, 0 fake reviews (all demo reviews marked `isDemo: true`), 0 invented company claims.
+- **Production Build: PASSED** (`npm run build` compiled in 682ms)
+- **Truthful Content Policy Strict Compliance:** 0 fake prices, 0 fake customer reviews rendered on public UI (Section 6 updated to a clean traveler feedback CMS placeholder state; `ReviewCard` component remains ready for live CMS reviews).
 - **RTL / LTR:** Fully supported (`/ar/` uses `dir="rtl"` with Cairo font, `/en/` uses `dir="ltr"` with Inter font).
 - **Secrets Audit:** PASSED (no secrets or `.env.local` tracked).
 
@@ -27,7 +27,7 @@ Every public page specified in the approved sitemap has been built using the Pha
 
 | # | Route | Purpose & Specifications | Status |
 |---|-------|--------------------------|--------|
-| 1 | `/[locale]/` | **Homepage:** 7 sections (Hero, Main Services, Quick Request Navigator, Featured Egypt Tours, Why Us, Customer Impressions with `isDemo: true`, Final CTA). | ✅ SSG |
+| 1 | `/[locale]/` | **Homepage:** 7 sections (Hero, Main Services, Quick Request Navigator, Featured Egypt Tours, Why Us, Traveler Feedback CMS Placeholder, Final CTA). | ✅ SSG |
 | 2 | `/[locale]/services` | **Services Overview:** 5 service categories (Travel, Tours, Visas & Clearance, Religious, Ground Services). | ✅ SSG |
 | 3 | `/[locale]/services/flights` | **Flight Service Page:** Flight ticketing assistance (One Way, Round Trip, Multi-City per Decision 004). | ✅ SSG |
 | 4 | `/[locale]/services/hotels` | **Hotel Service Page:** Hotel booking details (3, 4, 5 Stars per Decision 002; Room Only, Breakfast, Half Board, Soft All Inclusive per Decision 003). | ✅ SSG |
@@ -52,7 +52,7 @@ Every public page specified in the approved sitemap has been built using the Pha
 
 - `lib/data/services.ts`: 10 service categories mapped with bilingual titles, descriptions, icons, and route slugs.
 - `lib/data/tours.ts`: Egypt & International tour programs with itineraries, inclusions, exclusions, and overview (no fake prices).
-- `lib/data/reviews.ts`: Featured reviews with explicit `isDemo: true` flag.
+- `lib/data/reviews.ts`: Featured reviews with explicit `isDemo: true` flag (reserved for CMS backend).
 
 ---
 
@@ -61,7 +61,7 @@ Every public page specified in the approved sitemap has been built using the Pha
 | Test | Command | Status | Result |
 |------|---------|--------|--------|
 | TypeScript Type-check | `npm run type-check` | **PASSED** ✅ | 0 compilation errors |
-| Next.js Build | `npm run build` | **PASSED** ✅ | 31 routes compiled in 841ms |
+| Next.js Build | `npm run build` | **PASSED** ✅ | 31 routes compiled in 682ms |
 | Prisma Validation | `npx prisma validate` | **PASSED** ✅ | Schema valid (21 PostgreSQL models) |
 | Secrets Audit | `git status` | **PASSED** ✅ | 0 secrets or credentials tracked |
 | Arabic / RTL (`/ar/`) | Next.js SSG build | **PASSED** ✅ | Generated static HTML (`dir="rtl"`) |
@@ -72,7 +72,7 @@ Every public page specified in the approved sitemap has been built using the Pha
 ## 5. Business & Design Compliance
 
 - ✅ **Sacred Logo:** Official logo used without recoloring, stretching, or modification.
-- ✅ **Truthful Content Policy:** No fake prices invented; reviews explicitly flagged with `isDemo: true`.
+- ✅ **Truthful Content Policy:** 0 fake prices invented; public Homepage demo reviews removed in favor of a clean CMS feedback placeholder.
 - ✅ **Decision 002 (Hotel Stars):** 3, 4, 5 Stars supported exclusively.
 - ✅ **Decision 003 (Meal Plans):** Room Only, Breakfast, Half Board, Soft All Inclusive supported exclusively.
 - ✅ **Decision 004 (Flight Trip Types):** One Way, Round Trip, Multi-City supported.

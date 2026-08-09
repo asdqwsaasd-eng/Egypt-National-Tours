@@ -7,18 +7,15 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { COMPANY, CONTACT } from '@/lib/utils/constants';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
 import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
-import { FEATURED_REVIEWS } from '@/lib/data/reviews';
 import {
   Container,
   SectionHeader,
-  Button,
   LinkButton,
   ServiceCard,
   TourCard,
-  ReviewCard,
   InfoCard,
 } from '@/components/ui';
-import { Plane, Building2, ShieldCheck, Award, MapPin, Compass, PhoneCall } from 'lucide-react';
+import { Plane, Award, MapPin, Compass, ShieldCheck, MessageSquarePlus } from 'lucide-react';
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -38,7 +35,6 @@ export default async function HomePage({ params }: HomePageProps) {
     <div className="flex flex-col gap-16 md:gap-24 pb-16">
       {/* ─── 1. HERO SECTION ─── */}
       <section className="relative overflow-hidden bg-cream py-16 md:py-24 border-b border-border">
-        {/* Subtle background overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-brand-gold-light/20 via-transparent to-sand/40 opacity-75" />
         
         <Container size="default" className="relative z-10">
@@ -94,7 +90,6 @@ export default async function HomePage({ params }: HomePageProps) {
                   priority
                 />
               </div>
-              {/* Badge overlay */}
               <div className="absolute -bottom-4 -start-4 bg-white p-4 rounded-[var(--radius-card)] shadow-lg border border-border flex items-center gap-3 max-w-xs">
                 <div className="h-10 w-10 rounded-full bg-brand-gold-light flex items-center justify-center text-brand-red font-bold shrink-0">
                   35+
@@ -120,7 +115,7 @@ export default async function HomePage({ params }: HomePageProps) {
             title={dict.services.egyptTours === 'Egypt Tours' ? 'Our Services' : 'خدماتنا المميزة'}
             subtitle={
               isAr
-                ? 'نقدم مجموعة كاملة من خدمات السفر والسياحة وتسهيلات الدخول والإقامة.'
+                ? 'نقدم لكم مجموعة كاملة من خدمات السفر والسياحة وتسهيلات الدخول والإقامة.'
                 : 'A comprehensive suite of tourism, booking, visa, and entry assistance services.'
             }
             align="center"
@@ -265,31 +260,21 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ─── 6. FEATURED REVIEWS (Flagged as Demo) ─── */}
+      {/* ─── 6. CUSTOMER FEEDBACK & REVIEWS PLACEHOLDER ─── */}
       <section className="bg-cream py-16 border-y border-border">
         <Container size="default">
-          <SectionHeader
-            title={isAr ? 'آراء وانطباعات العملاء' : 'Customer Impressions'}
-            subtitle={
-              isAr
-                ? 'نماذج وتجارب تعكس حرصنا على الجودة والاهتمام بكل مسافر.'
-                : 'Sample feedback illustrating our commitment to quality service.'
-            }
-            align="center"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FEATURED_REVIEWS.map((rev) => (
-              <ReviewCard
-                key={rev.id}
-                customerName={rev.customerName}
-                rating={rev.rating}
-                reviewText={rev.reviewText[locale]}
-                country={rev.country?.[locale]}
-                date={rev.date}
-                isDemo={rev.isDemo}
-              />
-            ))}
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <div className="h-12 w-12 rounded-full bg-brand-gold-light text-brand-red mx-auto flex items-center justify-center">
+              <MessageSquarePlus className="h-6 w-6" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-text-primary">
+              {isAr ? 'آراء وانطباعات المسافرين' : 'Traveler Feedback'}
+            </h2>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {isAr
+                ? 'نعمل حالياً على تجميع وآراء وانطباعات مسافرينا الكرام لنشر التقييمات المعتمدة عبر نظام إدارة المحتوى المباشر.'
+                : 'We are compiling verified traveler reviews to be published via our live CMS.'}
+            </p>
           </div>
         </Container>
       </section>
