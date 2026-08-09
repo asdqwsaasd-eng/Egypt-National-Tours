@@ -12,6 +12,9 @@ import {
   tourProgramRequestSchema,
   generalRequestSchema,
 } from '@/lib/validation/forms';
+import { saveRequestToDatabase, updateRequestNotificationStatus } from '@/lib/db/request-repository';
+import { emailNotificationService } from '@/lib/email/service';
+import { RequestType } from '@prisma/client';
 import { ZodError } from 'zod';
 
 export interface ActionResponse {
@@ -19,6 +22,7 @@ export interface ActionResponse {
   reference?: string;
   errors?: Record<string, string[]>;
   message?: string;
+  notificationSent?: boolean;
 }
 
 /**
@@ -46,7 +50,36 @@ function formatZodErrors(error: ZodError): Record<string, string[]> {
 }
 
 /**
- * Server action to process and validate any service request submission.
+ * Map client payload requestType to Prisma RequestType enum
+ */
+function mapToPrismaRequestType(rawType: string): RequestType {
+  switch (rawType) {
+    case 'flight':
+      return 'flight';
+    case 'hotel':
+      return 'hotel';
+    case 'custom_tour':
+    case 'egypt_tour':
+      return 'egypt_tour';
+    case 'international_tour':
+      return 'international_tour';
+    case 'visa':
+      return 'visa';
+    case 'security_approval':
+      return 'security_approval';
+    case 'hajj':
+      return 'hajj';
+    case 'umrah':
+      return 'umrah';
+    case 'transportation':
+      return 'transportation';
+    default:
+      return 'general';
+  }
+}
+
+/**
+ * Server action to process and validate any service request submission (Phase 6 Pipeline).
  */
 export async function submitRequestAction(payload: any): Promise<ActionResponse> {
   try {
@@ -57,7 +90,7 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
       };
     }
 
-    // Select validation schema based on request type
+    // 1. Execute Zod validation on server side
     let validatedData: any;
 
     switch (payload.requestType) {
@@ -92,13 +125,56 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
         break;
     }
 
-    // Generate unique server-side reference number
-    const reference = await generateRequestReference();
+    // 2. Map request type & attempt PostgreSQL database persistence
+    const prismaRequestType = mapToPrismaRequestType(validatedData.requestType);
+    const dbResult = await saveRequestToDatabase({
+      requestType: prismaRequestType,
+      customer: validatedData.customer,
+      details: validatedData,
+      locale: validatedData.locale,
+    });
 
-    // Return successful response with reference number
+    const reference = dbResult.reference;
+
+    // 3. Attempt email notification dispatch asynchronously
+    let notificationSent = false;
+    try {
+      const emailResult = await emailNotificationService.sendRequestNotification({
+        reference,
+        requestType: validatedData.requestType,
+        customerName: validatedData.customer.fullName,
+        customerEmail: validatedData.customer.email,
+        customerPhone: validatedData.customer.phone,
+        details: validatedData,
+        timestamp: new Date().toISOString(),
+      });
+
+      notificationSent = emailResult.success;
+
+      // 4. Update notification status in DB if record exists
+      if (dbResult.requestId) {
+        await updateRequestNotificationStatus(
+          dbResult.requestId,
+          emailResult.status,
+          emailResult.error
+        );
+      }
+    } catch (emailErr: any) {
+      console.error('[SubmitRequestAction] Email dispatch caught error:', emailErr);
+      if (dbResult.requestId) {
+        await updateRequestNotificationStatus(
+          dbResult.requestId,
+          'failed',
+          emailErr.message || 'Email dispatch failed'
+        );
+      }
+    }
+
+    // 5. Return safe success response with reference number
     return {
       success: true,
       reference,
+      notificationSent,
       message: 'تم استلام طلبكم بنجاح / Request received successfully',
     };
   } catch (err: any) {
@@ -112,7 +188,7 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
 
     return {
       success: false,
-      message: err.message || 'حدث خطأ غير متوقع عند معالجة الطلب / Unexpected error occurred',
+      message: 'حدث خطأ عند معالجة الطلب / Unexpected error occurred',
     };
   }
 }
