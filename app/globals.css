@@ -69,3 +69,54 @@
     }
   }
 }
+
+/* ─── Overlay & Feedback Keyframe Animations ─── */
+@keyframes slideInFromEnd {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromEndRtl {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+
+.slide-in-from-end {
+  animation-name: slideInFromEnd;
+}
+
+[dir="rtl"] .slide-in-from-end {
+  animation-name: slideInFromEndRtl;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
