@@ -25,7 +25,7 @@ export async function updateAdminRequestStatusAction(
     }
 
     const connected = await isDatabaseConnected();
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         message: 'تم تحديث حالة الطلب في وضع المعايرة (Offline Mode)',
@@ -98,7 +98,7 @@ export async function addAdminRequestNoteAction(
     }
 
     const connected = await isDatabaseConnected();
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         message: 'تم إضافة الملاحظة في وضع المعايرة (Offline Mode)',

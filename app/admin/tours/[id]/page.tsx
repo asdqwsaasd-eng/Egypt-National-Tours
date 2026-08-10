@@ -17,7 +17,7 @@ export default async function AdminEditTourPage({ params }: EditTourPageProps) {
 
   let tourData: any = null;
 
-  if (connected) {
+  if (connected && prisma) {
     tourData = await prisma.tour.findUnique({
       where: { id },
       include: { destinations: true, days: true },

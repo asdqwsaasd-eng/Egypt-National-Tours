@@ -35,7 +35,7 @@ export async function saveRequestToDatabase(
 
   // 2. Check if PostgreSQL database is reachable
   const connected = await isDatabaseConnected();
-  if (!connected) {
+  if (!connected || !prisma) {
     console.warn(`[RequestRepository] Database disconnected or unreachable. Skipping DB save for ref ${reference}`);
     return {
       success: false,
@@ -148,7 +148,7 @@ export async function updateRequestNotificationStatus(
 ): Promise<void> {
   try {
     const connected = await isDatabaseConnected();
-    if (!connected || !requestId) return;
+    if (!connected || !requestId || !prisma) return;
 
     await prisma.request.update({
       where: { id: requestId },

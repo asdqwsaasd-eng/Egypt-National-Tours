@@ -45,7 +45,7 @@ export async function updateServiceAction(id: string, payload: unknown): Promise
     const data = parseResult.data;
     const connected = await isDatabaseConnected();
 
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         serviceId: id,

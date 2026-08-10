@@ -16,7 +16,7 @@ export default async function AdminEditServicePage({ params }: EditServicePagePr
 
   let serviceData: any = null;
 
-  if (connected) {
+  if (connected && prisma) {
     serviceData = await prisma.service.findUnique({
       where: { id },
     });

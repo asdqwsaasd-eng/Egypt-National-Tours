@@ -1,40 +1,36 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: PrismaClient | null | undefined;
 };
 
-function createPrismaClient(): PrismaClient {
+function createPrismaClient(): PrismaClient | null {
+  const connectionString = process.env.DATABASE_URL;
+
+  // If DATABASE_URL is missing or a local placeholder, return null safely
+  if (!connectionString || connectionString.includes('placeholder')) {
+    return null;
+  }
+
   try {
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
     return new PrismaClient({
+      adapter,
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     });
   } catch (err: any) {
-    console.error('[Prisma] Failed to instantiate PrismaClient:', err?.message || err);
-    
-    // Return a safe Proxy fallback so offline builds don't crash with TypeErrors on dummy calls
-    return new Proxy({} as PrismaClient, {
-      get(_target, prop) {
-        if (prop === '$queryRaw' || prop === '$transaction' || prop === '$executeRaw') {
-          return async () => {
-            throw new Error('PRISMA_CLIENT_NOT_INITIALIZED');
-          };
-        }
-        return new Proxy({}, {
-          get() {
-            return async () => {
-              throw new Error('PRISMA_CLIENT_NOT_INITIALIZED');
-            };
-          },
-        });
-      },
-    });
+    console.error('[Prisma] Failed to instantiate PrismaClient with Pg adapter:', err?.message || err);
+    return null;
   }
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+export const prisma =
+  globalForPrisma.prisma !== undefined ? globalForPrisma.prisma : createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production' && prisma && 'adminUser' in prisma) {
+if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
@@ -43,7 +39,7 @@ if (process.env.NODE_ENV !== 'production' && prisma && 'adminUser' in prisma) {
  */
 export async function isDatabaseConnected(): Promise<boolean> {
   try {
-    if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('placeholder')) {
+    if (!prisma) {
       return false;
     }
     await prisma.$queryRaw`SELECT 1`;

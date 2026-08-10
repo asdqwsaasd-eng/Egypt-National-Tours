@@ -64,7 +64,7 @@ export async function createTourAction(payload: unknown): Promise<TourActionResu
     const data = parseResult.data;
     const connected = await isDatabaseConnected();
 
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         tourId: 'tour-offline-demo',
@@ -158,7 +158,7 @@ export async function updateTourAction(id: string, payload: unknown): Promise<To
     const data = parseResult.data;
     const connected = await isDatabaseConnected();
 
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         tourId: id,
@@ -247,7 +247,7 @@ export async function deleteTourAction(id: string): Promise<TourActionResult> {
     }
 
     const connected = await isDatabaseConnected();
-    if (connected) {
+    if (connected && prisma) {
       await prisma.tour.delete({ where: { id } });
     }
 

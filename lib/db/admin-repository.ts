@@ -111,7 +111,7 @@ const SAMPLE_ADMIN_REQUESTS: AdminRequestItem[] = [
 export async function getAdminRequests(filter: AdminRequestFilter = {}) {
   const connected = await isDatabaseConnected();
 
-  if (!connected) {
+  if (!connected || !prisma) {
     let list = [...SAMPLE_ADMIN_REQUESTS];
 
     if (filter.status && filter.status !== 'all') {
@@ -210,7 +210,7 @@ export async function getAdminRequests(filter: AdminRequestFilter = {}) {
 export async function getAdminRequestById(id: string) {
   const connected = await isDatabaseConnected();
 
-  if (!connected) {
+  if (!connected || !prisma) {
     const sample = SAMPLE_ADMIN_REQUESTS.find((r) => r.id === id || r.reference === id) || SAMPLE_ADMIN_REQUESTS[0];
     return {
       request: {

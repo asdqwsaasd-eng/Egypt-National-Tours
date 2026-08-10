@@ -45,7 +45,7 @@ export async function createReviewAction(payload: unknown): Promise<ReviewAction
     const data = parseResult.data;
     const connected = await isDatabaseConnected();
 
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         reviewId: 'rev-offline-demo',
@@ -103,7 +103,7 @@ export async function updateReviewAction(id: string, payload: unknown): Promise<
     const data = parseResult.data;
     const connected = await isDatabaseConnected();
 
-    if (!connected) {
+    if (!connected || !prisma) {
       return {
         success: true,
         reviewId: id,
@@ -153,7 +153,7 @@ export async function deleteReviewAction(id: string): Promise<ReviewActionResult
     }
 
     const connected = await isDatabaseConnected();
-    if (connected) {
+    if (connected && prisma) {
       await prisma.review.delete({ where: { id } });
     }
 

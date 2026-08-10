@@ -16,7 +16,7 @@ export default async function AdminEditReviewPage({ params }: EditReviewPageProp
 
   let reviewData: any = null;
 
-  if (connected) {
+  if (connected && prisma) {
     reviewData = await prisma.review.findUnique({
       where: { id },
       include: { country: true },

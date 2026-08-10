@@ -39,7 +39,7 @@ export async function loginAdminAction(payload: unknown): Promise<LoginActionRes
       displayName: string;
     } | null = null;
 
-    if (dbConnected) {
+    if (dbConnected && prisma) {
       // Find admin user in PostgreSQL
       const adminUser = await prisma.adminUser.findUnique({
         where: { email: email.toLowerCase() },

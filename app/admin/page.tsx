@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
     totalRequests: 0,
   };
 
-  if (dbConnected) {
+  if (dbConnected && prisma) {
     try {
       const [newCount, inProgressCount, completedCount, totalCount] = await Promise.all([
         prisma.request.count({ where: { status: 'new_request' } }),
