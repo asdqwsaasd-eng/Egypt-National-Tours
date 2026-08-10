@@ -160,7 +160,7 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
         );
       }
     } catch (emailErr: any) {
-      console.error('[SubmitRequestAction] Email dispatch caught error:', emailErr);
+      console.error('[SubmitRequestAction] Email dispatch caught error:', emailErr?.message || emailErr);
       if (dbResult.requestId) {
         await updateRequestNotificationStatus(
           dbResult.requestId,
@@ -170,12 +170,37 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
       }
     }
 
-    // 5. Return safe success response with reference number
+    const dbSuccess = dbResult.success && Boolean(dbResult.requestId);
+
+    // CRITICAL: A request MUST NOT return success if BOTH database persistence AND email notification failed/skipped.
+    if (!dbSuccess && !notificationSent) {
+      console.error(
+        `[SubmitRequestAction] CRITICAL PERSISTENCE FAILURE for ref ${reference}. DB Saved: ${dbSuccess} (Error: ${dbResult.error}), Email Sent: ${notificationSent}`
+      );
+
+      return {
+        success: false,
+        reference,
+        notificationSent: false,
+        message:
+          validatedData.locale === 'en'
+            ? 'Unable to submit your request at this time. Please contact us directly via WhatsApp or phone.'
+            : 'عذراً، تعذر حفظ طلبكم في الوقت الحالي. يرجى التواصل معنا مباشرة عبر الواتساب أو الهاتف.',
+      };
+    }
+
+    console.log(
+      `[SubmitRequestAction] Request ${reference} processed successfully (DB Persisted: ${dbSuccess}, Email Sent: ${notificationSent})`
+    );
+
     return {
       success: true,
       reference,
       notificationSent,
-      message: 'تم استلام طلبكم بنجاح / Request received successfully',
+      message:
+        validatedData.locale === 'en'
+          ? 'Request received successfully'
+          : 'تم استلام طلبكم بنجاح',
     };
   } catch (err: any) {
     if (err instanceof ZodError) {
@@ -185,6 +210,8 @@ export async function submitRequestAction(payload: any): Promise<ActionResponse>
         message: 'يرجى تصحيح الأخطاء الموضحة في النموذج / Please correct the highlighted errors in the form',
       };
     }
+
+    console.error('[SubmitRequestAction] Unexpected error:', err?.message || err);
 
     return {
       success: false,

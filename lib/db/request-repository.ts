@@ -24,7 +24,7 @@ export interface SaveRequestResult {
 }
 
 /**
- * Persist customer request to PostgreSQL database if connected, or return fallback reference if unmigrated.
+ * Persist customer request to PostgreSQL database if connected, or return explicit failure if unreachable.
  */
 export async function saveRequestToDatabase(
   params: SaveRequestParams
@@ -36,8 +36,9 @@ export async function saveRequestToDatabase(
   // 2. Check if PostgreSQL database is reachable
   const connected = await isDatabaseConnected();
   if (!connected) {
+    console.warn(`[RequestRepository] Database disconnected or unreachable. Skipping DB save for ref ${reference}`);
     return {
-      success: true, // Application flow continues gracefully
+      success: false,
       reference,
       isDbConnected: false,
       error: 'POSTGRESQL_DISCONNECTED',
@@ -116,6 +117,8 @@ export async function saveRequestToDatabase(
       };
     });
 
+    console.log(`[RequestRepository] Successfully persisted request ${result.request.reference} (ID: ${result.request.id})`);
+
     return {
       success: true,
       reference: result.request.reference,
@@ -124,14 +127,13 @@ export async function saveRequestToDatabase(
       customerId: result.customer.id,
     };
   } catch (error: any) {
-    console.error('[RequestRepository] PostgreSQL Error:', error);
+    console.error(`[RequestRepository] Save request transaction failed for ref ${reference}:`, error?.message || error);
 
-    // Return safe fallback so customer flow is never blocked
     return {
-      success: true,
+      success: false,
       reference,
       isDbConnected: true,
-      error: error.message || 'DATABASE_SAVE_FAILED',
+      error: error?.message || 'DATABASE_SAVE_FAILED',
     };
   }
 }
@@ -155,7 +157,7 @@ export async function updateRequestNotificationStatus(
         notificationError: errorMessage || null,
       },
     });
-  } catch (error) {
-    console.error('[RequestRepository] Failed to update notification status:', error);
+  } catch (error: any) {
+    console.error('[RequestRepository] Failed to update notification status:', error?.message || error);
   }
 }
