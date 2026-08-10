@@ -12,12 +12,14 @@ export interface TourCardProps extends React.HTMLAttributes<HTMLDivElement> {
   locale: string;
   imageSrc: string;
   imageAlt: string;
+  type?: 'egypt' | 'international';
   duration?: string;
   destinations?: string[];
   summary?: string;
   className?: string;
   viewDetailsText?: string;
   requestTourText?: string;
+  detailsHref?: string;
   requestHref?: string;
 }
 
@@ -29,12 +31,14 @@ export const TourCard = React.forwardRef<HTMLDivElement, TourCardProps>(
       locale,
       imageSrc,
       imageAlt,
+      type = 'egypt',
       duration,
       destinations,
       summary,
       className,
       viewDetailsText,
       requestTourText,
+      detailsHref,
       requestHref,
       ...props
     },
@@ -42,8 +46,8 @@ export const TourCard = React.forwardRef<HTMLDivElement, TourCardProps>(
   ) => {
     const detailsLabel = viewDetailsText ?? (locale === 'ar' ? 'عرض التفاصيل' : 'View Details');
     const requestLabel = requestTourText ?? (locale === 'ar' ? 'طلب الرحلة' : 'Request Tour');
-    const detailsUrl = `/${locale}/egypt-tours/${slug}`;
-    const bookingUrl = requestHref ?? `/${locale}/contact?tour=${slug}`;
+    const detailsUrl = detailsHref ?? (type === 'international' ? `/${locale}/international-tours/${slug}` : `/${locale}/egypt-tours/${slug}`);
+    const bookingUrl = requestHref ?? `/${locale}/request?tour=${slug}`;
 
     return (
       <div

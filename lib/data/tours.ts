@@ -32,7 +32,7 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       en: 'A classic tour exploring the Giza Pyramids, Grand Egyptian Museum, Khan El Khalili, and Old Cairo.',
     },
     overview: {
-      ar: 'برنامج متميز يستعرض أعرق المعالم التاريخية بالقاهرة والجيزة مع زيارة المعالم الفرعونية والإسلامية والقبطية.',
+      ar: 'برنامج متميز يستعرض أعرق المعالم التاريخية بالقاهرة والجيزة مع زيارة المعالم الفرعونية والإاسلامية والقبطية.',
       en: 'An immersive tour showcasing Cairo’s ancient monuments, Pharaonic wonders, and rich Islamic and Coptic heritage.',
     },
     duration: { ar: '4 أيام / 3 ليالي', en: '4 Days / 3 Nights' },
@@ -40,7 +40,7 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       ar: ['القاهرة', 'الجيزة'],
       en: ['Cairo', 'Giza'],
     },
-    imageSrc: '/assets/references/cairo-tour-1.jpg',
+    imageSrc: '/assets/references/cairo-classic.jpg',
     imageAlt: { ar: 'أهرامات الجيزة والقاهرة', en: 'Giza Pyramids and Cairo Skyline' },
     itinerary: [
       {
@@ -121,7 +121,7 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       ar: ['القاهرة', 'الجيزة', 'الإسكندرية'],
       en: ['Cairo', 'Giza', 'Alexandria'],
     },
-    imageSrc: '/assets/references/cairo-tour-1.jpg',
+    imageSrc: '/assets/references/cairo-alexandria.jpg',
     imageAlt: { ar: 'قلعة قايتباي والأهرامات', en: 'Citadel of Qaitbay and Pyramids' },
     itinerary: [
       {
@@ -182,7 +182,7 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       ar: ['الأقصر', 'إدفو', 'كوم أمبو', 'أسوان'],
       en: ['Luxor', 'Edfu', 'Kom Ombo', 'Aswan'],
     },
-    imageSrc: '/assets/references/cairo-tour-1.jpg',
+    imageSrc: '/assets/references/nile-cruise.jpg',
     imageAlt: { ar: 'نايل كروز ومعبد الأقصر', en: 'Nile Cruise and Luxor Temple' },
     itinerary: [
       {
@@ -238,7 +238,7 @@ export const INTERNATIONAL_TOURS: TourProgram[] = [
     },
     duration: { ar: '5 أيام / 4 ليالي', en: '5 Days / 4 Nights' },
     destinations: { ar: ['دبي', 'الإمارات'], en: ['Dubai', 'UAE'] },
-    imageSrc: '/assets/references/cairo-tour-1.jpg',
+    imageSrc: '/assets/references/dubai-highlights.jpg',
     imageAlt: { ar: 'برج خليفة ودبي', en: 'Burj Khalifa Dubai' },
     itinerary: [
       {
