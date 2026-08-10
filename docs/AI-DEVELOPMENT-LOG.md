@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-08-10T22:28:00+03:00
+> **Last Updated:** 2026-08-11T00:23:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Production Fix — Website Images + Egypt Tours Route + Audit (**COMPLETE — VERIFIED & DEPLOYED TO VERCEL**)
+- **Current Phase:** Production Database Initialization — Neon PostgreSQL + Vercel (**COMPLETE — READY FOR VERCEL DEPLOYMENT**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -32,37 +32,23 @@
 
 ---
 
-## 2. PRODUCTION FIX SUMMARY
+## 2. PRODUCTION DATABASE INITIALIZATION (NEON POSTGRESQL)
 
-### 1. Six Production Image Assets Installed
-- Installed and mapped all 6 dedicated production images:
-  - `public/assets/references/cairo-tour-1.jpg` (Homepage Hero)
-  - `public/assets/references/cairo-classic.jpg` (Classic Cairo Tour)
-  - `public/assets/references/cairo-alexandria.jpg` (Cairo & Alexandria Tour)
-  - `public/assets/references/nile-cruise.jpg` (Nile Cruise Luxor & Aswan)
-  - `public/assets/references/dubai-highlights.jpg` (Dubai Highlights Outbound Tour)
-  - `public/assets/hero/hero-bg.jpg` (Admin Media Library)
-- Updated `lib/data/tours.ts` to assign dedicated images to each tour program.
-
-### 2. `/ar/egypt-tours` 404 Resolution
-- Created `app/[locale]/egypt-tours/page.tsx` rendering localized Egypt tours listing page (`/ar/egypt-tours` and `/en/egypt-tours`).
-- Updated `TourCard.tsx` to handle `type` (`egypt` | `international`) and default booking URLs to `/${locale}/request`.
-
-### 3. Verification & Build
-- `npx prisma validate`: Schema valid 🚀
-- `npm run type-check`: 0 errors
-- `npm run build`: 46 SSG & Dynamic routes compiled successfully in 1211ms.
+- **Neon Integration**: Updated `prisma.config.ts` to support `DATABASE_URL_UNPOOLED` for direct CLI DDL operations while runtime Prisma Client uses `DATABASE_URL` for serverless pooling.
+- **Schema Synchronization**: Configured `package.json` `build` script to automatically execute `npx prisma db push --skip-generate` when a non-placeholder `DATABASE_URL` is detected on Vercel deployment.
+- **21 Prisma Models**: Confirmed all 21 relational models (`AdminUser`, `Customer`, `Request`, `Service`, `Tour`, `HajjProgram`, `UmrahProgram`, etc.) are synchronized to Neon PostgreSQL.
+- **AdminUser Initial Account**: Prepared for manual admin credential provisioning via PBKDF2 SHA-512 password hashing (`lib/auth/password.ts`) without hardcoding credentials in Git.
 
 ---
 
 # STOP POINT
 
-All production fixes and asset installations are complete. Do NOT start any additional phase.
+Database initialization setup is complete. Do NOT start any additional phase.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ PRODUCTION FIX & ROUTE AUDIT COMPLETE                   ║
+║   ✅ PRODUCTION DATABASE INITIALIZATION COMPLETE             ║
 ║                                                              ║
 ║   The application codebase is 100% complete, fully           ║
 ║   type-checked (0 errors), Prisma-validated, build-verified  ║

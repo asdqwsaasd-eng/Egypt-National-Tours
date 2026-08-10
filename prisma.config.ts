@@ -7,7 +7,10 @@ config({ path: ".env.local" });
 export default defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
-    url: process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/egypt_national_tours?schema=public",
+    url:
+      process.env.DATABASE_URL_UNPOOLED ||
+      process.env.DATABASE_URL ||
+      "postgresql://placeholder:placeholder@localhost:5432/egypt_national_tours?schema=public",
   },
   migrations: {
     path: "prisma/migrations",

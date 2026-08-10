@@ -1,7 +1,7 @@
 # DATABASE CONFIGURATION & MAINTENANCE GUIDE — EGYPT NATIONAL TOURS
 
 > **Project:** Egypt National Tours Website & CMS  
-> **Target Database:** PostgreSQL 15+  
+> **Production Database Provider:** Neon PostgreSQL (Vercel Integration)  
 > **ORM:** Prisma 7.9.1  
 > **Schema File:** `prisma/schema.prisma`  
 
@@ -37,53 +37,47 @@ The application uses **Prisma 7** with **PostgreSQL**. The schema defines **21 r
 
 ---
 
-## 2. Connecting & Migrating PostgreSQL
+## 2. Neon PostgreSQL & Vercel Configuration
 
-1. **Configure Environment Variable**:
-   In `.env.local` or hosting provider settings:
-   ```env
-   DATABASE_URL="postgresql://username:password@hostname:5432/dbname?schema=public&sslmode=require"
-   ```
+Vercel provisions pooled and unpooled Neon connection environment variables automatically:
 
-2. **Validate Prisma Schema**:
-   ```bash
-   npx prisma validate
-   ```
+1. **Runtime Pooled Connection (`DATABASE_URL`)**:
+   Used at runtime by `@prisma/client` in `lib/db/prisma.ts` for optimized serverless connection pooling via PgBouncer.
 
-3. **Apply Database Migrations / Sync Schema**:
-   ```bash
-   # Development environment:
-   npx prisma migrate dev --name init
-
-   # Production / Staging environment:
-   npx prisma db push
-   ```
-
-4. **Generate Prisma Client**:
-   ```bash
-   npx prisma generate
-   ```
+2. **CLI Direct Connection (`DATABASE_URL_UNPOOLED`)**:
+   Used by Prisma CLI (`npx prisma db push`, `prisma.config.ts`) for executing DDL schema modifications directly against Neon without pooling conflicts.
 
 ---
 
-## 3. Safe Fallback Behavior
+## 3. Database Schema Synchronization
 
-When `DATABASE_URL` is set to a local placeholder string or PostgreSQL is unreachable:
-- `isDatabaseConnected()` in `lib/db/prisma.ts` safely catches connection errors.
-- Public request submission (`submitRequestAction`) generates reference `ENT-YYYY-XXXXXX` and dispatches email notification without throwing unhandled exceptions.
-- Admin listings (`app/admin/requests`) render sample data fallbacks to allow interface inspection during offline development.
+Since no raw SQL migration files exist in `prisma/migrations/`, schema synchronization is executed via:
+
+```bash
+# Push schema definitions to Neon PostgreSQL:
+npx prisma db push
+```
+
+During production Vercel builds (`npm run build`), `package.json` executes `npx prisma db push --skip-generate` conditionally when a live non-placeholder `DATABASE_URL` is detected.
 
 ---
 
-## 4. Backup & Restore Procedures
+## 4. AdminUser Initial Provisioning
 
-### Database Dump (Backup)
-```bash
-pg_dump -U username -h hostname -d dbname -F c -b -v -f ent_backup_$(date +%Y%m%d).dump
+In production (`NODE_ENV === 'production'`), fallback hardcoded admin accounts are disabled in `lib/auth/actions.ts`. Admin authentication strictly requires a matching `AdminUser` row in PostgreSQL.
+
+Password hashes must be generated using PBKDF2 (SHA-512 with 100,000 iterations) via `hashPassword(password)` from `lib/auth/password.ts`:
+
+```ts
+import { hashPassword } from '@/lib/auth/password';
+const passwordHash = hashPassword('YourStrongPasswordHere');
 ```
 
-### Database Restore
-```bash
-pg_restore -U username -h hostname -d dbname -v ent_backup_20260810.dump
-```
-> **CAUTION:** Never run destructive `pg_restore` or `prisma migrate reset` against production databases without verifying backup integrity first.
+---
+
+## 5. Safe Offline Fallback Behavior
+
+When `DATABASE_URL` is unconfigured or set to a placeholder:
+- `isDatabaseConnected()` in `lib/db/prisma.ts` safely returns `false`.
+- Public request submissions generate reference `ENT-YYYY-XXXXXX` and attempt email dispatch without crashing.
+- Admin views render sample data fallbacks for UI inspection.
