@@ -58,7 +58,7 @@ Since no raw SQL migration files exist in `prisma/migrations/`, schema synchroni
 npx prisma db push
 ```
 
-During production Vercel builds (`npm run build`), `package.json` executes `npx prisma db push --skip-generate` conditionally when a live non-placeholder `DATABASE_URL` is detected.
+During production Vercel builds (`npm run build`), `package.json` executes `npx prisma db push` conditionally when a live non-placeholder `DATABASE_URL` is detected.
 
 ---
 

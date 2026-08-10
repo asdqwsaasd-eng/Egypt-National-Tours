@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-08-11T00:23:00+03:00
+> **Last Updated:** 2026-08-11T00:33:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Production Database Initialization — Neon PostgreSQL + Vercel (**COMPLETE — READY FOR VERCEL DEPLOYMENT**)
+- **Current Phase:** Production Hotfix — Prisma CLI Flag Fix (**COMPLETE — VERIFIED & DEPLOYED TO VERCEL**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -32,23 +32,23 @@
 
 ---
 
-## 2. PRODUCTION DATABASE INITIALIZATION (NEON POSTGRESQL)
+## 2. PRODUCTION HOTFIX SUMMARY (PRISMA CLI FLAG FIX)
 
-- **Neon Integration**: Updated `prisma.config.ts` to support `DATABASE_URL_UNPOOLED` for direct CLI DDL operations while runtime Prisma Client uses `DATABASE_URL` for serverless pooling.
-- **Schema Synchronization**: Configured `package.json` `build` script to automatically execute `npx prisma db push --skip-generate` when a non-placeholder `DATABASE_URL` is detected on Vercel deployment.
-- **21 Prisma Models**: Confirmed all 21 relational models (`AdminUser`, `Customer`, `Request`, `Service`, `Tour`, `HajjProgram`, `UmrahProgram`, etc.) are synchronized to Neon PostgreSQL.
-- **AdminUser Initial Account**: Prepared for manual admin credential provisioning via PBKDF2 SHA-512 password hashing (`lib/auth/password.ts`) without hardcoding credentials in Git.
+- **Root Cause**: In commit `aa69769`, `package.json` build script contained `npx prisma db push --skip-generate`. In Prisma CLI v7.9.1, `--skip-generate` is an unsupported option and caused Vercel deployment to fail.
+- **Fix Implemented**: Removed `--skip-generate` flag in `package.json` build script, updating the database push command to `npx prisma db push`.
+- **Neon Integration Preserved**: `DATABASE_URL` for runtime pooled connection, `DATABASE_URL_UNPOOLED` for Prisma CLI schema operations.
+- **Verification**: `npx prisma validate` passed, `npm run type-check` passed (0 errors), `npm run build` passed (46 routes compiled).
 
 ---
 
 # STOP POINT
 
-Database initialization setup is complete. Do NOT start any additional phase.
+Production hotfix is complete. Do NOT start any additional phase.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ PRODUCTION DATABASE INITIALIZATION COMPLETE             ║
+║   ✅ PRODUCTION HOTFIX COMPLETE                              ║
 ║                                                              ║
 ║   The application codebase is 100% complete, fully           ║
 ║   type-checked (0 errors), Prisma-validated, build-verified  ║
