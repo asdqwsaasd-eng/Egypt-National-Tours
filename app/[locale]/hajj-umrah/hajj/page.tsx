@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { Container, SectionHeader, InfoCard } from '@/components/ui';
@@ -39,6 +40,18 @@ export default async function HajjPage({ params }: HajjPageProps) {
                 : 'Program details and registration assistance for official Hajj packages.'
             }
             align="start"
+          />
+        </div>
+
+        {/* Task 3: Promotional Hajj Banner */}
+        <div className="mb-12 rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm bg-white">
+          <Image
+            src="/images/site-update/banners/egypt-national-tours-company-banner.webp"
+            alt={isAr ? 'شركة إيجيبت ناشيونال تورز - برامج الحج والعمرة' : 'Egypt National Tours - Hajj & Umrah Banner'}
+            width={1200}
+            height={630}
+            className="w-full h-auto object-cover max-h-[450px]"
+            priority
           />
         </div>
 

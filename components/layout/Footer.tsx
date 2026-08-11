@@ -121,7 +121,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <Link href={`/${locale}/services/custom-tours`} className="hover:text-brand-red transition-colors">
-                  {isAr ? 'البرامج السياحية الخاصة' : 'Custom Tours'}
+                  {isAr ? 'الخدمات الأخرى' : 'Other Services'}
                 </Link>
               </li>
             </ul>
@@ -147,11 +147,17 @@ export const Footer: React.FC<FooterProps> = ({
               <li className="flex items-start gap-2.5">
                 <Phone className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
                 <div className="flex flex-col gap-0.5 dir-ltr">
-                  <a href={`tel:${CONTACT.phonePrimary}`} className="hover:text-brand-red transition-colors">
+                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red transition-colors">
                     {CONTACT.phonePrimary}
                   </a>
-                  <a href={`tel:${CONTACT.phoneSecondary}`} className="hover:text-brand-red transition-colors">
+                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red transition-colors">
                     {CONTACT.phoneSecondary}
+                  </a>
+                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red transition-colors">
+                    {CONTACT.mobile1}
+                  </a>
+                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red transition-colors">
+                    {CONTACT.mobile2}
                   </a>
                 </div>
               </li>
@@ -167,7 +173,11 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li className="flex items-start gap-2.5">
                 <Clock className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{CONTACT.workingHours[locale]}</span>
+                <div>
+                  <p className="font-semibold text-text-primary">{CONTACT.workingHoursHeader[locale]}</p>
+                  <p>{CONTACT.workingHours[locale]}</p>
+                  <p className="text-brand-red font-medium">{CONTACT.offDays[locale]}</p>
+                </div>
               </li>
             </ul>
 

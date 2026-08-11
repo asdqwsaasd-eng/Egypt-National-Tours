@@ -31,10 +31,20 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
   const isAr = locale === 'ar';
   const isHajj = programType === 'hajj';
 
+  const hajjProgramOptions = [
+    { value: 'حج 5 نجوم / 5-Star Hajj', label: isAr ? 'حج 5 نجوم (5-Star Hajj)' : '5-Star Hajj' },
+    { value: 'حج اقتصادي / Economy Hajj', label: isAr ? 'حج اقتصادي (Economy Hajj)' : 'Economy Hajj' },
+    { value: 'حج بري / Overland Hajj', label: isAr ? 'حج بري (Overland Hajj)' : 'Overland Hajj' },
+    { value: 'حج سريع / Express Hajj', label: isAr ? 'حج سريع (Express Hajj)' : 'Express Hajj' },
+    { value: 'حج مباشر / Direct Hajj', label: isAr ? 'حج مباشر (Direct Hajj)' : 'Direct Hajj' },
+  ];
+
   const [programTitle, setProgramTitle] = React.useState(
-    defaultTitle || (isHajj ? (isAr ? 'برنامج الحج المبارك' : 'Hajj Pilgrimage Program') : (isAr ? 'برنامج العمرة' : 'Umrah Program'))
+    defaultTitle || (isHajj ? 'حج 5 نجوم / 5-Star Hajj' : (isAr ? 'برنامج العمرة' : 'Umrah Program'))
   );
   const [preferredMonth, setPreferredMonth] = React.useState('');
+  const [performedHajjBefore, setPerformedHajjBefore] = React.useState<'yes' | 'no' | ''>('');
+
   const [travelersCount, setTravelersCount] = React.useState(1);
   const [children, setChildren] = React.useState(0);
   const [childrenAges, setChildrenAges] = React.useState<number[]>([]);
@@ -46,6 +56,7 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [hajjFieldError, setHajjFieldError] = React.useState<string | null>(null);
 
   const handleChildrenChange = (newCount: number) => {
     setChildren(newCount);
@@ -69,13 +80,22 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isHajj && !performedHajjBefore) {
+      setHajjFieldError(isAr ? 'يرجى تحديد الإجابة (هل سبق لك أداء مناسك الحج؟)' : 'Please answer: Have you performed Hajj before?');
+      return;
+    }
+
+    setHajjFieldError(null);
     setIsSubmitting(true);
     setServerError(null);
 
     const payload = {
       requestType: programType,
       programTitle,
-      preferredMonth: preferredMonth || undefined,
+      preferredMonth: !isHajj ? (preferredMonth || undefined) : undefined,
+      performedHajjBefore: isHajj ? performedHajjBefore : undefined,
+      hasPerformedHajjBefore: isHajj ? (performedHajjBefore === 'yes') : undefined,
       travelersCount,
       children: !isHajj ? children : undefined,
       childrenAges: !isHajj && children > 0 ? childrenAges : undefined,
@@ -108,19 +128,70 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput
-            label={isHajj ? (isAr ? 'البرنامج المطلوب' : 'Selected Hajj Package') : (isAr ? 'البرنامج المطلوب' : 'Selected Umrah Package')}
-            value={programTitle}
-            onChange={(e) => setProgramTitle(e.target.value)}
-            required
-          />
+          {isHajj ? (
+            <Select
+              label={isAr ? 'نوع برنامج الحج المطلوب' : 'Selected Hajj Package'}
+              options={hajjProgramOptions}
+              value={programTitle}
+              onChange={(e) => setProgramTitle(e.target.value)}
+              required
+            />
+          ) : (
+            <TextInput
+              label={isAr ? 'البرنامج المطلوب' : 'Selected Umrah Package'}
+              value={programTitle}
+              onChange={(e) => setProgramTitle(e.target.value)}
+              required
+            />
+          )}
 
-          <TextInput
-            label={isAr ? 'الموسم / الشهر المفضل' : 'Preferred Departure Month'}
-            placeholder={isAr ? 'مثال: رجب، شعبان، رمضان، أو شهر محدد' : 'e.g., Ramadan, October'}
-            value={preferredMonth}
-            onChange={(e) => setPreferredMonth(e.target.value)}
-          />
+          {isHajj ? (
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-text-primary">
+                {isAr ? 'هل سبق لك أداء مناسك الحج؟' : 'Have you performed Hajj before?'} <span className="text-brand-red">*</span>
+              </label>
+              <div className="flex items-center gap-6 pt-2">
+                <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-text-primary">
+                  <input
+                    type="radio"
+                    name="performedHajjBefore"
+                    value="yes"
+                    checked={performedHajjBefore === 'yes'}
+                    onChange={() => {
+                      setPerformedHajjBefore('yes');
+                      setHajjFieldError(null);
+                    }}
+                    className="h-4 w-4 text-brand-red focus:ring-brand-red border-border"
+                  />
+                  <span>{isAr ? 'نعم' : 'Yes'}</span>
+                </label>
+                <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-text-primary">
+                  <input
+                    type="radio"
+                    name="performedHajjBefore"
+                    value="no"
+                    checked={performedHajjBefore === 'no'}
+                    onChange={() => {
+                      setPerformedHajjBefore('no');
+                      setHajjFieldError(null);
+                    }}
+                    className="h-4 w-4 text-brand-red focus:ring-brand-red border-border"
+                  />
+                  <span>{isAr ? 'لا' : 'No'}</span>
+                </label>
+              </div>
+              {hajjFieldError && (
+                <p className="text-xs font-semibold text-brand-red mt-1">{hajjFieldError}</p>
+              )}
+            </div>
+          ) : (
+            <TextInput
+              label={isAr ? 'الموسم / الشهر المفضل' : 'Preferred Departure Month'}
+              placeholder={isAr ? 'مثال: رجب، شعبان، رمضان، أو شهر محدد' : 'e.g., Ramadan, October'}
+              value={preferredMonth}
+              onChange={(e) => setPreferredMonth(e.target.value)}
+            />
+          )}
         </div>
 
         <div className="space-y-4 pt-2">

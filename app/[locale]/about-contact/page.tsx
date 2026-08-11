@@ -82,7 +82,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
                   title={isAr ? 'استشارات سياحية' : 'Expert Consultancy'}
                   description={
                     isAr
-                      ? 'تقديم أفضل الحلول والخيارات المناسبة لميزانيتك وااحتياجاتك.'
+                      ? 'تقديم أفضل الحلول والخيارات المناسبة لميزانيتك واحتياجاتك.'
                       : 'Providing tailored recommendations to suit your exact budget and preferences.'
                   }
                 />
@@ -110,8 +110,8 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
             title={isAr ? 'معلومات الاتصال المباشر' : 'Contact Information'}
             subtitle={
               isAr
-                ? 'يمكنكم التواصل معنا عبر جميع القنوات الرسمية المعتمدة خلال أوقات العمل الرسمية أو أونلاين.'
-                : 'Reach out to our team through verified contact channels during official office hours or online.'
+                ? 'يمكنكم التواصل معنا عبر جميع القنوات الرسمية المعتمدة خلال ساعات العمل بالمكتب أو أونلاين.'
+                : 'Reach out to our team through verified contact channels during office working hours or online.'
             }
             align="start"
           />
@@ -123,9 +123,15 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'الهاتف والواتساب' : 'Phone & WhatsApp'}</h3>
               <div className="text-sm text-text-secondary space-y-1 dir-ltr">
-                <p className="font-semibold text-brand-red">WA: {CONTACT.whatsapp}</p>
-                <p>Tel: {CONTACT.phonePrimary}</p>
-                <p>Tel: {CONTACT.phoneSecondary}</p>
+                <p className="font-semibold text-brand-red">
+                  <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    WA: {CONTACT.whatsapp}
+                  </a>
+                </p>
+                <p><a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red">{CONTACT.phonePrimary}</a></p>
+                <p><a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red">{CONTACT.phoneSecondary}</a></p>
+                <p><a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red">{CONTACT.mobile1}</a></p>
+                <p><a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red">{CONTACT.mobile2}</a></p>
               </div>
             </div>
 
@@ -135,7 +141,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</h3>
               <p className="text-sm text-text-secondary break-all">
-                <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors">
+                <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors font-medium">
                   {CONTACT.email}
                 </a>
               </p>
@@ -155,11 +161,11 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               <div className="h-10 w-10 rounded-full bg-brand-gold-light text-brand-red flex items-center justify-center">
                 <Clock className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-text-primary">{isAr ? 'ساعات العمل' : 'Office Hours'}</h3>
+              <h3 className="text-base font-bold text-text-primary">{CONTACT.workingHoursHeader[locale]}</h3>
               <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
                 {CONTACT.workingHours[locale]}
               </p>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-brand-red font-medium">
                 {CONTACT.offDays[locale]}
               </p>
             </div>
@@ -177,7 +183,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               <MessageCircle className="h-5 w-5" />
               <span>{isAr ? 'تواصل معنا عبر واتساب' : 'Chat on WhatsApp'}</span>
             </LinkButton>
-            <LinkButton href={`tel:${CONTACT.phonePrimary}`} variant="secondary" size="lg">
+            <LinkButton href={`tel:${CONTACT.phonePrimaryRaw}`} variant="secondary" size="lg">
               <Phone className="h-5 w-5" />
               <span>{isAr ? 'اتصل بنا' : 'Call Primary Line'}</span>
             </LinkButton>

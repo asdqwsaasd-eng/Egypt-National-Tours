@@ -20,24 +20,36 @@ export const COMPANY = {
 } as const;
 
 export const CONTACT = {
-  whatsapp: "00201063314240",
+  whatsapp: "+20 106 331 4240",
+  whatsappRaw: "201063314240",
   whatsappLink: "https://wa.me/201063314240",
-  phonePrimary: "0020224052937",
-  phoneSecondary: "0020222637554",
-  email: "egypt_nationaltours@yahoo.com",
+  phonePrimary: "+20 2 2405 2937",
+  phonePrimaryRaw: "+20224052937",
+  phoneSecondary: "+20 2 2263 7554",
+  phoneSecondaryRaw: "+20222637554",
+  mobile1: "+20 100 189 8414",
+  mobile1Raw: "+201001898414",
+  mobile2: "+20 107 045 6186",
+  mobile2Raw: "+201070456186",
+  email: "travel@egyptnationaltours.com",
+  secondaryEmail: "egypt_nationaltours@yahoo.com",
   facebook: "https://www.facebook.com/EgyptNationalTours/",
   googleMaps: "https://share.google/x5xQDEnwcpAnw4NPq",
   address: {
     en: "152 El Tawfik Buildings, El Tayaran Street, Nasr City, Cairo, Egypt",
     ar: "152 عمارات التوفيق، شارع الطيران، مدينة نصر، القاهرة، مصر",
   },
+  workingHoursHeader: {
+    en: "Office Working Hours",
+    ar: "ساعات العمل بالمكتب",
+  },
   workingHours: {
     en: "Sunday – Thursday: 10:30 AM – 5:00 PM",
     ar: "الأحد – الخميس: 10:30 صباحاً – 5:00 مساءً",
   },
   offDays: {
-    en: "Friday & Saturday: Closed",
-    ar: "الجمعة والسبت: مغلق",
+    en: "Friday & Saturday: Online",
+    ar: "الجمعة والسبت: أونلاين",
   },
 } as const;
 

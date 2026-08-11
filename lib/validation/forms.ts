@@ -196,6 +196,8 @@ export const religiousRequestSchema = z.object({
   children: z.number().int().min(0).default(0).optional(),
   childrenAges: z.array(z.number().int().min(0).max(12)).optional(),
   preferredMonth: z.string().optional(),
+  performedHajjBefore: z.enum(['yes', 'no']).optional(),
+  hasPerformedHajjBefore: z.boolean().optional(),
   customer: customerInfoSchema,
   notes: z.string().optional(),
   locale: z.enum(['ar', 'en']).default('ar'),

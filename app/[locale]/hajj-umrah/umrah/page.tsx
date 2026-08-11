@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { Container, SectionHeader, InfoCard } from '@/components/ui';
@@ -40,6 +41,43 @@ export default async function UmrahPage({ params }: UmrahPageProps) {
             }
             align="start"
           />
+        </div>
+
+        {/* Task 4: Available Umrah Program Departures */}
+        <div className="mb-12 space-y-6">
+          <div>
+            <h3 className="text-2xl font-bold text-text-primary mb-2">
+              {isAr ? 'برامج ورحلات العمرة' : 'Umrah Programs & Departures'}
+            </h3>
+            <p className="text-text-secondary">
+              {isAr
+                ? 'اختر من أحدث برامج العمرة المتاحة، ويمكنك إرسال طلبك أو استفسارك من النموذج أدناه.'
+                : 'Explore our latest available Umrah programs, then send your request or inquiry using the form below.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm">
+              <Image
+                src="/images/site-update/umrah/umrah-program-8-days.webp"
+                alt={isAr ? 'برنامج العمرة 8 أيام' : 'Umrah Program 8 Days'}
+                width={800}
+                height={1000}
+                className="w-full h-auto object-cover"
+                priority
+              />
+            </div>
+            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm">
+              <Image
+                src="/images/site-update/umrah/umrah-program-15-days.webp"
+                alt={isAr ? 'برنامج العمرة 15 يوم' : 'Umrah Program 15 Days'}
+                width={800}
+                height={1000}
+                className="w-full h-auto object-cover"
+                priority
+              />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">

@@ -45,8 +45,25 @@ export const VisaRequestForm: React.FC<VisaRequestFormProps> = ({
     { value: 'Schengen / الشنغن', label: isAr ? 'دول الشنغن (Schengen)' : 'Schengen Area' },
     { value: 'UK / المملكة المتحدة', label: isAr ? 'المملكة المتحدة (UK)' : 'United Kingdom' },
     { value: 'USA / الولايات المتحدة', label: isAr ? 'الولايات المتحدة (USA)' : 'United States' },
-    { value: 'Turkey / تركيا', label: isAr ? 'تركيا (Turkey)' : 'Turkey' },
+    { value: 'Saudi Arabia / السعودية', label: isAr ? 'السعودية (Saudi Arabia)' : 'Saudi Arabia' },
     { value: 'UAE / الإمارات', label: isAr ? 'دولة الإمارات (UAE)' : 'United Arab Emirates' },
+    { value: 'Turkey / تركيا', label: isAr ? 'تركيا (Turkey)' : 'Turkey' },
+    { value: 'Oman / سلطنة عمان', label: isAr ? 'سلطنة عمان (Oman)' : 'Oman' },
+    { value: 'Qatar / قطر', label: isAr ? 'قطر (Qatar)' : 'Qatar' },
+    { value: 'Bahrain / البحرين', label: isAr ? 'البحرين (Bahrain)' : 'Bahrain' },
+    { value: 'China / الصين', label: isAr ? 'الصين (China)' : 'China' },
+    { value: 'Japan / اليابان', label: isAr ? 'اليابان (Japan)' : 'Japan' },
+    { value: 'Canada / كندا', label: isAr ? 'كندا (Canada)' : 'Canada' },
+    { value: 'Thailand / تايلاند', label: isAr ? 'تايلاند (Thailand)' : 'Thailand' },
+    { value: 'Vietnam / فيتنام', label: isAr ? 'فيتنام (Vietnam)' : 'Vietnam' },
+    { value: 'Sri Lanka / سريلانكا', label: isAr ? 'سريلانكا (Sri Lanka)' : 'Sri Lanka' },
+    { value: 'Armenia / أرمينيا', label: isAr ? 'أرمينيا (Armenia)' : 'Armenia' },
+    { value: 'Georgia / جورجيا', label: isAr ? 'جورجيا (Georgia)' : 'Georgia' },
+    { value: 'Morocco / المغرب', label: isAr ? 'المغرب (Morocco)' : 'Morocco' },
+    { value: 'Algeria / الجزائر', label: isAr ? 'الجزائر (Algeria)' : 'Algeria' },
+    { value: 'Libya / ليبيا', label: isAr ? 'ليبيا (Libya)' : 'Libya' },
+    { value: 'Kenya / كينيا', label: isAr ? 'كينيا (Kenya)' : 'Kenya' },
+    { value: 'Lithuania / ليتوانيا', label: isAr ? 'ليتوانيا (Lithuania)' : 'Lithuania' },
     { value: 'other', label: isAr ? 'أخرى / Other Destination' : 'Other Destination' },
   ];
 
@@ -114,8 +131,8 @@ export const VisaRequestForm: React.FC<VisaRequestFormProps> = ({
           )}
 
           <TextInput
-            label={isAr ? 'الجنسية' : 'Nationality'}
-            placeholder={isAr ? 'مثال: مصري، سعودي، أردني' : 'e.g., Egyptian, British, Saudi'}
+            label={isAr ? 'الجنسية أو الإقامة' : 'Nationality or Residency'}
+            placeholder={isAr ? 'مثال: مصري، سعودي، أردني، أو بلد الإقامة' : 'e.g., Egyptian, British, Saudi, or residence country'}
             value={nationality}
             onChange={(e) => setNationality(e.target.value)}
             required
