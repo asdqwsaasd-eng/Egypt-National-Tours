@@ -33,7 +33,7 @@ export const ServiceIcon: React.FC<ServiceIconProps> = ({
   if (key.includes('building') || key.includes('hotel')) {
     return <Building2 className={className} {...props} />;
   }
-  if (key.includes('pyramid') || key.includes('egypt')) {
+  if (key.includes('landmark') || key.includes('pyramid') || key.includes('egypt')) {
     return <Landmark className={className} {...props} />;
   }
   if (key.includes('globe') || key.includes('international')) {

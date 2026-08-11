@@ -8,6 +8,7 @@ import {
   TextInput,
   Textarea,
   NumberCounter,
+  Select,
   Button,
   Alert,
 } from '@/components/ui';
@@ -35,6 +36,8 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
   );
   const [preferredMonth, setPreferredMonth] = React.useState('');
   const [travelersCount, setTravelersCount] = React.useState(1);
+  const [children, setChildren] = React.useState(0);
+  const [childrenAges, setChildrenAges] = React.useState<number[]>([]);
 
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
@@ -43,6 +46,26 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
+
+  const handleChildrenChange = (newCount: number) => {
+    setChildren(newCount);
+    setChildrenAges((prev) => {
+      if (newCount === 0) return [];
+      if (newCount > prev.length) {
+        const added = Array(newCount - prev.length).fill(5);
+        return [...prev, ...added];
+      }
+      return prev.slice(0, newCount);
+    });
+  };
+
+  const handleChildAgeChange = (index: number, age: number) => {
+    setChildrenAges((prev) => {
+      const next = [...prev];
+      next[index] = age;
+      return next;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +77,8 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
       programTitle,
       preferredMonth: preferredMonth || undefined,
       travelersCount,
+      children: !isHajj ? children : undefined,
+      childrenAges: !isHajj && children > 0 ? childrenAges : undefined,
       customer: {
         fullName,
         phone,
@@ -98,14 +123,50 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
           />
         </div>
 
-        <div className="pt-2">
-          <NumberCounter
-            label={isAr ? 'عدد الحجاج / المعتمرين' : 'Number of Pilgrims'}
-            value={travelersCount}
-            onChange={setTravelersCount}
-            min={1}
-            max={30}
-          />
+        <div className="space-y-4 pt-2">
+          <div className={`grid grid-cols-1 ${!isHajj ? 'sm:grid-cols-2' : ''} gap-6`}>
+            <NumberCounter
+              label={isHajj ? (isAr ? 'عدد الحجاج' : 'Number of Hajjis') : (isAr ? 'عدد البالغين / المعتمرين' : 'Number of Adult Pilgrims')}
+              value={travelersCount}
+              onChange={setTravelersCount}
+              min={1}
+              max={30}
+            />
+            {!isHajj && (
+              <NumberCounter
+                label={isAr ? 'عدد الأطفال' : 'Children'}
+                value={children}
+                onChange={handleChildrenChange}
+                min={0}
+                max={20}
+              />
+            )}
+          </div>
+
+          {/* Child Age Selectors for Umrah */}
+          {!isHajj && children > 0 && (
+            <div className="p-4 rounded-xl bg-sand/40 border border-border space-y-3 pt-3">
+              <h5 className="text-xs font-bold text-text-primary">
+                {isAr ? 'تحديد عمر كل طفل (من 0 إلى 12 سنة)' : 'Specify age for each child (0 to 12 yrs)'}
+              </h5>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {childrenAges.map((age, idx) => (
+                  <Select
+                    key={idx}
+                    label={isAr ? `عمر الطفل ${idx + 1}` : `Child ${idx + 1} Age`}
+                    value={String(age)}
+                    onChange={(e) => handleChildAgeChange(idx, Number(e.target.value))}
+                    options={Array.from({ length: 13 }, (_, i) => ({
+                      value: String(i),
+                      label: isAr
+                        ? i === 0 ? 'أقل من سنة (0)' : `${i} سنة`
+                        : i === 0 ? 'Under 1 yr (0)' : `${i} yrs`,
+                    }))}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Contact Info */}

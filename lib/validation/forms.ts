@@ -193,6 +193,8 @@ export const religiousRequestSchema = z.object({
   requestType: z.enum(['hajj', 'umrah']),
   programTitle: z.string().min(2, { message: 'اسم البرنامج مطلوب / Program title is required' }),
   travelersCount: z.number().int().min(1).default(1),
+  children: z.number().int().min(0).default(0).optional(),
+  childrenAges: z.array(z.number().int().min(0).max(12)).optional(),
   preferredMonth: z.string().optional(),
   customer: customerInfoSchema,
   notes: z.string().optional(),
