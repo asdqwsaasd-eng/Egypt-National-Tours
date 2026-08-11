@@ -32,6 +32,7 @@ export const TransportationRequestForm: React.FC<TransportationRequestFormProps>
   const [travelDate, setTravelDate] = React.useState('');
   const [travelTime, setTravelTime] = React.useState('');
   const [travelersCount, setTravelersCount] = React.useState(1);
+  const [bagsCount, setBagsCount] = React.useState(0);
 
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
@@ -61,10 +62,11 @@ export const TransportationRequestForm: React.FC<TransportationRequestFormProps>
       travelDate,
       travelTime: travelTime || undefined,
       travelersCount,
+      bagsCount,
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -129,12 +131,20 @@ export const TransportationRequestForm: React.FC<TransportationRequestFormProps>
           />
         </div>
 
-        <div className="pt-2">
+        {/* Task 7: Number of Passengers & Number of Bags */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
           <NumberCounter
             label={isAr ? 'عدد الركاب' : 'Number of Passengers'}
             value={travelersCount}
             onChange={setTravelersCount}
             min={1}
+            max={50}
+          />
+          <NumberCounter
+            label={isAr ? 'عدد الحقائب' : 'Number of Bags'}
+            value={bagsCount}
+            onChange={setBagsCount}
+            min={0}
             max={50}
           />
         </div>
@@ -161,17 +171,16 @@ export const TransportationRequestForm: React.FC<TransportationRequestFormProps>
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
-              required
             />
           </div>
 
           <Textarea
             label={isAr ? 'حجم الأمتعة أو أي ملاحظات' : 'Luggage size or special notes'}
-            placeholder={isAr ? 'عدد الحقائب أو تفاصيل أجهزة خاصة' : 'Number of luggage bags'}
+            placeholder={isAr ? 'تفاصيل الأمتعة الإضافية أو أي طلبات خاصة' : 'Additional luggage details or special notes'}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />

@@ -8,6 +8,7 @@ import {
   TextInput,
   Textarea,
   NumberCounter,
+  Select,
   Button,
   Alert,
 } from '@/components/ui';
@@ -34,6 +35,7 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
   const [travelDate, setTravelDate] = React.useState('');
   const [adults, setAdults] = React.useState(1);
   const [children, setChildren] = React.useState(0);
+  const [childrenAges, setChildrenAges] = React.useState<number[]>([]);
   const [infants, setInfants] = React.useState(0);
 
   const [fullName, setFullName] = React.useState('');
@@ -43,6 +45,26 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
+
+  const handleChildrenChange = (newCount: number) => {
+    setChildren(newCount);
+    setChildrenAges((prev) => {
+      if (newCount === 0) return [];
+      if (newCount > prev.length) {
+        const added = Array(newCount - prev.length).fill(5);
+        return [...prev, ...added];
+      }
+      return prev.slice(0, newCount);
+    });
+  };
+
+  const handleChildAgeChange = (index: number, age: number) => {
+    setChildrenAges((prev) => {
+      const next = [...prev];
+      next[index] = age;
+      return next;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +78,12 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
       travelDate,
       adults,
       children,
+      childrenAges: children > 0 ? childrenAges : undefined,
       infants,
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -119,7 +142,7 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
             <NumberCounter
               label={isAr ? 'أطفال' : 'Children'}
               value={children}
-              onChange={setChildren}
+              onChange={handleChildrenChange}
               min={0}
               max={20}
             />
@@ -131,6 +154,31 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
               max={10}
             />
           </div>
+
+          {/* Task 4: Dynamic Child Age Selectors */}
+          {children > 0 && (
+            <div className="p-4 rounded-xl bg-sand/40 border border-border space-y-3 pt-3">
+              <h5 className="text-xs font-bold text-text-primary">
+                {isAr ? 'تحديد عمر كل طفل (من 0 إلى 12 سنة)' : 'Specify age for each child (0 to 12 yrs)'}
+              </h5>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {childrenAges.map((age, idx) => (
+                  <Select
+                    key={idx}
+                    label={isAr ? `عمر الطفل ${idx + 1}` : `Child ${idx + 1} Age`}
+                    value={String(age)}
+                    onChange={(e) => handleChildAgeChange(idx, Number(e.target.value))}
+                    options={Array.from({ length: 13 }, (_, i) => ({
+                      value: String(i),
+                      label: isAr
+                        ? i === 0 ? 'أقل من سنة (0)' : `${i} سنة`
+                        : i === 0 ? 'Under 1 yr (0)' : `${i} yrs`,
+                    }))}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Contact Info */}
@@ -155,11 +203,10 @@ export const TourProgramRequestForm: React.FC<TourProgramRequestFormProps> = ({
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
-              required
             />
           </div>
 

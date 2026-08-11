@@ -4,11 +4,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
-import { Container, SectionHeader } from '@/components/ui';
+import { ServiceIcon, Container, SectionHeader } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { GeneralRequestForm } from '@/components/forms';
 import { generatePageMetadata } from '@/lib/seo/metadata';
-import { Plane, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface GeneralRequestPageProps {
   params: Promise<{ locale: string }>;
@@ -79,7 +79,7 @@ export default async function GeneralRequestPage({ params, searchParams }: Gener
                     : 'border-border bg-white text-text-primary hover:border-brand-red/40 hover:bg-sand/30'
                 }`}
               >
-                <Plane className={`h-5 w-5 ${isSelected ? 'text-brand-red' : 'text-text-muted'}`} />
+                <ServiceIcon iconName={cat.iconName} className={`h-5 w-5 ${isSelected ? 'text-brand-red' : 'text-text-muted'}`} />
                 <span className="text-xs sm:text-sm leading-tight">{cat.title[locale]}</span>
               </Link>
             );

@@ -57,7 +57,7 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -130,11 +130,10 @@ export const ReligiousRequestForm: React.FC<ReligiousRequestFormProps> = ({
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
-              required
             />
           </div>
 

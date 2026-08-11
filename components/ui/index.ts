@@ -13,6 +13,7 @@ export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 export { ServiceCard } from './ServiceCard';
 export type { ServiceCardProps } from './ServiceCard';
+export { ServiceIcon } from './ServiceIcon';
 export { TourCard } from './TourCard';
 export type { TourCardProps } from './TourCard';
 export { ReviewCard } from './ReviewCard';

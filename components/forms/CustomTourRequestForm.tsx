@@ -25,17 +25,12 @@ export const CustomTourRequestForm: React.FC<CustomTourRequestFormProps> = ({
   const router = useRouter();
   const isAr = locale === 'ar';
 
-  const [desiredDestination, setDesiredDestination] = React.useState('');
-  const [travelDate, setTravelDate] = React.useState('');
+  const [details, setDetails] = React.useState('');
   const [travelersCount, setTravelersCount] = React.useState(1);
-  const [durationDays, setDurationDays] = React.useState('');
-  const [tripStyle, setTripStyle] = React.useState('');
-  const [hotelPreference, setHotelPreference] = React.useState('');
   
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [email, setEmail] = React.useState('');
-  const [notes, setNotes] = React.useState('');
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formErrors, setFormErrors] = React.useState<Record<string, string[]>>({});
@@ -49,18 +44,15 @@ export const CustomTourRequestForm: React.FC<CustomTourRequestFormProps> = ({
 
     const payload = {
       requestType: 'custom_tour',
-      desiredDestination,
-      travelDate,
+      details,
+      desiredDestination: 'الخدمات الأخرى / Other Services',
       travelersCount,
-      durationDays,
-      tripStyle,
-      hotelPreference,
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
-      notes,
+      notes: details,
       locale,
     };
 
@@ -86,53 +78,38 @@ export const CustomTourRequestForm: React.FC<CustomTourRequestFormProps> = ({
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput
-            label={isAr ? 'الوجهة أو المدن المطلوبة' : 'Desired Destination / Program'}
-            placeholder={isAr ? 'مثال: القاهرة والأقصر وأسوان، أو دبي' : 'e.g., Cairo, Luxor, Aswan, or Dubai'}
-            value={desiredDestination}
-            onChange={(e) => setDesiredDestination(e.target.value)}
-            error={formErrors['desiredDestination']?.[0]}
+        {/* Task 8: Details & Number of Persons */}
+        <div className="space-y-6">
+          <Textarea
+            label={
+              isAr
+                ? 'اكتب تفاصيل طلبك أو أي متطلبات خاصة'
+                : 'Please describe your request or any special requirements'
+            }
+            placeholder={
+              isAr
+                ? 'اكتب هنا كل التفاصيل والمتطلبات الخاصة بك بالتفصيل...'
+                : 'Share all details and special requirements here...'
+            }
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            error={formErrors['details']?.[0] || formErrors['notes']?.[0]}
+            rows={4}
             required
           />
-          <TextInput
-            type="date"
-            label={isAr ? 'تاريخ السفر التقريبي' : 'Approximate Travel Date'}
-            value={travelDate}
-            onChange={(e) => setTravelDate(e.target.value)}
-            error={formErrors['travelDate']?.[0]}
-            required
-          />
-          <TextInput
-            label={isAr ? 'مدة الرحلة بالتقريب (أيام)' : 'Trip Duration (Days)'}
-            placeholder={isAr ? 'مثال: 7 أيام' : 'e.g., 7 Days'}
-            value={durationDays}
-            onChange={(e) => setDurationDays(e.target.value)}
-          />
-          <TextInput
-            label={isAr ? 'نمط الرحلة المفضّل (اختياري)' : 'Trip Style (Optional)'}
-            placeholder={isAr ? 'مثال: عائلي، استرخاء، مغامرة، ثقافي' : 'e.g., Family, Cultural, Leisure'}
-            value={tripStyle}
-            onChange={(e) => setTripStyle(e.target.value)}
-          />
+
+          <div className="max-w-xs">
+            <NumberCounter
+              label={isAr ? 'عدد الأشخاص' : 'Number of Persons'}
+              value={travelersCount}
+              onChange={setTravelersCount}
+              min={1}
+              max={50}
+            />
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-          <NumberCounter
-            label={isAr ? 'عدد المسافرين' : 'Number of Travelers'}
-            value={travelersCount}
-            onChange={setTravelersCount}
-            min={1}
-            max={50}
-          />
-          <TextInput
-            label={isAr ? 'تفصيل الفنادق المفضلة (اختياري)' : 'Hotel Preference (Optional)'}
-            placeholder={isAr ? 'مثال: 4 نجوم أو 5 نجوم على النيل' : 'e.g., 5-star Nile view'}
-            value={hotelPreference}
-            onChange={(e) => setHotelPreference(e.target.value)}
-          />
-        </div>
-
+        {/* Contact Info */}
         <div className="space-y-4 pt-4 border-t border-border">
           <h4 className="text-base font-bold text-text-primary">
             {isAr ? 'بيانات التواصل' : 'Contact Information'}
@@ -156,21 +133,13 @@ export const CustomTourRequestForm: React.FC<CustomTourRequestFormProps> = ({
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
               error={formErrors['customer.email']?.[0]}
-              required
             />
           </div>
-
-          <Textarea
-            label={isAr ? 'تفاصيل ورغبات إضافية' : 'Additional Notes or Preferences'}
-            placeholder={isAr ? 'اكتب أي متطلبات خاصة أو المزارات المفضلة' : 'Share any special requests or places you wish to visit'}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
         </div>
 
         <Button
@@ -181,7 +150,7 @@ export const CustomTourRequestForm: React.FC<CustomTourRequestFormProps> = ({
           isLoading={isSubmitting}
           className="shadow-md"
         >
-          {isAr ? 'إرسال طلب البرنامج الخاص' : 'Submit Custom Tour Request'}
+          {isAr ? 'إرسال طلب الخدمة' : 'Submit Service Request'}
         </Button>
       </div>
     </form>

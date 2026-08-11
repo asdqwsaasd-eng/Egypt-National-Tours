@@ -8,6 +8,7 @@ import { COMPANY, CONTACT } from '@/lib/utils/constants';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
 import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
 import {
+  ServiceIcon,
   Container,
   SectionHeader,
   LinkButton,
@@ -15,7 +16,7 @@ import {
   TourCard,
   InfoCard,
 } from '@/components/ui';
-import { Plane, Award, MapPin, Compass, ShieldCheck, MessageSquarePlus } from 'lucide-react';
+import { Award, MapPin, Compass, ShieldCheck, MessageSquarePlus } from 'lucide-react';
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -127,7 +128,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 key={cat.id}
                 title={cat.title[locale]}
                 description={cat.description[locale]}
-                icon={<Plane className="h-7 w-7" />}
+                icon={<ServiceIcon iconName={cat.iconName} className="h-7 w-7" />}
                 href={`/${locale}${cat.href}`}
               />
             ))}

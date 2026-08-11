@@ -71,7 +71,7 @@ export class EmailNotificationServiceImpl implements EmailNotificationService {
             <div style="padding: 20px;">
               <h2 style="font-size: 16px; border-bottom: 2px solid #d4af37; padding-bottom: 5px; color: #990000;">Customer Contact Information</h2>
               <p style="margin: 4px 0;"><strong>Name:</strong> ${safeName}</p>
-              <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+              <p style="margin: 4px 0;"><strong>Email:</strong> ${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : 'N/A (Not provided)'}</p>
               <p style="margin: 4px 0;"><strong>Phone / WhatsApp:</strong> ${safePhone}</p>
               <p style="margin: 4px 0;"><strong>Date:</strong> ${safeTimestamp}</p>
 
@@ -94,7 +94,7 @@ export class EmailNotificationServiceImpl implements EmailNotificationService {
     // 1. If API key is missing, safely skip sending without crashing
     if (!this.apiKey || this.apiKey.trim() === '') {
       console.log(
-        `[EmailAdapter] SKIPPED (No API key in env): New request ${params.reference} from ${params.customerEmail}`
+        `[EmailAdapter] SKIPPED (No API key in env): New request ${params.reference} from ${params.customerEmail || 'No Email'}`
       );
       return {
         success: false,

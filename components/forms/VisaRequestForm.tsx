@@ -66,7 +66,7 @@ export const VisaRequestForm: React.FC<VisaRequestFormProps> = ({
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -163,12 +163,11 @@ export const VisaRequestForm: React.FC<VisaRequestFormProps> = ({
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
               error={formErrors['customer.email']?.[0]}
-              required
             />
           </div>
 

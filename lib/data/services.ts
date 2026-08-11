@@ -43,7 +43,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       ar: 'جولات متكاملة تشمل القاهرة، الأقصر، أسوان، النيل، وشرم الشيخ.',
       en: 'Comprehensive tour programs covering Cairo, Luxor, Aswan, Nile Cruises, and Sharm El Sheikh.',
     },
-    iconName: 'Pyramid',
+    iconName: 'Landmark',
     href: '/egypt-tours',
     group: 'egypt_international',
   },
@@ -122,10 +122,10 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     id: 'custom_tours',
     slug: 'custom-tours',
-    title: { ar: 'البرامج السياحية الخاصة', en: 'Custom Tours' },
+    title: { ar: 'الخدمات الأخرى', en: 'Other Services' },
     description: {
-      ar: 'تصميم برنامج سياحي خاص مصمم خصيصًا حسب رغبتك وميزانيتك.',
-      en: 'Customized itinerary creation tailored to your exact travel preferences.',
+      ar: 'تقديم طلب مخصص لأي خدمات سياحية أو ترتيبات سفر خاصة حسب احتياجكم.',
+      en: 'Submit a custom request for any special travel arrangements or additional services.',
     },
     iconName: 'Sparkles',
     href: '/services/custom-tours',

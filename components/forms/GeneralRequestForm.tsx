@@ -8,6 +8,7 @@ import { CustomTourRequestForm } from './CustomTourRequestForm';
 import { VisaRequestForm } from './VisaRequestForm';
 import { SecurityApprovalRequestForm } from './SecurityApprovalRequestForm';
 import { TransportationRequestForm } from './TransportationRequestForm';
+import { TourProgramRequestForm } from './TourProgramRequestForm';
 import { ReligiousRequestForm } from './ReligiousRequestForm';
 
 interface GeneralRequestFormProps {
@@ -31,6 +32,30 @@ export const GeneralRequestForm: React.FC<GeneralRequestFormProps> = ({
     case 'hotels':
     case 'hotel':
       return <HotelRequestForm locale={locale} className={className} />;
+
+    case 'egypt-tours':
+    case 'egypt_tour':
+      return (
+        <TourProgramRequestForm
+          locale={locale}
+          tourSlug="egypt-tours"
+          tourTitle={queryTour || (locale === 'ar' ? 'برامج رحلات مصر' : 'Egypt Tour Program')}
+          tourType="egypt_tour"
+          className={className}
+        />
+      );
+
+    case 'international-tours':
+    case 'international_tour':
+      return (
+        <TourProgramRequestForm
+          locale={locale}
+          tourSlug="international-tours"
+          tourTitle={queryTour || (locale === 'ar' ? 'رحلة دولية' : 'International Tour Program')}
+          tourType="international_tour"
+          className={className}
+        />
+      );
 
     case 'custom-tours':
     case 'custom_tour':

@@ -12,7 +12,7 @@ import {
   Button,
   Alert,
 } from '@/components/ui';
-import { User, Phone, Mail } from 'lucide-react';
+import { User, Phone, Mail, ChevronDown, Check } from 'lucide-react';
 
 interface HotelRequestFormProps {
   locale: SupportedLocale;
@@ -33,11 +33,14 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
   const [rooms, setRooms] = React.useState(1);
   const [adults, setAdults] = React.useState(1);
   const [children, setChildren] = React.useState(0);
+  const [childrenAges, setChildrenAges] = React.useState<number[]>([]);
 
-  // Decision 002: ONLY 3, 4, 5 Stars
-  const [starRating, setStarRating] = React.useState<number>(5);
+  // Task 3: Multi-select hotel category (3, 4, 5 stars)
+  const [starRatings, setStarRatings] = React.useState<number[]>([5]);
+  const [isStarDropdownOpen, setIsStarDropdownOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-  // Decision 003: ONLY Room Only, Breakfast, Half Board, Soft All Inclusive
+  // Decision 003: Meal Plan
   const [mealPlan, setMealPlan] = React.useState<string>('breakfast');
 
   const [fullName, setFullName] = React.useState('');
@@ -48,6 +51,48 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formErrors, setFormErrors] = React.useState<Record<string, string[]>>({});
   const [serverError, setServerError] = React.useState<string | null>(null);
+
+  // Close star dropdown on outside click
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsStarDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleChildrenChange = (newCount: number) => {
+    setChildren(newCount);
+    setChildrenAges((prev) => {
+      if (newCount === 0) return [];
+      if (newCount > prev.length) {
+        const added = Array(newCount - prev.length).fill(5);
+        return [...prev, ...added];
+      }
+      return prev.slice(0, newCount);
+    });
+  };
+
+  const handleChildAgeChange = (index: number, age: number) => {
+    setChildrenAges((prev) => {
+      const next = [...prev];
+      next[index] = age;
+      return next;
+    });
+  };
+
+  const toggleStarRating = (star: number) => {
+    setStarRatings((prev) => {
+      if (prev.includes(star)) {
+        if (prev.length === 1) return prev; // Keep at least one selected
+        return prev.filter((s) => s !== star);
+      } else {
+        return [...prev, star].sort((a, b) => a - b);
+      }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,12 +109,14 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
       rooms,
       adults,
       children,
-      starRating: Number(starRating),
+      childrenAges: children > 0 ? childrenAges : undefined,
+      starRatings,
+      starRating: starRatings[0] || 5, // Backward compatibility
       mealPlan,
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -89,9 +136,9 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
   };
 
   const starOptions = [
-    { value: '3', label: isAr ? '3 نجوم (3 Stars)' : '3 Stars' },
-    { value: '4', label: isAr ? '4 نجوم (4 Stars)' : '4 Stars' },
-    { value: '5', label: isAr ? '5 نجوم (5 Stars)' : '5 Stars' },
+    { value: 3, label: isAr ? '3 نجوم (3 Stars)' : '3 Stars' },
+    { value: 4, label: isAr ? '4 نجوم (4 Stars)' : '4 Stars' },
+    { value: 5, label: isAr ? '5 نجوم (5 Stars)' : '5 Stars' },
   ];
 
   const mealPlanOptions = [
@@ -100,6 +147,10 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
     { value: 'half_board', label: isAr ? 'إفطار وعشاء (Half Board)' : 'Half Board' },
     { value: 'soft_all_inclusive', label: isAr ? 'سوفت أول إنكلوسف (Soft All Inclusive)' : 'Soft All Inclusive' },
   ];
+
+  const selectedStarsText = starRatings.length === 0
+    ? (isAr ? 'اختر الفئة' : 'Select Category')
+    : starRatings.map((s) => (isAr ? `${s} نجوم` : `${s} Stars`)).join(' ، ');
 
   return (
     <form onSubmit={handleSubmit} className={className}>
@@ -113,7 +164,7 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TextInput
             label={isAr ? 'الوجهة / المدينة' : 'Destination / City'}
-            placeholder={isAr ? 'مثال: شرم الشيخ، القاهرة، الأقصر' : 'e.g., Sharm El Sheikh, Cairo'}
+            placeholder={isAr ? 'شرم الشيخ – إسطنبول – دبي – لندن' : 'Sharm El Sheikh – Istanbul – Dubai – London'}
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             error={formErrors['destination']?.[0]}
@@ -145,14 +196,53 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
 
         {/* Category & Meal Plan Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            label={isAr ? 'فئة الفندق' : 'Hotel Category'}
-            options={starOptions}
-            value={String(starRating)}
-            onChange={(e) => setStarRating(Number(e.target.value))}
-            error={formErrors['starRating']?.[0]}
-            required
-          />
+          {/* Task 3: Multi-Select Hotel Category */}
+          <div className="relative" ref={dropdownRef}>
+            <label className="block text-xs font-bold text-text-primary mb-1">
+              {isAr ? 'فئة الفندق (يمكن اختيار أكثر من فئة)' : 'Hotel Category (Multi-select)'}
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsStarDropdownOpen(!isStarDropdownOpen)}
+              className="w-full h-10 px-3 text-xs bg-sand/30 border border-border rounded-lg focus:outline-hidden font-bold text-text-primary flex items-center justify-between transition-colors hover:border-brand-red"
+            >
+              <span className="truncate">{selectedStarsText}</span>
+              <ChevronDown className="h-4 w-4 text-text-muted shrink-0" />
+            </button>
+
+            {isStarDropdownOpen && (
+              <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-lg shadow-lg p-2 space-y-1">
+                {starOptions.map((opt) => {
+                  const isChecked = starRatings.includes(opt.value);
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => toggleStarRating(opt.value)}
+                      className={`w-full flex items-center justify-between p-2 rounded.md text-xs font-semibold transition-colors ${
+                        isChecked
+                          ? 'bg-brand-gold-light/40 text-brand-red'
+                          : 'hover:bg-sand/40 text-text-primary'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      <div
+                        className={`h-4 w-4 rounded border flex items-center justify-center ${
+                          isChecked ? 'bg-brand-red border-brand-red text-white' : 'border-border'
+                        }`}
+                      >
+                        {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {formErrors['starRatings']?.[0] && (
+              <p className="text-xs text-error mt-1">{formErrors['starRatings'][0]}</p>
+            )}
+          </div>
+
           <Select
             label={isAr ? 'نظام الوجبات' : 'Meal Plan'}
             options={mealPlanOptions}
@@ -186,11 +276,36 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
             <NumberCounter
               label={isAr ? 'عدد الأطفال' : 'Children'}
               value={children}
-              onChange={setChildren}
+              onChange={handleChildrenChange}
               min={0}
               max={10}
             />
           </div>
+
+          {/* Task 4: Dynamic Child Age Selectors */}
+          {children > 0 && (
+            <div className="p-4 rounded-xl bg-sand/40 border border-border space-y-3 pt-3">
+              <h5 className="text-xs font-bold text-text-primary">
+                {isAr ? 'تحديد أوراق وعمر كل طفل (من 0 إلى 12 سنة)' : 'Specify age for each child (0 to 12 yrs)'}
+              </h5>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {childrenAges.map((age, idx) => (
+                  <Select
+                    key={idx}
+                    label={isAr ? `عمر الطفل ${idx + 1}` : `Child ${idx + 1} Age`}
+                    value={String(age)}
+                    onChange={(e) => handleChildAgeChange(idx, Number(e.target.value))}
+                    options={Array.from({ length: 13 }, (_, i) => ({
+                      value: String(i),
+                      label: isAr
+                        ? i === 0 ? 'أقل من سنة (0)' : `${i} سنة`
+                        : i === 0 ? 'Under 1 yr (0)' : `${i} yrs`,
+                    }))}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Contact Info */}
@@ -217,18 +332,17 @@ export const HotelRequestForm: React.FC<HotelRequestFormProps> = ({
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
               error={formErrors['customer.email']?.[0]}
-              required
             />
           </div>
 
           <Textarea
             label={isAr ? 'طلبات إضافية أو ملاحظات؟' : 'Special requests or notes?'}
-            placeholder={isAr ? 'مثال: غرفة مطلة، أسرّة منفصلة، تفاصيل أعمار الأطفال' : 'e.g., sea view, twin beds, children ages'}
+            placeholder={isAr ? 'مثال: غرفة مطلة، أسرّة منفصلة' : 'e.g., sea view, twin beds'}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />

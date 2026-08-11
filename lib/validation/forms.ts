@@ -5,7 +5,6 @@ import {
   SUPPORTED_LOCALES,
 } from './schemas';
 
-// ─── Shared Customer Info Schema ───
 export const customerInfoSchema = z.object({
   fullName: z
     .string()
@@ -17,7 +16,12 @@ export const customerInfoSchema = z.object({
     .max(30),
   email: z
     .string()
-    .email({ message: 'البريد الإلكتروني غير صحيح / Invalid email address' }),
+    .trim()
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: 'البريد الإلكتروني غير صحيح / Invalid email address',
+    })
+    .or(z.literal('')),
   whatsapp: z.string().optional(),
 });
 
@@ -41,6 +45,7 @@ export const flightRequestSchema = z
     segments: z.array(flightSegmentSchema).optional(),
     adults: z.number().int().min(1, { message: 'عدد البالغين يجب أن يكون 1 على الأقل / Adults must be at least 1' }),
     children: z.number().int().min(0).default(0),
+    childrenAges: z.array(z.number().int().min(0).max(12)).optional(),
     infants: z.number().int().min(0).default(0),
     customer: customerInfoSchema,
     notes: z.string().optional(),
@@ -104,10 +109,14 @@ export const hotelRequestSchema = z.object({
   rooms: z.number().int().min(1, { message: 'عدد الغرف 1 على الأقل / Rooms must be at least 1' }).default(1),
   adults: z.number().int().min(1, { message: 'عدد البالغين 1 على الأقل / Adults must be at least 1' }).default(1),
   children: z.number().int().min(0).default(0),
-  childrenAges: z.array(z.number().int()).optional(),
-  starRating: z.number().refine((val) => HOTEL_STAR_RATINGS.includes(val as 3 | 4 | 5), {
-    message: 'فئة الفندق يجب أن تكون 3 أو 4 أو 5 نجوم فقط / Hotel category must be 3, 4, or 5 stars only',
-  }),
+  childrenAges: z.array(z.number().int().min(0).max(12)).optional(),
+  starRatings: z
+    .array(z.number().refine((val) => HOTEL_STAR_RATINGS.includes(val as 3 | 4 | 5), {
+      message: 'فئة الفندق يجب أن تكون 3 أو 4 أو 5 نجوم فقط / Hotel category must be 3, 4, or 5 stars only',
+    }))
+    .min(1, { message: 'يرجى اختيار فئة فندق واحدة على الأقل / Select at least one hotel category' })
+    .optional(),
+  starRating: z.number().optional(),
   mealPlan: z.enum(['room_only', 'breakfast', 'half_board', 'soft_all_inclusive']),
   customer: customerInfoSchema,
   notes: z.string().optional(),
@@ -116,11 +125,12 @@ export const hotelRequestSchema = z.object({
 
 export type HotelRequestInput = z.infer<typeof hotelRequestSchema>;
 
-// ─── Custom Tour Request Schema ───
+// ─── Custom Tour / Other Services Request Schema ───
 export const customTourRequestSchema = z.object({
   requestType: z.literal('custom_tour'),
-  desiredDestination: z.string().min(2, { message: 'الوجهة أو البرنامج المطلوب مطلوب / Destination is required' }),
-  travelDate: z.string().min(1, { message: 'تاريخ السفر مطلوب / Travel date is required' }),
+  details: z.string().min(5, { message: 'يرجى كتابة تفاصيل الطلب (5 أحرف على الأقل) / Please describe your request (at least 5 chars)' }).optional(),
+  desiredDestination: z.string().optional().default('الخدمات الأخرى / Other Services'),
+  travelDate: z.string().optional(),
   travelersCount: z.number().int().min(1).default(1),
   durationDays: z.string().optional(),
   tripStyle: z.string().optional(),
@@ -170,6 +180,7 @@ export const transportationRequestSchema = z.object({
   travelDate: z.string().min(1, { message: 'التاريخ مطلوب / Date is required' }),
   travelTime: z.string().optional(),
   travelersCount: z.number().int().min(1).default(1),
+  bagsCount: z.number().int().min(0).default(0).optional(),
   customer: customerInfoSchema,
   notes: z.string().optional(),
   locale: z.enum(['ar', 'en']).default('ar'),
@@ -198,6 +209,7 @@ export const tourProgramRequestSchema = z.object({
   travelDate: z.string().min(1, { message: 'تاريخ السفر مطلوب / Travel date is required' }),
   adults: z.number().int().min(1).default(1),
   children: z.number().int().min(0).default(0),
+  childrenAges: z.array(z.number().int().min(0).max(12)).optional(),
   infants: z.number().int().min(0).default(0),
   customer: customerInfoSchema,
   notes: z.string().optional(),

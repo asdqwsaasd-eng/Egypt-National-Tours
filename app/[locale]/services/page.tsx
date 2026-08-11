@@ -3,10 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
-import { Container, SectionHeader, ServiceCard } from '@/components/ui';
+import { ServiceIcon, Container, SectionHeader, ServiceCard } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { generatePageMetadata } from '@/lib/seo/metadata';
-import { Plane } from 'lucide-react';
 
 interface ServicesPageProps {
   params: Promise<{ locale: string }>;
@@ -85,7 +84,7 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
                       key={cat.id}
                       title={cat.title[locale]}
                       description={cat.description[locale]}
-                      icon={<Plane className="h-7 w-7" />}
+                      icon={<ServiceIcon iconName={cat.iconName} className="h-7 w-7" />}
                       href={`/${locale}${cat.href}`}
                     />
                   ))}

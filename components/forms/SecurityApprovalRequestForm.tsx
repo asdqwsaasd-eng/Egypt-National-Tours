@@ -52,7 +52,7 @@ export const SecurityApprovalRequestForm: React.FC<SecurityApprovalRequestFormPr
       customer: {
         fullName,
         phone,
-        email,
+        email: email || undefined,
       },
       notes,
       locale,
@@ -134,11 +134,10 @@ export const SecurityApprovalRequestForm: React.FC<SecurityApprovalRequestFormPr
             />
             <TextInput
               type="email"
-              label={isAr ? 'البريد الإلكتروني' : 'Email Address'}
+              label={isAr ? 'البريد الإلكتروني (اختياري)' : 'Email Address (Optional)'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-text-muted" />}
-              required
             />
           </div>
 

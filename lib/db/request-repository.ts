@@ -48,10 +48,17 @@ export async function saveRequestToDatabase(
   try {
     // 3. Execute database transaction
     const result = await prisma.$transaction(async (tx) => {
+      const customerEmail = params.customer.email ? params.customer.email.trim() : '';
+
+      const orConditions: any[] = [{ phone: params.customer.phone }];
+      if (customerEmail !== '') {
+        orConditions.push({ email: customerEmail });
+      }
+
       // Find or create Customer
       let customer = await tx.customer.findFirst({
         where: {
-          OR: [{ email: params.customer.email }, { phone: params.customer.phone }],
+          OR: orConditions,
         },
       });
 
@@ -59,7 +66,7 @@ export async function saveRequestToDatabase(
         customer = await tx.customer.create({
           data: {
             fullName: params.customer.fullName,
-            email: params.customer.email,
+            email: customerEmail,
             phone: params.customer.phone,
             whatsapp: params.customer.whatsapp || params.customer.phone,
             preferredLanguage: locale,
@@ -71,7 +78,7 @@ export async function saveRequestToDatabase(
           where: { id: customer.id },
           data: {
             fullName: params.customer.fullName,
-            email: params.customer.email,
+            email: customerEmail !== '' ? customerEmail : customer.email,
             phone: params.customer.phone,
             whatsapp: params.customer.whatsapp || customer.whatsapp,
           },
