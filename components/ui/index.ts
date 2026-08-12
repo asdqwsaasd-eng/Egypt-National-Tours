@@ -18,6 +18,7 @@ export { TourCard } from './TourCard';
 export type { TourCardProps } from './TourCard';
 export { ReviewCard } from './ReviewCard';
 export type { ReviewCardProps } from './ReviewCard';
+export { ReviewCarousel } from './ReviewCarousel';
 export { InfoCard } from './InfoCard';
 export type { InfoCardProps } from './InfoCard';
 

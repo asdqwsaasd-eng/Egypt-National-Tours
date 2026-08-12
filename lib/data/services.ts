@@ -6,6 +6,7 @@ export interface ServiceCategory {
   title: Record<SupportedLocale, string>;
   description: Record<SupportedLocale, string>;
   iconName: string;
+  imageSrc?: string;
   href: string;
   group: 'travel' | 'egypt_international' | 'visas' | 'religious' | 'ground';
 }
@@ -20,6 +21,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Domestic and international flight ticketing assistance and flight arrangements.',
     },
     iconName: 'Plane',
+    imageSrc: '/images/site-update/services/flights.webp',
     href: '/services/flights',
     group: 'travel',
   },
@@ -32,6 +34,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Hotel reservation services across 3, 4, and 5-star hotels and luxury resorts.',
     },
     iconName: 'Building2',
+    imageSrc: '/images/site-update/services/hotels.webp',
     href: '/services/hotels',
     group: 'travel',
   },
@@ -44,6 +47,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Comprehensive tour programs covering Cairo, Luxor, Aswan, Nile Cruises, and Sharm El Sheikh.',
     },
     iconName: 'Landmark',
+    imageSrc: '/images/site-update/services/egypt-tours.webp',
     href: '/egypt-tours',
     group: 'egypt_international',
   },
@@ -56,6 +60,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Customized international tour packages to top global destinations.',
     },
     iconName: 'Globe',
+    imageSrc: '/images/site-update/services/international-tours.webp',
     href: '/international-tours',
     group: 'egypt_international',
   },
@@ -68,6 +73,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Assistance and advisory for visa applications to various worldwide destinations.',
     },
     iconName: 'FileCheck',
+    imageSrc: '/images/site-update/services/visas.webp',
     href: '/services/visas',
     group: 'visas',
   },
@@ -80,6 +86,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Assistance with security clearance procedures for entering Egypt.',
     },
     iconName: 'ShieldCheck',
+    imageSrc: '/images/site-update/services/beach-tours.webp',
     href: '/services/security-approvals',
     group: 'visas',
   },
@@ -92,6 +99,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Premium Hajj programs and comprehensive pilgrim care services.',
     },
     iconName: 'Compass',
+    imageSrc: '/images/site-update/services/hajj-umrah.webp',
     href: '/hajj-umrah/hajj',
     group: 'religious',
   },
@@ -104,6 +112,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Year-round Umrah packages with comfortable accommodations in Makkah and Madinah.',
     },
     iconName: 'Moon',
+    imageSrc: '/images/site-update/services/hajj-umrah.webp',
     href: '/hajj-umrah/umrah',
     group: 'religious',
   },
@@ -116,6 +125,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Tourist transfers and air-conditioned private vehicle and bus arrangements.',
     },
     iconName: 'Bus',
+    imageSrc: '/images/site-update/services/transportation.webp',
     href: '/services/transportation',
     group: 'ground',
   },
@@ -128,6 +138,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       en: 'Submit a custom request for any special travel arrangements or additional services.',
     },
     iconName: 'Sparkles',
+    imageSrc: '/images/site-update/services/other-services.webp',
     href: '/services/custom-tours',
     group: 'egypt_international',
   },

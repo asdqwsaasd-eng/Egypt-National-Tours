@@ -85,6 +85,7 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
                       title={cat.title[locale]}
                       description={cat.description[locale]}
                       icon={<ServiceIcon iconName={cat.iconName} className="h-7 w-7" />}
+                      imageSrc={cat.imageSrc}
                       href={`/${locale}${cat.href}`}
                     />
                   ))}

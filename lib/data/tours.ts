@@ -32,7 +32,7 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       en: 'A classic tour exploring the Giza Pyramids, Grand Egyptian Museum, Khan El Khalili, and Old Cairo.',
     },
     overview: {
-      ar: 'برنامج متميز يستعرض أعرق المعالم التاريخية بالقاهرة والجيزة مع زيارة المعالم الفرعونية والإاسلامية والقبطية.',
+      ar: 'برنامج متميز يستعرض أعرق المعالم التاريخية بالقاهرة والجيزة مع زيارة المعالم الفرعونية والإسلامية والقبطية.',
       en: 'An immersive tour showcasing Cairo’s ancient monuments, Pharaonic wonders, and rich Islamic and Coptic heritage.',
     },
     duration: { ar: '4 أيام / 3 ليالي', en: '4 Days / 3 Nights' },
@@ -220,6 +220,67 @@ export const FEATURED_EGYPT_TOURS: TourProgram[] = [
       en: ['Domestic and international flights', 'Drinks and tips'],
     },
   },
+  {
+    id: 'hurghada-sharm',
+    slug: 'hurghada-sharm',
+    type: 'egypt',
+    title: { ar: 'الغردقة وشرم الشيخ', en: 'Hurghada & Sharm El Sheikh' },
+    summary: {
+      ar: 'برنامج شاطئي استوائي ممتع يجمع بين سحر منتجعات شرم الشيخ والشعب المرجانية بالغردقة.',
+      en: 'A thrilling Red Sea getaway combining luxury beach resorts in Sharm El Sheikh and Hurghada.',
+    },
+    overview: {
+      ar: 'استمتع بأفضل شواطئ البحر الأحمر والأنشطة البحرية والغوص في رحلة تجمع بين الغردقة وشرم الشيخ.',
+      en: 'Experience top Red Sea beaches, coral reefs, and water sports combining Hurghada and Sharm El Sheikh.',
+    },
+    duration: { ar: '6 أيام / 5 ليالي', en: '6 Days / 5 Nights' },
+    destinations: {
+      ar: ['الغردقة', 'شرم الشيخ'],
+      en: ['Hurghada', 'Sharm El Sheikh'],
+    },
+    imageSrc: '/images/site-update/tours/egypt-tour-hurghada-sharm.webp',
+    imageAlt: { ar: 'منتجعات الغردقة وشرم الشيخ', en: 'Hurghada and Sharm El Sheikh Resorts' },
+    itinerary: [
+      {
+        day: 1,
+        title: { ar: 'الوصول والاستقبال', en: 'Arrival & Check-in' },
+        description: { ar: 'الوصول والتسكين في منتجع شاطئي فاخر.', en: 'Arrival and transfer to luxury beach resort.' },
+      },
+      {
+        day: 2,
+        title: { ar: 'رحلة باخرة وشعب مرجانية', en: 'Boat Trip & Coral Reef Snorkeling' },
+        description: { ar: 'رحلة بحرية لمحمية رأس محمد والسباحة بين الشعب المرجانية.', en: 'Full-day boat trip to Ras Mohammed National Park for snorkeling.' },
+      },
+      {
+        day: 3,
+        title: { ar: 'سفاري ورياضات مائية', en: 'Desert Safari & Water Sports' },
+        description: { ar: 'سفاري بالبيتش باجي وعشاء بدوي وشاي بدوي الجبل.', en: 'Quad bike desert safari with traditional Bedouin dinner.' },
+      },
+      {
+        day: 4,
+        title: { ar: 'الاسترخاء والتسوق', en: 'Relaxation & Shopping' },
+        description: { ar: 'جولة بخليج نعمة أو المارينا لشراء الهدايا والاستمتاع بالمطاعم.', en: 'Leisure day at Naama Bay or Hurghada Marina.' },
+      },
+      {
+        day: 5,
+        title: { ar: 'يوم شاطئي حر', en: 'Beach & Watersports Day' },
+        description: { ar: 'يوم استرخاء حر على شواطئ البحر الأحمر.', en: 'Free leisure day to enjoy beach facilities and water activities.' },
+      },
+      {
+        day: 6,
+        title: { ar: 'المغادرة', en: 'Departure' },
+        description: { ar: 'الإفطار والانتقال للمطار للعودة.', en: 'Breakfast and private transfer to airport.' },
+      },
+    ],
+    included: {
+      ar: ['الإقامة بالمنتجع الشاطئي شاملة الإفطار والعشاء', 'الانتقالات بسيارات حديثة', 'رحلة البحر والسفاري'],
+      en: ['Resort accommodation with half board', 'Private transfers', 'Boat snorkeling trip & safari'],
+    },
+    excluded: {
+      ar: ['الطيران الداخلي أو الخارجي', 'المصروفات الشخصية'],
+      en: ['Flights', 'Personal expenses'],
+    },
+  },
 ];
 
 export const INTERNATIONAL_TOURS: TourProgram[] = [
@@ -274,6 +335,69 @@ export const INTERNATIONAL_TOURS: TourProgram[] = [
     excluded: {
       ar: ['رسوم التأشيرة إذا لزم الأمر', 'تذاكر الطيران الدولي'],
       en: ['Visa fees if required', 'International flights'],
+    },
+  },
+  {
+    id: 'istanbul-week',
+    slug: 'istanbul-week',
+    type: 'international',
+    title: { ar: 'أسبوع في إسطنبول', en: 'One Week in Istanbul' },
+    summary: {
+      ar: 'برنامج سياحي رائع لمدة أسبوع لاستكشاف معالم إسطنبول التاريخية والبوسفور والتسوق.',
+      en: 'A delightful 7-day tour exploring historic Istanbul, Bosphorus cruises, and bazaars.',
+    },
+    overview: {
+      ar: 'استمتع بأسبوع كامل في عاصمة التاريخ إسطنبول لزيارة آيا صوفيا والمسجد الأزرق ورحلة البوسفور.',
+      en: 'Spend a full week exploring the majestic history of Istanbul, Hagia Sophia, Blue Mosque, and Bosphorus.',
+    },
+    duration: { ar: '7 أيام / 6 ليالي', en: '7 Days / 6 Nights' },
+    destinations: { ar: ['إسطنبول'], en: ['Istanbul'] },
+    imageSrc: '/images/site-update/tours/international-tour-istanbul-week.webp',
+    imageAlt: { ar: 'معالم إسطنبول والبوسفور', en: 'Istanbul Skyline and Bosphorus' },
+    itinerary: [
+      {
+        day: 1,
+        title: { ar: 'الوصول لإسطنبول', en: 'Arrival in Istanbul' },
+        description: { ar: 'الاستقبال في مطار إسطنبول والانتقال للفندق.', en: 'Meet and assist at Istanbul airport and transfer to hotel.' },
+      },
+      {
+        day: 2,
+        title: { ar: 'السلطان أحمد وآيا صوفيا', en: 'Sultanahmet & Hagia Sophia' },
+        description: { ar: 'جولة بالبلدة القديمة، المسجد الأزرق، آيا صوفيا وقصر توبكابي.', en: 'Old city tour covering Hagia Sophia, Blue Mosque, and Topkapi Palace.' },
+      },
+      {
+        day: 3,
+        title: { ar: 'جولة البوسفور البانورامية', en: 'Bosphorus Cruise & Asian Side' },
+        description: { ar: 'رحلة بحرية بالبوسفور وتل العرائس وجسر البوسفور.', en: 'Bosphorus boat tour, Camlica Hill, and Asian continent crossing.' },
+      },
+      {
+        day: 4,
+        title: { ar: 'جزيرة الأميرات', en: 'Princes’ Islands Excursion' },
+        description: { ar: 'رحلة بالعبارة لجزيرة بويوك أدا للاستمتاع بالطبيعة والهدوء.', en: 'Ferry trip to Buyukada island with lunch and electric carriage tour.' },
+      },
+      {
+        day: 5,
+        title: { ar: 'ميدان تقسيم والتسوق', en: 'Taksim Square & Shopping' },
+        description: { ar: 'جولة بشارع الاستقلال وجراند بازار والسوق المصري.', en: 'Istiklal Street, Grand Bazaar, and Spice Market shopping.' },
+      },
+      {
+        day: 6,
+        title: { ar: 'يوم حر للراحة والتسوق', en: 'Leisure Day' },
+        description: { ar: 'يوم حر للتنزه والتسوق الذاتي بأسواق إسطنبول.', en: 'Free day for shopping and personal exploration.' },
+      },
+      {
+        day: 7,
+        title: { ar: 'المغادرة', en: 'Departure' },
+        description: { ar: 'الإفطار والانتقال لمطار إسطنبول للعودة.', en: 'Breakfast and private transfer to airport.' },
+      },
+    ],
+    included: {
+      ar: ['الإقامة بفندق 4 نجوم مع الإفطار', 'جولة البوسفور وجزيرة الأميرات', 'الانتقالات من وإلى المطار'],
+      en: ['4-star hotel accommodation with breakfast', 'Bosphorus cruise & Princes’ Islands trip', 'Airport transfers'],
+    },
+    excluded: {
+      ar: ['تأشيرة تركيا إذا لزم الأمر', 'تذاكر الطيران الدولي'],
+      en: ['Turkey visa if required', 'International flights'],
     },
   },
 ];

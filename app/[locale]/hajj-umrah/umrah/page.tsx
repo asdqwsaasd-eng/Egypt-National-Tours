@@ -43,7 +43,7 @@ export default async function UmrahPage({ params }: UmrahPageProps) {
           />
         </div>
 
-        {/* Task 4: Available Umrah Program Departures */}
+        {/* Available Umrah Program Departures */}
         <div className="mb-12 space-y-6">
           <div>
             <h3 className="text-2xl font-bold text-text-primary mb-2">
@@ -57,23 +57,23 @@ export default async function UmrahPage({ params }: UmrahPageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm">
+            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm flex items-center justify-center p-2">
               <Image
                 src="/images/site-update/umrah/umrah-program-8-days.webp"
                 alt={isAr ? 'برنامج العمرة 8 أيام' : 'Umrah Program 8 Days'}
                 width={800}
                 height={1000}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-contain block rounded-lg"
                 priority
               />
             </div>
-            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm">
+            <div className="bg-white rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm flex items-center justify-center p-2">
               <Image
                 src="/images/site-update/umrah/umrah-program-15-days.webp"
                 alt={isAr ? 'برنامج العمرة 15 يوم' : 'Umrah Program 15 Days'}
                 width={800}
                 height={1000}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-contain block rounded-lg"
                 priority
               />
             </div>

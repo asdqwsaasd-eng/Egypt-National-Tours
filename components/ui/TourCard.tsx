@@ -44,10 +44,23 @@ export const TourCard = React.forwardRef<HTMLDivElement, TourCardProps>(
     },
     ref
   ) => {
+    const isHajjUmrah = slug === 'hajj-umrah';
     const detailsLabel = viewDetailsText ?? (locale === 'ar' ? 'عرض التفاصيل' : 'View Details');
     const requestLabel = requestTourText ?? (locale === 'ar' ? 'طلب الرحلة' : 'Request Tour');
-    const detailsUrl = detailsHref ?? (type === 'international' ? `/${locale}/international-tours/${slug}` : `/${locale}/egypt-tours/${slug}`);
-    const bookingUrl = requestHref ?? `/${locale}/request?tour=${slug}`;
+    
+    const detailsUrl = detailsHref ?? (
+      isHajjUmrah
+        ? `/${locale}/hajj-umrah`
+        : type === 'international'
+        ? `/${locale}/international-tours/${slug}`
+        : `/${locale}/egypt-tours/${slug}`
+    );
+
+    const bookingUrl = requestHref ?? (
+      isHajjUmrah
+        ? `/${locale}/hajj-umrah`
+        : `/${locale}/request?tour=${slug}`
+    );
 
     return (
       <div
