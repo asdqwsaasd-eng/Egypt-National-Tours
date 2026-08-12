@@ -31,6 +31,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const pathname = usePathname();
+  const isAr = locale === 'ar';
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
@@ -44,12 +45,15 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
 
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -90,35 +94,35 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         className="inline-flex items-center justify-center p-2 rounded-lg text-text-primary hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
         aria-expanded={isOpen}
         aria-controls="mobile-menu-drawer"
-        aria-label={isOpen ? (locale === 'ar' ? 'إغلاق القائمة' : 'Close menu') : (locale === 'ar' ? 'فتح القائمة' : 'Open menu')}
+        aria-label={isOpen ? (isAr ? 'إغلاق القائمة' : 'Close menu') : (isAr ? 'فتح القائمة' : 'Open menu')}
       >
         {isOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
       </button>
 
-      {/* Drawer backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 motion-safe:animate-in motion-safe:fade-in"
-          onClick={closeMenu}
-          aria-hidden="true"
-        />
-      )}
+      {/* Backdrop: Dark semi-transparent overlay positioned at z-[90] */}
+      <div
+        className={cn(
+          'fixed inset-0 z-[90] bg-black/65 backdrop-blur-xs transition-opacity duration-300',
+          isOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
+        )}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
 
-      {/* Slide-out Drawer Panel */}
+      {/* Slide-out Drawer Panel: Positioned at z-[100], 100% solid white, robust RTL/LTR slide */}
       <div
         id="mobile-menu-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label={locale === 'ar' ? 'قائمة التنقل' : 'Navigation Menu'}
+        aria-label={isAr ? 'قائمة التنقل' : 'Navigation Menu'}
         className={cn(
-          'fixed inset-y-0 z-50 w-full max-w-xs bg-white shadow-xl flex flex-col justify-between p-6 transition-transform duration-300 ease-in-out',
-          /* Positioning based on dir: start-0 for LTR/RTL sliding */
-          locale === 'ar' ? 'start-0 border-e border-border' : 'end-0 border-s border-border',
+          'fixed top-0 bottom-0 z-[100] w-[280px] sm:w-80 bg-white shadow-2xl flex flex-col justify-between p-6 transition-all duration-300 ease-in-out overflow-y-auto',
+          isAr ? 'start-0 border-e border-border' : 'end-0 border-s border-border',
           isOpen
-            ? 'translate-x-0'
-            : locale === 'ar'
-            ? '-translate-x-full'
-            : 'translate-x-full'
+            ? 'translate-x-0 opacity-100 pointer-events-auto visible'
+            : isAr
+            ? '-translate-x-full opacity-0 pointer-events-none invisible'
+            : 'translate-x-full opacity-0 pointer-events-none invisible'
         )}
       >
         <div className="flex flex-col gap-6">
@@ -138,9 +142,9 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               type="button"
               onClick={closeMenu}
               className="p-2 rounded-lg text-text-secondary hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
-              aria-label={locale === 'ar' ? 'إغلاق القائمة' : 'Close menu'}
+              aria-label={isAr ? 'إغلاق القائمة' : 'Close menu'}
             >
-              <X className="h-5 w-5" aria-hidden="true" />
+              <X className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
 

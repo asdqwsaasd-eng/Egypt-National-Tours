@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border shadow-[var(--shadow-header)] transition-shadow duration-200">
       <Container size="default">
-        <div className="flex h-20 items-center justify-between gap-4">
+        <div className="flex h-16 sm:h-20 items-center justify-between gap-3 sm:gap-4">
           {/* Official Brand Logo — sacred asset, exact proportions preserved */}
           <Link
             href={`/${locale}`}
@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
               alt="Egypt National Tours — إيجيبت ناشيونال تورز"
               width={160}
               height={52}
-              style={{ width: 'auto', height: 'auto', maxHeight: '48px' }}
+              className="max-h-9 sm:max-h-12 w-auto"
               priority
             />
           </Link>

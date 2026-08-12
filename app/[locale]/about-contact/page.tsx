@@ -55,17 +55,17 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-8">
-            <div className="lg:col-span-8 bg-white p-8 rounded-[var(--radius-card)] border border-border space-y-6">
+            <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-[var(--radius-card)] border border-border space-y-6">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-gold-light/60 border border-brand-gold/30 text-brand-red text-xs sm:text-sm font-bold">
                 <Award className="h-4 w-4 shrink-0" />
                 <span>{COMPANY.license[locale]}</span>
               </div>
 
-              <h2 className="text-2xl font-bold text-text-primary">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
                 {isAr ? 'عن الشركة وتاريخنا' : 'About Our Heritage & Services'}
               </h2>
 
-              <p className="text-text-secondary leading-relaxed">
+              <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
                 {isAr
                   ? 'شركة إيجيبت ناشيونال تورز هي شركة سياحة وسفر مرخصة منذ عام 1990 في جمهورية مصر العربية والولايات المتحدة الأمريكية. على مدار أكثر من ثلاثة عقود، نمتلك سجلاً حافلاً بالخبرة والتميز في تقديم أرقى الخدمات السياحية للمسافرين من مصر وجميع أنحاء العالم.'
                   : 'Egypt National Tours is an established travel and tourism company licensed since 1990 in Egypt & USA. For over three decades, we have maintained a reputation for reliability, excellence, and personalized hospitality for domestic and international travelers.'}
@@ -161,7 +161,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               </div>
             </div>
 
-            {/* Fix 3: Both Public Emails in EXACT required order (Yahoo top, Domain below) */}
+            {/* Both Public Emails in EXACT required order (Yahoo top, Domain below) */}
             <div className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-3">
               <div className="h-10 w-10 rounded-full bg-brand-gold-light text-brand-red flex items-center justify-center">
                 <Mail className="h-5 w-5" />
@@ -207,21 +207,21 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
         </div>
 
         {/* ─── SECTION C & D: ACTIONS & MAP ─── */}
-        <div className="bg-sand/50 p-8 rounded-[var(--radius-card)] border border-border text-center flex flex-col items-center gap-6">
-          <h3 className="text-2xl font-bold text-text-primary">
+        <div className="bg-sand/50 p-6 sm:p-8 rounded-[var(--radius-card)] border border-border text-center flex flex-col items-center gap-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-text-primary">
             {isAr ? 'تواصل معنا الآن أو تفضل بزيارتنا' : 'Connect With Us or Find Our Location'}
           </h3>
 
-          <div className="flex flex-wrap justify-center gap-4">
-            <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="lg">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 w-full sm:w-auto">
+            <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="lg" className="w-full sm:w-auto">
               <MessageCircle className="h-5 w-5" />
               <span>{isAr ? 'تواصل معنا عبر واتساب' : 'Chat on WhatsApp'}</span>
             </LinkButton>
-            <LinkButton href={`tel:${CONTACT.phonePrimaryRaw}`} variant="secondary" size="lg">
+            <LinkButton href={`tel:${CONTACT.phonePrimaryRaw}`} variant="secondary" size="lg" className="w-full sm:w-auto">
               <Phone className="h-5 w-5 text-brand-red" />
               <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>PH: {CONTACT.phonePrimary}</span>
             </LinkButton>
-            <LinkButton href={CONTACT.googleMaps} target="_blank" rel="noopener noreferrer" variant="ghost" size="lg" className="border border-border bg-white">
+            <LinkButton href={CONTACT.googleMaps} target="_blank" rel="noopener noreferrer" variant="ghost" size="lg" className="w-full sm:w-auto border border-border bg-white">
               <ExternalLink className="h-5 w-5 text-brand-red" />
               <span>{isAr ? 'فتح الموقع في خرائط جوجل' : 'Open in Google Maps'}</span>
             </LinkButton>
