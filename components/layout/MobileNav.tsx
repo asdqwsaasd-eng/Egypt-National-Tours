@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -30,8 +31,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   className,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const pathname = usePathname();
   const isAr = locale === 'ar';
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
@@ -86,6 +92,103 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     return pathname.startsWith(href);
   };
 
+  const renderDrawer = () => {
+    if (!mounted) return null;
+
+    return createPortal(
+      <>
+        {/* Backdrop: Positioned at root level with z-[9998] */}
+        <div
+          className={cn(
+            'fixed inset-0 z-[9998] bg-black/65 backdrop-blur-xs transition-opacity duration-300',
+            isOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
+          )}
+          onClick={closeMenu}
+          aria-hidden="true"
+        />
+
+        {/* Slide-out Drawer Panel: Positioned at root level with z-[9999] */}
+        <div
+          id="mobile-menu-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={isAr ? 'قائمة التنقل' : 'Navigation Menu'}
+          className={cn(
+            'fixed top-0 bottom-0 right-0 inset-y-0 z-[9999] w-[280px] sm:w-80 h-full h-screen h-[100dvh] max-h-screen bg-white shadow-2xl flex flex-col justify-between p-6 transition-transform duration-300 ease-in-out overflow-y-auto',
+            isOpen
+              ? 'translate-x-0 opacity-100 pointer-events-auto visible'
+              : 'translate-x-full opacity-0 pointer-events-none invisible'
+          )}
+        >
+          <div className="flex flex-col gap-6">
+            {/* Header row in drawer */}
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <Link href={`/${locale}`} onClick={closeMenu} className="flex items-center gap-2">
+                <Image
+                  src="/assets/brand/logo-original.png"
+                  alt="Egypt National Tours"
+                  width={140}
+                  height={44}
+                  className="max-h-9 w-auto"
+                  priority
+                />
+              </Link>
+              <button
+                type="button"
+                onClick={closeMenu}
+                className="p-2 rounded-lg text-text-primary hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
+                aria-label={isAr ? 'إغلاق القائمة' : 'Close menu'}
+              >
+                <X className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
+
+            {/* Navigation Links */}
+            <nav className="flex flex-col gap-1.5" aria-label="Mobile Navigation">
+              {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      'px-4 py-3 rounded-xl text-base font-bold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red',
+                      active
+                        ? 'bg-brand-gold-light/50 text-brand-red font-extrabold shadow-xs'
+                        : 'text-text-primary hover:bg-sand/60 hover:text-brand-red'
+                    )}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Footer actions in drawer */}
+          <div className="flex flex-col gap-4 pt-6 border-t border-border mt-auto">
+            <div className="flex justify-center">
+              <LanguageSwitcher currentLocale={locale} />
+            </div>
+            <LinkButton
+              href={`/${locale}/request`}
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={closeMenu}
+              className="shadow-md font-bold"
+            >
+              {dictionary.requestTrip}
+            </LinkButton>
+          </div>
+        </div>
+      </>,
+      document.body
+    );
+  };
+
   return (
     <div className={cn('lg:hidden', className)}>
       <button
@@ -99,95 +202,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         {isOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
       </button>
 
-      {/* Backdrop: Dark semi-transparent overlay positioned at z-[90] */}
-      <div
-        className={cn(
-          'fixed inset-0 z-[90] bg-black/65 backdrop-blur-xs transition-opacity duration-300',
-          isOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
-        )}
-        onClick={closeMenu}
-        aria-hidden="true"
-      />
-
-      {/* Slide-out Drawer Panel: Positioned at z-[100], 100% solid white, robust RTL/LTR slide */}
-      <div
-        id="mobile-menu-drawer"
-        role="dialog"
-        aria-modal="true"
-        aria-label={isAr ? 'قائمة التنقل' : 'Navigation Menu'}
-        className={cn(
-          'fixed top-0 bottom-0 z-[100] w-[280px] sm:w-80 bg-white shadow-2xl flex flex-col justify-between p-6 transition-all duration-300 ease-in-out overflow-y-auto',
-          isAr ? 'start-0 border-e border-border' : 'end-0 border-s border-border',
-          isOpen
-            ? 'translate-x-0 opacity-100 pointer-events-auto visible'
-            : isAr
-            ? '-translate-x-full opacity-0 pointer-events-none invisible'
-            : 'translate-x-full opacity-0 pointer-events-none invisible'
-        )}
-      >
-        <div className="flex flex-col gap-6">
-          {/* Header row in drawer */}
-          <div className="flex items-center justify-between pb-4 border-b border-border">
-            <Link href={`/${locale}`} onClick={closeMenu} className="flex items-center gap-2">
-              <Image
-                src="/assets/brand/logo-original.png"
-                alt="Egypt National Tours"
-                width={120}
-                height={40}
-                style={{ height: 'auto', width: 'auto', maxHeight: '36px' }}
-                priority
-              />
-            </Link>
-            <button
-              type="button"
-              onClick={closeMenu}
-              className="p-2 rounded-lg text-text-secondary hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
-              aria-label={isAr ? 'إغلاق القائمة' : 'Close menu'}
-            >
-              <X className="h-6 w-6" aria-hidden="true" />
-            </button>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
-            {navItems.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={cn(
-                    'px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red',
-                    active
-                      ? 'bg-brand-gold-light/40 text-brand-red font-bold'
-                      : 'text-text-primary hover:bg-sand/60 hover:text-brand-red'
-                  )}
-                  aria-current={active ? 'page' : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Footer actions in drawer */}
-        <div className="flex flex-col gap-4 pt-6 border-t border-border">
-          <div className="flex justify-center">
-            <LanguageSwitcher currentLocale={locale} />
-          </div>
-          <LinkButton
-            href={`/${locale}/request`}
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={closeMenu}
-          >
-            {dictionary.requestTrip}
-          </LinkButton>
-        </div>
-      </div>
+      {renderDrawer()}
     </div>
   );
 };
