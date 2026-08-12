@@ -139,38 +139,59 @@ export const Footer: React.FC<FooterProps> = ({
                   href={CONTACT.whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-brand-red transition-colors font-medium dir-ltr"
+                  className="hover:text-brand-red transition-colors font-medium inline-block"
                 >
-                  {CONTACT.whatsapp}
+                  <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                    WA: {CONTACT.whatsapp}
+                  </span>
                 </a>
               </li>
+
+              {/* Fix 2: Phone Numbers with PH: prefix and strict LTR Bidi Isolation */}
               <li className="flex items-start gap-2.5">
                 <Phone className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
-                <div className="flex flex-col gap-0.5 dir-ltr">
-                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red transition-colors">
-                    {CONTACT.phonePrimary}
+                <div className="flex flex-col gap-1">
+                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.phonePrimary}
+                    </span>
                   </a>
-                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red transition-colors">
-                    {CONTACT.phoneSecondary}
+                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.phoneSecondary}
+                    </span>
                   </a>
-                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red transition-colors">
-                    {CONTACT.mobile1}
+                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red transition-colors inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.mobile1}
+                    </span>
                   </a>
-                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red transition-colors">
-                    {CONTACT.mobile2}
+                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red transition-colors inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.mobile2}
+                    </span>
                   </a>
                 </div>
               </li>
+
+              {/* Fix 3: Both Public Emails in EXACT required order: Yahoo top, Domain below */}
               <li className="flex items-start gap-2.5">
                 <Mail className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
-                <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors break-all">
-                  {CONTACT.email}
-                </a>
+                <div className="flex flex-col gap-1">
+                  <a href={`mailto:${CONTACT.secondaryEmail}`} className="hover:text-brand-red transition-colors break-all">
+                    {CONTACT.secondaryEmail}
+                  </a>
+                  <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors break-all">
+                    {CONTACT.email}
+                  </a>
+                </div>
               </li>
+
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
                 <span>{CONTACT.address[locale]}</span>
               </li>
+
               <li className="flex items-start gap-2.5">
                 <Clock className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" aria-hidden="true" />
                 <div>

@@ -122,29 +122,63 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
                 <Phone className="h-5 w-5" />
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'الهاتف والواتساب' : 'Phone & WhatsApp'}</h3>
-              <div className="text-sm text-text-secondary space-y-1 dir-ltr">
+              <div className="text-sm text-text-secondary space-y-1.5">
                 <p className="font-semibold text-brand-red">
-                  <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                    WA: {CONTACT.whatsapp}
+                  <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:underline inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      WA: {CONTACT.whatsapp}
+                    </span>
                   </a>
                 </p>
-                <p><a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red">{CONTACT.phonePrimary}</a></p>
-                <p><a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red">{CONTACT.phoneSecondary}</a></p>
-                <p><a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red">{CONTACT.mobile1}</a></p>
-                <p><a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red">{CONTACT.mobile2}</a></p>
+                <p>
+                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.phonePrimary}
+                    </span>
+                  </a>
+                </p>
+                <p>
+                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.phoneSecondary}
+                    </span>
+                  </a>
+                </p>
+                <p>
+                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.mobile1}
+                    </span>
+                  </a>
+                </p>
+                <p>
+                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red inline-block">
+                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      PH: {CONTACT.mobile2}
+                    </span>
+                  </a>
+                </p>
               </div>
             </div>
 
+            {/* Fix 3: Both Public Emails in EXACT required order (Yahoo top, Domain below) */}
             <div className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-3">
               <div className="h-10 w-10 rounded-full bg-brand-gold-light text-brand-red flex items-center justify-center">
                 <Mail className="h-5 w-5" />
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</h3>
-              <p className="text-sm text-text-secondary break-all">
-                <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors font-medium">
-                  {CONTACT.email}
-                </a>
-              </p>
+              <div className="text-sm text-text-secondary space-y-1.5 break-all">
+                <p>
+                  <a href={`mailto:${CONTACT.secondaryEmail}`} className="hover:text-brand-red transition-colors font-medium">
+                    {CONTACT.secondaryEmail}
+                  </a>
+                </p>
+                <p>
+                  <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors font-medium">
+                    {CONTACT.email}
+                  </a>
+                </p>
+              </div>
             </div>
 
             <div className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-3">
@@ -184,8 +218,8 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               <span>{isAr ? 'تواصل معنا عبر واتساب' : 'Chat on WhatsApp'}</span>
             </LinkButton>
             <LinkButton href={`tel:${CONTACT.phonePrimaryRaw}`} variant="secondary" size="lg">
-              <Phone className="h-5 w-5" />
-              <span>{isAr ? 'اتصل بنا' : 'Call Primary Line'}</span>
+              <Phone className="h-5 w-5 text-brand-red" />
+              <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>PH: {CONTACT.phonePrimary}</span>
             </LinkButton>
             <LinkButton href={CONTACT.googleMaps} target="_blank" rel="noopener noreferrer" variant="ghost" size="lg" className="border border-border bg-white">
               <ExternalLink className="h-5 w-5 text-brand-red" />

@@ -43,14 +43,14 @@ export default async function HajjPage({ params }: HajjPageProps) {
           />
         </div>
 
-        {/* Task 3: Promotional Hajj Banner */}
+        {/* Fix 1: Display FULL Hajj Banner without cropping, preserving natural aspect ratio */}
         <div className="mb-12 rounded-[var(--radius-card)] overflow-hidden border border-border shadow-sm bg-white">
           <Image
             src="/images/site-update/banners/egypt-national-tours-company-banner.webp"
             alt={isAr ? 'شركة إيجيبت ناشيونال تورز - برامج الحج والعمرة' : 'Egypt National Tours - Hajj & Umrah Banner'}
             width={1200}
-            height={630}
-            className="w-full h-auto object-cover max-h-[450px]"
+            height={675}
+            className="w-full h-auto object-contain block"
             priority
           />
         </div>
