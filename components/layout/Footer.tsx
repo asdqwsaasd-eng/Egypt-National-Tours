@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { Phone, Mail, MapPin, Clock, ExternalLink, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { SupportedLocale } from '@/lib/i18n/config';
-import { COMPANY, CONTACT } from '@/lib/utils/constants';
+import { COMPANY } from '@/lib/utils/constants';
+import { getContactSettings } from '@/lib/db/contact-settings-repository';
 import { Container } from '@/components/ui/Container';
 
 interface FooterProps {
@@ -25,13 +26,14 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export const Footer: React.FC<FooterProps> = ({
+export const Footer = async ({
   locale,
   dictionary,
   className,
-}) => {
+}: FooterProps) => {
   const isAr = locale === 'ar';
   const currentYear = new Date().getFullYear();
+  const contact = await getContactSettings();
 
   return (
     <footer className={cn('bg-cream border-t border-border pt-12 pb-8 text-text-primary', className)}>
@@ -136,68 +138,76 @@ export const Footer: React.FC<FooterProps> = ({
               <li className="flex items-start gap-2.5">
                 <MessageCircle className="h-4 w-4 text-[#25D366] shrink-0 mt-0.5" aria-hidden="true" />
                 <a
-                  href={CONTACT.whatsappLink}
+                  href={contact.whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-brand-red transition-colors font-medium inline-block"
                 >
                   <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                    WA: {CONTACT.whatsapp}
+                    WA: {contact.whatsappNumber}
                   </span>
                 </a>
               </li>
 
-              {/* Fix 2: Phone Numbers with PH: prefix and strict LTR Bidi Isolation */}
+              {/* Phone Numbers with PH: prefix and strict LTR Bidi Isolation */}
               <li className="flex items-start gap-2.5">
                 <Phone className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
                 <div className="flex flex-col gap-1">
-                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
+                  <a href={`tel:${contact.phonePrimaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
                     <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.phonePrimary}
+                      PH: {contact.phonePrimary}
                     </span>
                   </a>
-                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.phoneSecondary}
-                    </span>
-                  </a>
-                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red transition-colors inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.mobile1}
-                    </span>
-                  </a>
-                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red transition-colors inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.mobile2}
-                    </span>
-                  </a>
+                  {contact.phoneSecondary && (
+                    <a href={`tel:${contact.phoneSecondaryRaw}`} className="hover:text-brand-red transition-colors inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.phoneSecondary}
+                      </span>
+                    </a>
+                  )}
+                  {contact.mobile1 && (
+                    <a href={`tel:${contact.mobile1Raw}`} className="hover:text-brand-red transition-colors inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.mobile1}
+                      </span>
+                    </a>
+                  )}
+                  {contact.mobile2 && (
+                    <a href={`tel:${contact.mobile2Raw}`} className="hover:text-brand-red transition-colors inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.mobile2}
+                      </span>
+                    </a>
+                  )}
                 </div>
               </li>
 
-              {/* Fix 3: Both Public Emails in EXACT required order: Yahoo top, Domain below */}
+              {/* Both Public Emails in EXACT required order: Yahoo top, Domain below */}
               <li className="flex items-start gap-2.5">
                 <Mail className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
                 <div className="flex flex-col gap-1">
-                  <a href={`mailto:${CONTACT.secondaryEmail}`} className="hover:text-brand-red transition-colors break-all">
-                    {CONTACT.secondaryEmail}
-                  </a>
-                  <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors break-all">
-                    {CONTACT.email}
+                  {contact.secondaryEmail && (
+                    <a href={`mailto:${contact.secondaryEmail}`} className="hover:text-brand-red transition-colors break-all">
+                      {contact.secondaryEmail}
+                    </a>
+                  )}
+                  <a href={`mailto:${contact.email}`} className="hover:text-brand-red transition-colors break-all">
+                    {contact.email}
                   </a>
                 </div>
               </li>
 
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 text-brand-red shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{CONTACT.address[locale]}</span>
+                <span>{isAr ? contact.addressAr : contact.addressEn}</span>
               </li>
 
               <li className="flex items-start gap-2.5">
                 <Clock className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
-                  <p className="font-semibold text-text-primary">{CONTACT.workingHoursHeader[locale]}</p>
-                  <p>{CONTACT.workingHours[locale]}</p>
-                  <p className="text-brand-red font-medium">{CONTACT.offDays[locale]}</p>
+                  <p className="font-semibold text-text-primary">{isAr ? 'ساعات العمل بالمكتب' : 'Office Working Hours'}</p>
+                  <p>{isAr ? contact.workingHoursAr : contact.workingHoursEn}</p>
+                  <p className="text-brand-red font-medium">{isAr ? contact.offDaysAr : contact.offDaysEn}</p>
                 </div>
               </li>
             </ul>
@@ -205,7 +215,7 @@ export const Footer: React.FC<FooterProps> = ({
             {/* Social & Google Maps Links */}
             <div className="mt-4 pt-3 flex items-center gap-3">
               <a
-                href={CONTACT.facebook}
+                href={contact.facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2] hover:underline"
@@ -216,7 +226,7 @@ export const Footer: React.FC<FooterProps> = ({
               </a>
               <span className="text-text-muted opacity-40">•</span>
               <a
-                href={CONTACT.googleMaps}
+                href={contact.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-brand-red hover:underline"

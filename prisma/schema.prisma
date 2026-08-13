@@ -471,13 +471,18 @@ model ContactSettings {
   whatsappNumber  String   @map("whatsapp_number")
   phonePrimary    String   @map("phone_primary")
   phoneSecondary  String?  @map("phone_secondary")
+  mobile1         String?  @map("mobile_1")
+  mobile2         String?  @map("mobile_2")
   email           String
+  secondaryEmail  String?  @map("secondary_email")
   facebookUrl     String?  @map("facebook_url")
   googleMapsUrl   String?  @map("google_maps_url")
   addressAr       String?  @map("address_ar") @db.Text
   addressEn       String?  @map("address_en") @db.Text
   workingHoursAr  String?  @map("working_hours_ar") @db.Text
   workingHoursEn  String?  @map("working_hours_en") @db.Text
+  offDaysAr       String?  @map("off_days_ar") @db.Text
+  offDaysEn       String?  @map("off_days_en") @db.Text
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("contact_settings")

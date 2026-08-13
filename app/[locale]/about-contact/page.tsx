@@ -2,7 +2,8 @@ import * as React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
-import { COMPANY, CONTACT } from '@/lib/utils/constants';
+import { COMPANY } from '@/lib/utils/constants';
+import { getContactSettings } from '@/lib/db/contact-settings-repository';
 import { Container, SectionHeader, LinkButton, InfoCard } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { generatePageMetadata } from '@/lib/seo/metadata';
@@ -37,6 +38,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
 
   const locale = rawLocale as SupportedLocale;
   const isAr = locale === 'ar';
+  const contact = await getContactSettings();
 
   return (
     <div className="py-8 pb-16">
@@ -124,40 +126,46 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'الهاتف والواتساب' : 'Phone & WhatsApp'}</h3>
               <div className="text-sm text-text-secondary space-y-1.5">
                 <p className="font-semibold text-brand-red">
-                  <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:underline inline-block">
+                  <a href={contact.whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:underline inline-block">
                     <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      WA: {CONTACT.whatsapp}
+                      WA: {contact.whatsappNumber}
                     </span>
                   </a>
                 </p>
                 <p>
-                  <a href={`tel:${CONTACT.phonePrimaryRaw}`} className="hover:text-brand-red inline-block">
+                  <a href={`tel:${contact.phonePrimaryRaw}`} className="hover:text-brand-red inline-block">
                     <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.phonePrimary}
+                      PH: {contact.phonePrimary}
                     </span>
                   </a>
                 </p>
-                <p>
-                  <a href={`tel:${CONTACT.phoneSecondaryRaw}`} className="hover:text-brand-red inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.phoneSecondary}
-                    </span>
-                  </a>
-                </p>
-                <p>
-                  <a href={`tel:${CONTACT.mobile1Raw}`} className="hover:text-brand-red inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.mobile1}
-                    </span>
-                  </a>
-                </p>
-                <p>
-                  <a href={`tel:${CONTACT.mobile2Raw}`} className="hover:text-brand-red inline-block">
-                    <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-                      PH: {CONTACT.mobile2}
-                    </span>
-                  </a>
-                </p>
+                {contact.phoneSecondary && (
+                  <p>
+                    <a href={`tel:${contact.phoneSecondaryRaw}`} className="hover:text-brand-red inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.phoneSecondary}
+                      </span>
+                    </a>
+                  </p>
+                )}
+                {contact.mobile1 && (
+                  <p>
+                    <a href={`tel:${contact.mobile1Raw}`} className="hover:text-brand-red inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.mobile1}
+                      </span>
+                    </a>
+                  </p>
+                )}
+                {contact.mobile2 && (
+                  <p>
+                    <a href={`tel:${contact.mobile2Raw}`} className="hover:text-brand-red inline-block">
+                      <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                        PH: {contact.mobile2}
+                      </span>
+                    </a>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -168,14 +176,16 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</h3>
               <div className="text-sm text-text-secondary space-y-1.5 break-all">
+                {contact.secondaryEmail && (
+                  <p>
+                    <a href={`mailto:${contact.secondaryEmail}`} className="hover:text-brand-red transition-colors font-medium">
+                      {contact.secondaryEmail}
+                    </a>
+                  </p>
+                )}
                 <p>
-                  <a href={`mailto:${CONTACT.secondaryEmail}`} className="hover:text-brand-red transition-colors font-medium">
-                    {CONTACT.secondaryEmail}
-                  </a>
-                </p>
-                <p>
-                  <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-red transition-colors font-medium">
-                    {CONTACT.email}
+                  <a href={`mailto:${contact.email}`} className="hover:text-brand-red transition-colors font-medium">
+                    {contact.email}
                   </a>
                 </p>
               </div>
@@ -187,7 +197,7 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               </div>
               <h3 className="text-base font-bold text-text-primary">{isAr ? 'العنوان' : 'Office Address'}</h3>
               <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-                {CONTACT.address[locale]}
+                {isAr ? contact.addressAr : contact.addressEn}
               </p>
             </div>
 
@@ -195,12 +205,12 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
               <div className="h-10 w-10 rounded-full bg-brand-gold-light text-brand-red flex items-center justify-center">
                 <Clock className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-text-primary">{CONTACT.workingHoursHeader[locale]}</h3>
+              <h3 className="text-base font-bold text-text-primary">{isAr ? 'ساعات العمل بالمكتب' : 'Office Working Hours'}</h3>
               <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-                {CONTACT.workingHours[locale]}
+                {isAr ? contact.workingHoursAr : contact.workingHoursEn}
               </p>
               <p className="text-xs text-brand-red font-medium">
-                {CONTACT.offDays[locale]}
+                {isAr ? contact.offDaysAr : contact.offDaysEn}
               </p>
             </div>
           </div>
@@ -213,15 +223,15 @@ export default async function AboutContactPage({ params }: AboutContactPageProps
           </h3>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 w-full sm:w-auto">
-            <LinkButton href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="lg" className="w-full sm:w-auto">
+            <LinkButton href={contact.whatsappLink} target="_blank" rel="noopener noreferrer" variant="whatsapp" size="lg" className="w-full sm:w-auto">
               <MessageCircle className="h-5 w-5" />
               <span>{isAr ? 'تواصل معنا عبر واتساب' : 'Chat on WhatsApp'}</span>
             </LinkButton>
-            <LinkButton href={`tel:${CONTACT.phonePrimaryRaw}`} variant="secondary" size="lg" className="w-full sm:w-auto">
+            <LinkButton href={`tel:${contact.phonePrimaryRaw}`} variant="secondary" size="lg" className="w-full sm:w-auto">
               <Phone className="h-5 w-5 text-brand-red" />
-              <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>PH: {CONTACT.phonePrimary}</span>
+              <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>PH: {contact.phonePrimary}</span>
             </LinkButton>
-            <LinkButton href={CONTACT.googleMaps} target="_blank" rel="noopener noreferrer" variant="ghost" size="lg" className="w-full sm:w-auto border border-border bg-white">
+            <LinkButton href={contact.googleMapsUrl} target="_blank" rel="noopener noreferrer" variant="ghost" size="lg" className="w-full sm:w-auto border border-border bg-white">
               <ExternalLink className="h-5 w-5 text-brand-red" />
               <span>{isAr ? 'فتح الموقع في خرائط جوجل' : 'Open in Google Maps'}</span>
             </LinkButton>
