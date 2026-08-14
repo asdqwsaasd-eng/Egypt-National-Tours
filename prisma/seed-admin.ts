@@ -1,7 +1,13 @@
+import dotenv from 'dotenv';
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { pbkdf2Sync, randomBytes } from 'crypto';
+
+// Automatically load local environment variables from .env.local, fallback to .env
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+dotenv.config();
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
@@ -10,7 +16,10 @@ function hashPassword(password: string): string {
 }
 
 function createPrismaClient(): PrismaClient | null {
-  const connectionString = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
+  const connectionString =
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_URL_UNPOOLED ||
+    process.env.POSTGRES_URL;
 
   if (!connectionString || connectionString.includes('placeholder')) {
     return null;
@@ -38,14 +47,15 @@ async function main() {
   if (!initialPassword || initialPassword.trim().length === 0) {
     console.log('[AdminSeed] Status: ADMIN TOOLING READY — PASSWORD STILL REQUIRED');
     console.log('[AdminSeed] Notice: ADMIN_INITIAL_PASSWORD is not set in environment variables.');
-    console.log('[AdminSeed] To create or update the production Admin user, run:');
+    console.log('[AdminSeed] To create or update the Admin user, run:');
     console.log('  $env:ADMIN_INITIAL_PASSWORD="YourSecretPassword"; npx tsx prisma/seed-admin.ts');
     return;
   }
 
   const prisma = createPrismaClient();
   if (!prisma) {
-    console.error('[AdminSeed] Error: Database connection string (DATABASE_URL) is not available.');
+    console.error('[AdminSeed] Error: Database connection string (DATABASE_URL) is not available or is set to placeholder in .env.local.');
+    console.error('[AdminSeed] Please ensure DATABASE_URL in .env.local or environment variable contains your valid PostgreSQL connection string.');
     process.exit(1);
   }
 
