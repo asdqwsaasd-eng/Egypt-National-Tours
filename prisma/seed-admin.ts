@@ -15,24 +15,73 @@ function hashPassword(password: string): string {
   return `${salt}:${hash}`;
 }
 
-function createPrismaClient(): PrismaClient | null {
-  const connectionString =
-    process.env.DATABASE_URL ||
-    process.env.DATABASE_URL_UNPOOLED ||
-    process.env.POSTGRES_URL;
+interface ConnectionSelection {
+  connectionString: string | null;
+  variableName: string | null;
+  errorReason: string | null;
+}
 
-  if (!connectionString || connectionString.includes('placeholder')) {
-    return null;
+function getValidConnectionString(): ConnectionSelection {
+  // Preferred connection priority for CLI seeding:
+  // 1. DATABASE_URL_UNPOOLED (Direct PostgreSQL connection suitable for CLI/seeding)
+  // 2. DATABASE_URL (Pooled connection)
+  // 3. DATABASE_POSTGRES_URL_NON_POOLING
+  // 4. DATABASE_POSTGRES_URL
+  // 5. POSTGRES_URL
+  const candidateKeys = [
+    'DATABASE_URL_UNPOOLED',
+    'DATABASE_URL',
+    'DATABASE_POSTGRES_URL_NON_POOLING',
+    'DATABASE_POSTGRES_URL',
+    'POSTGRES_URL',
+  ];
+
+  for (const key of candidateKeys) {
+    const val = process.env[key];
+    if (val && typeof val === 'string') {
+      const trimmed = val.trim();
+      if (
+        trimmed.length > 0 &&
+        !trimmed.includes('placeholder') &&
+        !trimmed.includes('[SENSITIVE]') &&
+        (trimmed.startsWith('postgres://') || trimmed.startsWith('postgresql://'))
+      ) {
+        return {
+          connectionString: trimmed,
+          variableName: key,
+          errorReason: null,
+        };
+      }
+    }
   }
 
-  try {
-    const pool = new Pool({ connectionString });
-    const adapter = new PrismaPg(pool);
-    return new PrismaClient({ adapter });
-  } catch (err: any) {
-    console.error('[AdminSeed] Failed to instantiate PrismaClient:', err?.message || err);
-    return null;
+  // Check if any key was rejected due to [SENSITIVE] or placeholder for informative logging
+  for (const key of candidateKeys) {
+    const val = process.env[key];
+    if (val && typeof val === 'string') {
+      const trimmed = val.trim();
+      if (trimmed.includes('[SENSITIVE]')) {
+        return {
+          connectionString: null,
+          variableName: key,
+          errorReason: `The environment variable ${key} in .env.local contains "[SENSITIVE]". Vercel CLI requires authenticated login ('npx vercel login') before pulling production secrets into .env.local.`,
+        };
+      }
+      if (trimmed.includes('placeholder')) {
+        return {
+          connectionString: null,
+          variableName: key,
+          errorReason: `The environment variable ${key} in .env.local contains local placeholder credentials.`,
+        };
+      }
+    }
   }
+
+  return {
+    connectionString: null,
+    variableName: null,
+    errorReason: 'No valid PostgreSQL connection variable (DATABASE_URL_UNPOOLED, DATABASE_URL, etc.) starting with postgres:// or postgresql:// was found.',
+  };
 }
 
 async function main() {
@@ -48,14 +97,27 @@ async function main() {
     console.log('[AdminSeed] Status: ADMIN TOOLING READY — PASSWORD STILL REQUIRED');
     console.log('[AdminSeed] Notice: ADMIN_INITIAL_PASSWORD is not set in environment variables.');
     console.log('[AdminSeed] To create or update the Admin user, run:');
-    console.log('  $env:ADMIN_INITIAL_PASSWORD="YourSecretPassword"; npx tsx prisma/seed-admin.ts');
+    console.log('  $env:ADMIN_INITIAL_PASSWORD="YourSecretPassword"; npm run db:seed-admin');
     return;
   }
 
-  const prisma = createPrismaClient();
-  if (!prisma) {
-    console.error('[AdminSeed] Error: Database connection string (DATABASE_URL) is not available or is set to placeholder in .env.local.');
-    console.error('[AdminSeed] Please ensure DATABASE_URL in .env.local or environment variable contains your valid PostgreSQL connection string.');
+  const { connectionString, variableName, errorReason } = getValidConnectionString();
+
+  if (!connectionString || !variableName) {
+    console.error(`[AdminSeed] Error: ${errorReason}`);
+    process.exit(1);
+  }
+
+  // Log ONLY the variable NAME, NEVER its value!
+  console.log(`[AdminSeed] Using database connection from ${variableName}`);
+
+  let prisma: PrismaClient | null = null;
+  try {
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
+  } catch (err: any) {
+    console.error('[AdminSeed] Failed to instantiate PrismaClient with selected connection:', err?.message || err);
     process.exit(1);
   }
 
