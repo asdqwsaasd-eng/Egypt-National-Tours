@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME);
     const session = sessionCookie?.value ? await verifySessionToken(sessionCookie.value) : null;
     const isLoginPage = pathname === '/admin/login';
+    const isSetupPage = pathname === '/admin/setup';
 
     if (isLoginPage) {
       if (session) {
@@ -21,6 +22,11 @@ export async function middleware(request: NextRequest) {
         url.pathname = '/admin';
         return NextResponse.redirect(url);
       }
+      return NextResponse.next();
+    }
+
+    if (isSetupPage) {
+      // Setup route performs its own token & admin existence checks
       return NextResponse.next();
     }
 
