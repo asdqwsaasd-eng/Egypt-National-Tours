@@ -13,8 +13,10 @@ import {
   MessageSquarePlus,
   Settings,
   Eye,
+  Activity,
 } from 'lucide-react';
 import { RequestStatus } from '@prisma/client';
+import '@/app/globals.css';
 
 export default async function AdminDashboardPage() {
   const dbConnected = await isDatabaseConnected();
@@ -73,25 +75,25 @@ export default async function AdminDashboardPage() {
 
   const statCards = [
     {
-      title: 'طلبات جديدة (New)',
+      title: 'طلبات جديدة',
       value: counts.newRequests,
       icon: Inbox,
       bg: 'bg-red-50 text-red-600 border border-red-200',
     },
     {
-      title: 'قيد المتابعة (In Progress)',
+      title: 'قيد المتابعة',
       value: counts.inProgressRequests,
       icon: Clock,
       bg: 'bg-amber-50 text-amber-600 border border-amber-200',
     },
     {
-      title: 'طلبات مكتملة (Completed)',
+      title: 'طلبات مكتملة',
       value: counts.completedRequests,
       icon: CheckCircle2,
       bg: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
     },
     {
-      title: 'إجمالي الطلبات (Total)',
+      title: 'إجمالي الطلبات',
       value: counts.totalRequests,
       icon: ListFilter,
       bg: 'bg-brand-gold-light/60 text-brand-red border border-brand-gold/30',
@@ -101,7 +103,7 @@ export default async function AdminDashboardPage() {
   const getStatusBadge = (status: RequestStatus) => {
     switch (status) {
       case 'new_request':
-        return <Badge variant="gold">جديد</Badge>;
+        return <Badge variant="gold">طلب جديد</Badge>;
       case 'contacted':
         return <Badge variant="outline">تم التواصل</Badge>;
       case 'in_progress':
@@ -117,36 +119,36 @@ export default async function AdminDashboardPage() {
 
   const quickActions = [
     {
-      title: 'عرض وفتح طلبات العملاء',
-      desc: 'متابعة وتحديث حالة الطلبات وإضافة ملاحظات إدارية',
+      title: 'عرض الطلبات',
+      desc: 'متابعة وتحديث كافة طلبات الحجز والاستفسارات الواردة',
       href: '/admin/requests',
       icon: Inbox,
       color: 'text-brand-red',
     },
     {
-      title: 'إضافة برنامج سياحي جديد',
-      desc: 'إنشاء برنامج سياحي لمصر أو البرامج الدولية',
+      title: 'إضافة برنامج سياحي',
+      desc: 'إنشاء برنامج سياحي جديد وتحديد المزارات والوجهات',
       href: '/admin/tours/new',
       icon: Compass,
       color: 'text-brand-gold-dark',
     },
     {
-      title: 'إدارة برامج الحج والعمرة',
-      desc: 'تحديث باقات وأسعار الحج والعمرة المتاحة',
+      title: 'إدارة الحج والعمرة',
+      desc: 'تحديث تفاصيل وباقات رحلات الحج والعمرة المتاحة',
       href: '/admin/hajj-umrah',
       icon: Moon,
       color: 'text-emerald-600',
     },
     {
-      title: 'إضافة رأي عميل جديد',
-      desc: 'إضافة تقييم وتوصية جديدة إلى الموقع العام',
+      title: 'إضافة رأي عميل',
+      desc: 'إضافة شهادات وتوصيات المسافرين واعتمادها بالموقع',
       href: '/admin/reviews/new',
       icon: MessageSquarePlus,
       color: 'text-sky-600',
     },
     {
-      title: 'إدارة إعدادات الموقع',
-      desc: 'تحديث أرقام الهواتف، البريد الإلكتروني، وعنوان المكتب',
+      title: 'إعدادات الموقع',
+      desc: 'تحديث بيانات الاتصال وأرقام الهواتف وعنوان الشركة',
       href: '/admin/settings',
       icon: Settings,
       color: 'text-purple-600',
@@ -155,12 +157,15 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <SectionHeader
-          title="لوحة الإدارة والإحصائيات"
-          subtitle="متابعة طلبات العملاء المباشرة وإدارة المحتوى والخدمات"
-          align="start"
-        />
+      {/* Top Welcome Section */}
+      <div className="bg-white p-6 rounded-[var(--radius-card)] border border-border shadow-xs space-y-1">
+        <h1 className="text-2xl font-extrabold text-brand-red flex items-center gap-2">
+          <Activity className="h-6 w-6 text-brand-red" />
+          <span>مرحباً Hossam</span>
+        </h1>
+        <p className="text-xs sm:text-sm text-text-secondary font-medium">
+          إليك ملخص نشاط موقع Egypt National Tours وإدارة الطلبات والخدمات
+        </p>
       </div>
 
       {!dbConnected && (
@@ -169,7 +174,7 @@ export default async function AdminDashboardPage() {
         </div>
       )}
 
-      {/* ─── 1. Stat Cards Grid ─── */}
+      {/* ─── 1. Four Modern Statistics Cards ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((card, idx) => {
           const Icon = card.icon;
@@ -177,7 +182,7 @@ export default async function AdminDashboardPage() {
             <Card key={idx} variant="default" padding="md" className="hover:shadow-md transition-shadow">
               <CardContent className="p-0 flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs text-text-secondary font-bold">{card.title}</p>
+                  <p className="text-xs text-text-secondary font-extrabold">{card.title}</p>
                   <p className="text-3xl font-extrabold text-text-primary font-mono">
                     {card.value}
                   </p>
@@ -191,10 +196,78 @@ export default async function AdminDashboardPage() {
         })}
       </div>
 
-      {/* ─── 2. Quick Actions Section ─── */}
+      {/* ─── 2. Latest Requests Table / Card ─── */}
+      <div className="bg-white rounded-[var(--radius-card)] border border-border shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-border flex items-center justify-between bg-sand/20">
+          <h3 className="text-base font-extrabold text-text-primary">
+            أحدث الطلبات
+          </h3>
+          <Link
+            href="/admin/requests"
+            className="text-xs font-bold text-brand-red hover:underline flex items-center gap-1"
+          >
+            <span>عرض جميع الطلبات</span>
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {recentRequests.length === 0 ? (
+          <div className="p-8 text-center text-xs text-text-muted">
+            لا توجد طلبات سابقة في قاعدة البيانات.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-xs">
+              <thead className="bg-sand/40 border-b border-border text-text-secondary font-bold">
+                <tr>
+                  <th className="p-4">الرقم المرجعي</th>
+                  <th className="p-4">اسم العميل</th>
+                  <th className="p-4">نوع الخدمة</th>
+                  <th className="p-4">تاريخ الطلب</th>
+                  <th className="p-4">الحالة</th>
+                  <th className="p-4 text-left">الإجراء</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentRequests.map((item) => (
+                  <tr key={item.id} className="hover:bg-sand/20 transition-colors">
+                    <td className="p-4 font-mono font-extrabold text-brand-red text-sm">
+                      {item.reference}
+                    </td>
+                    <td className="p-4 font-bold text-text-primary">
+                      {item.customerName}
+                    </td>
+                    <td className="p-4 text-text-secondary font-medium">
+                      {item.serviceTitle}
+                    </td>
+                    <td className="p-4 text-text-muted dir-ltr text-right">
+                      {new Date(item.createdAt).toLocaleDateString('ar-EG', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </td>
+                    <td className="p-4">{getStatusBadge(item.status)}</td>
+                    <td className="p-4 text-left">
+                      <Link
+                        href={`/admin/requests/${item.id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-gold-light/60 text-brand-red font-extrabold hover:bg-brand-gold-light transition-colors text-xs border border-brand-gold/30"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        <span>عرض التفاصيل</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ─── 3. Quick Actions Cards ─── */}
       <div className="bg-white p-6 rounded-[var(--radius-card)] border border-border shadow-xs space-y-4">
         <h3 className="text-base font-extrabold text-text-primary flex items-center gap-2">
-          <span>روابط ومهام سريعة</span>
+          <span>إجراءات سريعة</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -223,70 +296,6 @@ export default async function AdminDashboardPage() {
           })}
         </div>
       </div>
-
-      {/* ─── 3. Recent Requests Table Preview ─── */}
-      {recentRequests.length > 0 && (
-        <div className="bg-white rounded-[var(--radius-card)] border border-border shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-border flex items-center justify-between bg-sand/20">
-            <h3 className="text-sm font-extrabold text-text-primary">
-              أحدث طلبات العملاء المستلمة
-            </h3>
-            <Link
-              href="/admin/requests"
-              className="text-xs font-bold text-brand-red hover:underline flex items-center gap-1"
-            >
-              <span>عرض جميع الطلبات</span>
-              <ArrowLeft className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs">
-              <thead className="bg-sand/40 border-b border-border text-text-secondary font-bold">
-                <tr>
-                  <th className="p-3.5">الرقم المرجعي</th>
-                  <th className="p-3.5">اسم العميل</th>
-                  <th className="p-3.5">نوع الخدمة</th>
-                  <th className="p-3.5">التاريخ</th>
-                  <th className="p-3.5">الحالة</th>
-                  <th className="p-3.5 text-left">الإجراء</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {recentRequests.map((item) => (
-                  <tr key={item.id} className="hover:bg-sand/20 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-brand-red">
-                      {item.reference}
-                    </td>
-                    <td className="p-3.5 font-bold text-text-primary">
-                      {item.customerName}
-                    </td>
-                    <td className="p-3.5 text-text-secondary font-medium">
-                      {item.serviceTitle}
-                    </td>
-                    <td className="p-3.5 text-text-muted dir-ltr text-right">
-                      {new Date(item.createdAt).toLocaleDateString('ar-EG', {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </td>
-                    <td className="p-3.5">{getStatusBadge(item.status)}</td>
-                    <td className="p-3.5 text-left">
-                      <Link
-                        href={`/admin/requests/${item.id}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-brand-gold-light/60 text-brand-red font-bold hover:bg-brand-gold-light transition-colors text-xs"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span>تفاصيل</span>
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

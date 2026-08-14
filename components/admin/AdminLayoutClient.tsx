@@ -22,6 +22,7 @@ import {
   X,
   User,
 } from 'lucide-react';
+import '@/app/globals.css';
 
 interface AdminLayoutClientProps {
   displayName: string;
@@ -78,7 +79,7 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
   };
 
   const renderNavLinks = (onItemClick?: () => void) => (
-    <div className="space-y-1">
+    <nav className="space-y-1">
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = isActiveRoute(item.href);
@@ -98,32 +99,36 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 
   return (
     <div className="min-h-screen bg-sand/30 dir-rtl text-text-primary flex flex-col font-sans">
-      {/* ─── Top Admin Navigation Bar ─── */}
+      {/* ─── Top Admin Navigation Header ─── */}
       <header className="bg-white border-b border-border sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Right: Brand & Mobile Toggle */}
+          {/* Right: Mobile Menu Toggle & Compact Brand Logo */}
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-text-secondary hover:bg-sand/60 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-text-secondary hover:bg-sand/60 transition-colors"
               aria-label="فتح القائمة"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             <Link href="/admin" className="flex items-center gap-3 group">
-              <div className="relative h-10 w-36 block">
+              <div
+                className="relative block"
+                style={{ height: '40px', width: '140px', maxHeight: '44px', maxWidth: '160px' }}
+              >
                 <Image
                   src="/assets/brand/logo-original.png"
                   alt="Egypt National Tours"
                   fill
                   className="object-contain"
+                  style={{ objectFit: 'contain', maxHeight: '40px' }}
                   priority
                 />
               </div>
@@ -134,13 +139,13 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
             </Link>
           </div>
 
-          {/* Left: User Profile & Public Site Preview */}
+          {/* Left: Public Site Preview Button & Admin User Identity */}
           <div className="flex items-center gap-3">
             <Link
               href="/ar"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-red bg-brand-gold-light/50 border border-brand-gold/40 hover:bg-brand-gold-light transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold text-brand-red bg-brand-gold-light/50 border border-brand-gold/40 hover:bg-brand-gold-light transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">معاينة الموقع العام</span>
@@ -149,19 +154,19 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
 
             <div className="h-4 w-px bg-border hidden sm:block" />
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red flex items-center justify-center font-bold text-xs">
                 <User className="h-4 w-4" />
               </div>
               <div className="text-right hidden md:block text-xs">
-                <p className="font-bold text-text-primary leading-tight">{displayName}</p>
+                <p className="font-extrabold text-text-primary leading-tight">{displayName}</p>
                 <p className="text-[11px] text-text-muted dir-ltr text-right">{email}</p>
               </div>
 
               <form action={logoutAdminAction}>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
                   title="تسجيل الخروج"
                 >
                   <LogOut className="h-3.5 w-3.5" />
@@ -173,19 +178,27 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
         </div>
       </header>
 
-      {/* ─── Main Admin Desktop Layout ─── */}
+      {/* ─── Main Desktop Shell ─── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Desktop Fixed Sidebar */}
+        {/* Desktop Sticky Right Sidebar (RTL, 250px) */}
         <aside className="hidden lg:block lg:col-span-3">
           <div className="bg-white p-4 rounded-[var(--radius-card)] border border-border shadow-xs sticky top-22 space-y-4">
-            <div className="pb-3 border-b border-border text-xs">
-              <p className="text-text-muted font-medium">مرحباً بك،</p>
-              <p className="text-sm font-extrabold text-brand-red">{displayName}</p>
+            {/* Sidebar Brand Header */}
+            <div className="pb-3 border-b border-border flex items-center justify-between">
+              <div>
+                <p className="text-text-muted text-xs font-medium">مرحباً بك،</p>
+                <p className="text-sm font-extrabold text-brand-red">{displayName}</p>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
+                مدير نشط
+              </span>
             </div>
 
+            {/* Sidebar Nav Links */}
             {renderNavLinks()}
 
-            <div className="pt-3 border-t border-border">
+            {/* Sidebar Bottom Actions */}
+            <div className="pt-3 border-t border-border space-y-2">
               <Link
                 href="/ar"
                 target="_blank"
@@ -195,6 +208,16 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
                 <span>معاينة الموقع العام</span>
                 <ExternalLink className="h-4 w-4 text-text-muted" />
               </Link>
+
+              <form action={logoutAdminAction}>
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-red-50 text-red-600 border border-red-200 text-xs font-bold hover:bg-red-100 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>تسجيل الخروج</span>
+                </button>
+              </form>
             </div>
           </div>
         </aside>
@@ -216,18 +239,20 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Slide Drawer Panel */}
+            {/* Drawer Panel */}
             <div className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col z-50">
               <div className="p-4 border-b border-border flex items-center justify-between bg-sand/20">
-                <div className="flex items-center gap-2">
-                  <div className="relative h-8 w-28 block">
-                    <Image
-                      src="/assets/brand/logo-original.png"
-                      alt="Egypt National Tours"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+                <div
+                  className="relative block"
+                  style={{ height: '36px', width: '120px', maxHeight: '36px', maxWidth: '140px' }}
+                >
+                  <Image
+                    src="/assets/brand/logo-original.png"
+                    alt="Egypt National Tours"
+                    fill
+                    className="object-contain"
+                    style={{ objectFit: 'contain', maxHeight: '36px' }}
+                  />
                 </div>
                 <button
                   type="button"
@@ -239,7 +264,7 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({
               </div>
 
               <div className="p-4 border-b border-border text-xs bg-sand/10">
-                <p className="font-bold text-text-primary">{displayName}</p>
+                <p className="font-extrabold text-text-primary">{displayName}</p>
                 <p className="text-text-muted dir-ltr text-right">{email}</p>
               </div>
 

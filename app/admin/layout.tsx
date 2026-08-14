@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { getAdminSession } from '@/lib/auth/session';
 import { AdminLayoutClient } from '@/components/admin/AdminLayoutClient';
+import '@/app/globals.css';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { loginAdminAction } from '@/lib/auth/actions';
 import { TextInput, Button, Alert } from '@/components/ui';
 import { Mail, Lock, ShieldCheck } from 'lucide-react';
+import '@/app/globals.css';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-sand/40 flex items-center justify-center p-4 dir-rtl">
       <div className="w-full max-w-md bg-white rounded-[var(--radius-card)] border border-border shadow-xl p-8 space-y-6">
         <div className="text-center space-y-3">
-          <div className="relative h-16 w-48 mx-auto">
+          <div className="relative h-12 w-40 mx-auto max-h-12 max-w-[160px]" style={{ maxHeight: '48px', maxWidth: '160px' }}>
             <Image
               src="/assets/brand/logo-original.png"
               alt="Egypt National Tours Logo"
