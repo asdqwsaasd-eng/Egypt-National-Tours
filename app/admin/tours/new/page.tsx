@@ -20,7 +20,7 @@ export default function AdminNewTourPage() {
   const [durationTextEn, setDurationTextEn] = React.useState('');
   const [slug, setSlug] = React.useState('');
   const [isFeatured, setIsFeatured] = React.useState(false);
-  const [status, setStatus] = React.useState<'draft' | 'published'>('published');
+  const [status, setStatus] = React.useState<'draft' | 'published'>('draft');
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -121,8 +121,8 @@ export default function AdminNewTourPage() {
                   onChange={(e) => setStatus(e.target.value as any)}
                   className="w-full h-10 px-3 text-xs bg-sand/30 border border-border rounded-lg focus:outline-hidden font-bold text-text-primary"
                 >
+                  <option value="draft">مسودة (Draft - افتراضي لسلامة النشر)</option>
                   <option value="published">منشور (Published)</option>
-                  <option value="draft">مسودة (Draft)</option>
                 </select>
               </div>
             </div>

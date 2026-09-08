@@ -1,6 +1,146 @@
 import { prisma, isDatabaseConnected } from '@/lib/db/prisma';
 import { FEATURED_EGYPT_TOURS, INTERNATIONAL_TOURS, TourProgram } from '@/lib/data/tours';
 
+export interface AdminTourListItem {
+  id: string;
+  slug: string;
+  tourType: 'egypt' | 'international';
+  titleAr: string;
+  titleEn: string;
+  durationTextAr: string;
+  durationTextEn: string;
+  destinationsAr: string[];
+  destinationsEn: string[];
+  status: 'draft' | 'published' | 'archived';
+  isFeatured: boolean;
+  createdAt: Date;
+}
+
+export async function getAllAdminTours(statusFilter: string = 'all'): Promise<{
+  tours: AdminTourListItem[];
+  totalCount: number;
+  isDbConnected: boolean;
+}> {
+  const connected = await isDatabaseConnected();
+  if (connected && prisma) {
+    try {
+      const dbTours = await prisma.tour.findMany({
+        include: {
+          destinations: { orderBy: { displayOrder: 'asc' } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const dbItems: AdminTourListItem[] = dbTours.map((t) => ({
+        id: t.id,
+        slug: t.slug,
+        tourType: t.tourType as 'egypt' | 'international',
+        titleAr: t.titleAr,
+        titleEn: t.titleEn,
+        durationTextAr: t.durationTextAr || '',
+        durationTextEn: t.durationTextEn || '',
+        destinationsAr: t.destinations.map((d) => d.destinationNameAr),
+        destinationsEn: t.destinations.map((d) => d.destinationNameEn),
+        status: t.status as 'draft' | 'published' | 'archived',
+        isFeatured: t.isFeatured,
+        createdAt: t.createdAt,
+      }));
+
+      const staticFallbacks: AdminTourListItem[] = [
+        ...FEATURED_EGYPT_TOURS.map((t) => ({
+          id: t.id,
+          slug: t.slug,
+          tourType: 'egypt' as const,
+          titleAr: t.title.ar,
+          titleEn: t.title.en,
+          durationTextAr: t.duration.ar,
+          durationTextEn: t.duration.en,
+          destinationsAr: t.destinations.ar,
+          destinationsEn: t.destinations.en,
+          status: 'published' as const,
+          isFeatured: true,
+          createdAt: new Date(),
+        })),
+        ...INTERNATIONAL_TOURS.map((t) => ({
+          id: t.id,
+          slug: t.slug,
+          tourType: 'international' as const,
+          titleAr: t.title.ar,
+          titleEn: t.title.en,
+          durationTextAr: t.duration.ar,
+          durationTextEn: t.duration.en,
+          destinationsAr: t.destinations.ar,
+          destinationsEn: t.destinations.en,
+          status: 'published' as const,
+          isFeatured: true,
+          createdAt: new Date(),
+        })),
+      ];
+
+      const existingIds = new Set(dbItems.map((i) => i.id));
+      const existingSlugs = new Set(dbItems.map((i) => i.slug));
+      const missingStatic = staticFallbacks.filter(
+        (s) => !existingIds.has(s.id) && !existingSlugs.has(s.slug)
+      );
+
+      let combined = [...dbItems, ...missingStatic];
+
+      if (statusFilter !== 'all') {
+        combined = combined.filter((i) => i.status === statusFilter);
+      }
+
+      return {
+        tours: combined,
+        totalCount: combined.length,
+        isDbConnected: true,
+      };
+    } catch (err) {
+      console.error('[ToursRepository] Admin query error:', err);
+    }
+  }
+
+  const allStatic: AdminTourListItem[] = [
+    ...FEATURED_EGYPT_TOURS.map((t) => ({
+      id: t.id,
+      slug: t.slug,
+      tourType: 'egypt' as const,
+      titleAr: t.title.ar,
+      titleEn: t.title.en,
+      durationTextAr: t.duration.ar,
+      durationTextEn: t.duration.en,
+      destinationsAr: t.destinations.ar,
+      destinationsEn: t.destinations.en,
+      status: 'published' as const,
+      isFeatured: true,
+      createdAt: new Date(),
+    })),
+    ...INTERNATIONAL_TOURS.map((t) => ({
+      id: t.id,
+      slug: t.slug,
+      tourType: 'international' as const,
+      titleAr: t.title.ar,
+      titleEn: t.title.en,
+      durationTextAr: t.duration.ar,
+      durationTextEn: t.duration.en,
+      destinationsAr: t.destinations.ar,
+      destinationsEn: t.destinations.en,
+      status: 'published' as const,
+      isFeatured: true,
+      createdAt: new Date(),
+    })),
+  ];
+
+  const filtered = statusFilter === 'all'
+    ? allStatic
+    : allStatic.filter((t) => t.status === statusFilter);
+
+  return {
+    tours: filtered,
+    totalCount: filtered.length,
+    isDbConnected: false,
+  };
+}
+
 export async function getPublishedTours(type?: 'egypt' | 'international'): Promise<TourProgram[]> {
   const connected = await isDatabaseConnected();
   if (connected && prisma) {
@@ -26,7 +166,6 @@ export async function getPublishedTours(type?: 'egypt' | 'international'): Promi
     }
   }
 
-  // Safe code fallback
   if (type === 'egypt') return FEATURED_EGYPT_TOURS;
   if (type === 'international') return INTERNATIONAL_TOURS;
   return [...FEATURED_EGYPT_TOURS, ...INTERNATIONAL_TOURS];

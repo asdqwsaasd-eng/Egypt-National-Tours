@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-09-09T00:36:00+03:00
+> **Last Updated:** 2026-09-09T00:49:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Production UX & Presentation Corrections (**COMPLETE & DEPLOYED**)
+- **Current Phase:** Admin Tours Draft Visibility & Default Creation Safety (**COMPLETE & DEPLOYED**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -31,47 +31,39 @@
   - **Phase 15:** Production Admin Account Setup & Security Finalization — COMPLETE (Approved)
   - **Phase 16:** CMS Functional Completion & Live Database Connection — COMPLETE (Approved)
   - **Phase 17:** Admin Settings LTR Input Alignment & Production Request Type Presentation — COMPLETE (Approved)
+  - **Phase 18:** Admin Tours Draft Visibility & Default Creation Status Safety — COMPLETE (Approved)
 
 ---
 
-## 2. PRODUCTION UX CORRECTIONS SUMMARY
+## 2. DRAFT VISIBILITY & SAFETY FIX SUMMARY
 
-1. **Admin Settings LTR Field Direction (`components/admin/AdminSettingsForm.tsx`)**:
-   - Added explicit `dir="ltr"` HTML attributes and `text-left` alignment to all inherently LTR input fields:
-     - WhatsApp number (`+20 106 331 4240`)
-     - Primary phone (`+20 2 2405 2937`)
-     - Secondary phone (`+20 2 2263 7554`)
-     - Mobile 1 (`+20 100 189 8414`)
-     - Mobile 2 (`+20 107 045 6186`)
-     - Domain email (`travel@egyptnationaltours.com`)
-     - Yahoo email (`egypt_nationaltours@yahoo.com`)
-     - English address (`152 El Tawfik Buildings, El Tayaran Street, Nasr City, Cairo, Egypt`)
-     - English working hours & off days
-     - Facebook URL & Google Maps URL
-   - Overall Admin page layout and field labels remain 100% Arabic RTL.
-   - Save button updated to explicit label **"حفظ التغييرات"**.
+1. **Admin Tours Query (`lib/db/tours-repository.ts` & `app/admin/tours/page.tsx`)**:
+   - **Root Cause**: `app/admin/tours/page.tsx` previously hardcoded rendering of static tour arrays (`FEATURED_EGYPT_TOURS` & `INTERNATIONAL_TOURS`). Newly created tours (Draft or Published) saved in Neon PostgreSQL were persisted in the database table `tours`, but the Admin page wasn't querying PostgreSQL!
+   - **Fix Implemented**: Created `getAllAdminTours(statusFilter)` in `lib/db/tours-repository.ts` which queries ALL database records (Draft, Published, Archived) with status filtering and badges.
 
-2. **Dashboard Request Type Presentation Fix (`app/admin/page.tsx` & `lib/utils/request-formatters.ts`)**:
-   - **Root Cause**: `r.service?.titleAr || formatRequestTypeAr(...)` was returning `r.service.titleAr` when truthy. In database records where `service.titleAr` held raw keys like `"hotel"`, `"security_approval"`, or `"egypt_tour"`, it bypassed `formatRequestTypeAr`.
-   - **Fix Implemented**: Updated `formatRequestTypeAr(r.service?.titleAr || r.requestType)` so raw keys and titles are guaranteed to evaluate through the Arabic dictionary lookup.
+2. **New Tour Default Status Safety (`app/admin/tours/new/page.tsx`)**:
+   - Updated `/admin/tours/new` form so the status state defaults to **Draft / مسودة** (not Published). New tours require intentional admin publishing before appearing on public routes.
+
+3. **Public Route Isolation**:
+   - Verified that public routes (`/ar/egypt-tours`, `/en/egypt-tours`, `/ar/international-tours`, `/en/international-tours`, and slug routes) strictly call `getPublishedTours()` and `getPublishedTourBySlug()`, ensuring Draft tours are NEVER displayed publicly.
 
 ---
 
 ## 3. NEXT STEPS FOR CONTINUATION
 
-- **Next Phase:** Advanced SEO & Search Console Verification (Phase 18).
+- **Next Phase:** Advanced SEO & Search Console Verification (Phase 19).
 - **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production.
 
 ---
 
 # STOP POINT
 
-Production UX and Request Type Presentation Corrections are COMPLETE.
+Admin Tours Draft Visibility and Default Creation Safety are COMPLETE.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ PRODUCTION UX & PRESENTATION CORRECTIONS COMPLETE       ║
+║   ✅ ADMIN TOURS DRAFT VISIBILITY & SAFETY COMPLETE          ║
 ║                                                              ║
 ║   The application codebase is 100% type-checked (0 errors),  ║
 ║   build-verified (45 routes compiled), security-hardened,    ║
