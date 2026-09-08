@@ -186,7 +186,7 @@ export async function getAdminRequests(filter: AdminRequestFilter = {}) {
       customerEmail: r.customer.email,
       customerPhone: r.customer.phone,
       customerWhatsapp: r.customer.whatsapp,
-      serviceTitle: r.service?.titleAr || formatRequestTypeAr(r.requestType),
+      serviceTitle: formatRequestTypeAr(r.service?.titleAr || r.requestType),
       detailsJson: r.detailsJson,
     }));
 

@@ -65,7 +65,7 @@ export default async function AdminDashboardPage() {
         reference: r.reference,
         customerName: r.customer.fullName,
         customerPhone: r.customer.phone,
-        serviceTitle: r.service?.titleAr || formatRequestTypeAr(r.requestType),
+        serviceTitle: formatRequestTypeAr(r.service?.titleAr || r.requestType),
         createdAt: r.createdAt,
         status: r.status,
       }));
@@ -238,8 +238,8 @@ export default async function AdminDashboardPage() {
                     <td className="p-4 font-bold text-text-primary">
                       {item.customerName}
                     </td>
-                    <td className="p-4 text-text-secondary font-medium">
-                      {item.serviceTitle}
+                    <td className="p-4 font-extrabold text-text-secondary">
+                      {formatRequestTypeAr(item.serviceTitle)}
                     </td>
                     <td className="p-4 text-text-muted dir-ltr text-right">
                       {new Date(item.createdAt).toLocaleDateString('ar-EG', {

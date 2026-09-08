@@ -30,7 +30,7 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
     setIsSubmitting(false);
 
     if (res.success) {
-      setStatusMessage(res.message || 'تم حفظ البيانات بنجاح');
+      setStatusMessage(res.message || 'تم حفظ التغييرات بنجاح');
     } else {
       setErrorMessage(res.error || 'فشل تحديث البيانات');
     }
@@ -66,7 +66,8 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
               onChange={(e) => handleChange('whatsappNumber', e.target.value)}
               leftIcon={<MessageSquare className="h-4 w-4 text-[#25D366]" />}
               required
-              className="dir-ltr text-right font-medium"
+              dir="ltr"
+              className="text-left font-mono font-semibold"
             />
             <TextInput
               label="الهاتف الأرضي/الرئيسي (Primary Phone)"
@@ -74,31 +75,35 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
               onChange={(e) => handleChange('phonePrimary', e.target.value)}
               leftIcon={<Phone className="h-4 w-4 text-brand-red" />}
               required
-              className="dir-ltr text-right font-medium"
+              dir="ltr"
+              className="text-left font-mono font-semibold"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <TextInput
               label="الهاتف الأرضي الثانوي (Secondary)"
-              value={formData.phoneSecondary}
+              value={formData.phoneSecondary || ''}
               onChange={(e) => handleChange('phoneSecondary', e.target.value)}
               leftIcon={<Phone className="h-4 w-4 text-text-muted" />}
-              className="dir-ltr text-right"
+              dir="ltr"
+              className="text-left font-mono font-medium"
             />
             <TextInput
               label="رقم الموبايل 1 (Mobile 1)"
-              value={formData.mobile1}
+              value={formData.mobile1 || ''}
               onChange={(e) => handleChange('mobile1', e.target.value)}
               leftIcon={<Phone className="h-4 w-4 text-text-muted" />}
-              className="dir-ltr text-right"
+              dir="ltr"
+              className="text-left font-mono font-medium"
             />
             <TextInput
               label="رقم الموبايل 2 (Mobile 2)"
-              value={formData.mobile2}
+              value={formData.mobile2 || ''}
               onChange={(e) => handleChange('mobile2', e.target.value)}
               leftIcon={<Phone className="h-4 w-4 text-text-muted" />}
-              className="dir-ltr text-right"
+              dir="ltr"
+              className="text-left font-mono font-medium"
             />
           </div>
         </CardContent>
@@ -117,10 +122,11 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
             <TextInput
               type="email"
               label="البريد الإلكتروني الثانوي/الاستلام (Yahoo)"
-              value={formData.secondaryEmail}
+              value={formData.secondaryEmail || ''}
               onChange={(e) => handleChange('secondaryEmail', e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-brand-red" />}
-              className="dir-ltr text-right"
+              dir="ltr"
+              className="text-left font-mono font-medium"
               hint="البريد المعروض أعلى القائمة والمستخدم لإشعارات الطلبات"
             />
             <TextInput
@@ -130,7 +136,8 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
               onChange={(e) => handleChange('email', e.target.value)}
               leftIcon={<Mail className="h-4 w-4 text-brand-red" />}
               required
-              className="dir-ltr text-right"
+              dir="ltr"
+              className="text-left font-mono font-medium"
               hint="بريد الدومين الرسمي المعروض أسفل القائمة"
             />
           </div>
@@ -149,78 +156,86 @@ export const AdminSettingsForm: React.FC<AdminSettingsFormProps> = ({ initialSet
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextInput
               label="عنوان المكتب بالعربية (Arabic Address)"
-              value={formData.addressAr}
+              value={formData.addressAr || ''}
               onChange={(e) => handleChange('addressAr', e.target.value)}
               leftIcon={<MapPin className="h-4 w-4 text-brand-red" />}
             />
             <TextInput
               label="عنوان المكتب بالإنجليزية (English Address)"
-              value={formData.addressEn}
+              value={formData.addressEn || ''}
               onChange={(e) => handleChange('addressEn', e.target.value)}
               leftIcon={<MapPin className="h-4 w-4 text-brand-red" />}
+              dir="ltr"
+              className="text-left font-sans font-medium"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextInput
               label="ساعات العمل بالعربية (Sunday–Thursday)"
-              value={formData.workingHoursAr}
+              value={formData.workingHoursAr || ''}
               onChange={(e) => handleChange('workingHoursAr', e.target.value)}
               leftIcon={<Clock className="h-4 w-4 text-text-muted" />}
             />
             <TextInput
               label="Working Hours in English"
-              value={formData.workingHoursEn}
+              value={formData.workingHoursEn || ''}
               onChange={(e) => handleChange('workingHoursEn', e.target.value)}
               leftIcon={<Clock className="h-4 w-4 text-text-muted" />}
+              dir="ltr"
+              className="text-left font-sans font-medium"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextInput
               label="العطلة الأسبوعية بالعربية (Friday & Saturday)"
-              value={formData.offDaysAr}
+              value={formData.offDaysAr || ''}
               onChange={(e) => handleChange('offDaysAr', e.target.value)}
               leftIcon={<Clock className="h-4 w-4 text-brand-red" />}
             />
             <TextInput
               label="Off Days Wording in English"
-              value={formData.offDaysEn}
+              value={formData.offDaysEn || ''}
               onChange={(e) => handleChange('offDaysEn', e.target.value)}
               leftIcon={<Clock className="h-4 w-4 text-brand-red" />}
+              dir="ltr"
+              className="text-left font-sans font-medium"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <TextInput
               label="رابط صفحة فيسبوك الرسمية"
-              value={formData.facebookUrl}
+              value={formData.facebookUrl || ''}
               onChange={(e) => handleChange('facebookUrl', e.target.value)}
               leftIcon={<Globe className="h-4 w-4 text-[#1877F2]" />}
-              className="dir-ltr text-right text-xs"
+              dir="ltr"
+              className="text-left font-mono text-xs font-medium"
             />
             <TextInput
               label="رابط موقع الشركة في خرائط جوجل"
-              value={formData.googleMapsUrl}
+              value={formData.googleMapsUrl || ''}
               onChange={(e) => handleChange('googleMapsUrl', e.target.value)}
               leftIcon={<Globe className="h-4 w-4 text-brand-red" />}
-              className="dir-ltr text-right text-xs"
+              dir="ltr"
+              className="text-left font-mono text-xs font-medium"
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Save Action Bar */}
+      {/* ─── 4. SAVE ACTION BAR ─── */}
       <div className="flex justify-end pt-2">
         <Button
           type="submit"
           variant="primary"
           size="lg"
           isLoading={isSubmitting}
-          className="shadow-lg px-8 gap-2"
+          className="shadow-lg px-8 gap-2 cursor-pointer font-extrabold"
         >
           <Save className="h-5 w-5" />
-          <span>حفظ وتحديث الإعدادات</span>
+          <span>حفظ التغييرات</span>
         </Button>
       </div>
     </form>
