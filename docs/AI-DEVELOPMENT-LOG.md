@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-09-09T00:15:00+03:00
+> **Last Updated:** 2026-09-09T00:25:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Admin Account Initialization, CSS Root Cause Fix, Security Cleanup & Request Type Presentation Mapping (**COMPLETE & DEPLOYED**)
+- **Current Phase:** CMS Functional Completion & Public Site Integration (**COMPLETE & DEPLOYED**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -29,60 +29,48 @@
   - **Phase 13:** Staging Deployment & Final Production Readiness Audit — COMPLETE (Approved)
   - **Phase 14:** Final Production Handoff & Maintenance Guide — COMPLETE (Approved)
   - **Phase 15:** Production Admin Account Setup & Security Finalization — COMPLETE (Approved)
+  - **Phase 16:** CMS Functional Completion & Live Database Connection — COMPLETE (Approved)
 
 ---
 
-## 2. PRODUCTION ADMIN INITIALIZATION & CSS FIX SUMMARY
+## 2. CMS FUNCTIONAL COMPLETION SUMMARY
 
-1. **Production Admin Account Creation**:
-   - Identity: `asdqwsaasd@gmail.com` (Display Name: Hossam).
-   - Account initialized safely inside Vercel production runtime via a one-time setup action using official PBKDF2 SHA-512 password hashing.
-   - Verified active and logging in cleanly to Neon PostgreSQL in Vercel Production.
+1. **Tours CMS (`tours` model & `lib/db/tours-repository.ts`)**:
+   - Admin CRUD operations: `createTourAction`, `updateTourAction`, `deleteTourAction` in `lib/actions/tour-cms-actions.ts`.
+   - Public Integration: `getPublishedTours()`, `getPublishedTourBySlug()`, and `getFeaturedTours()` query published DB records with database priority.
+   - Code Fallback: If DB contains 0 published tours or in local offline mode, gracefully falls back to trusted pre-configured tours in `lib/data/tours.ts`.
+   - Revalidation: All tour mutations trigger `revalidatePath()` across `/admin/tours`, `/ar/egypt-tours`, `/en/egypt-tours`, `/ar/international-tours`, `/en/international-tours`, and slug routes.
 
-2. **Admin CSS Root-Cause Fix**:
-   - **Root Cause**: `app/layout.tsx` (the Next.js Root Layout for all `app/` routes) was missing `@/app/globals.css` import and root `<html>`/`<body>` wrapper tags. Global CSS was only imported inside `app/[locale]/layout.tsx`. Because `/admin/**` routes live outside `[locale]`, Next.js rendered `/admin` HTML without linking stylesheets in production.
-   - **Fix Implemented**: Promoted `@/app/globals.css` import and root `<html lang="ar" dir="rtl" className="...">` + `<body className="...">` tags to top-level `app/layout.tsx`.
-   - **Logo Sizing**: Enforced strict inline CSS constraints (`style={{ maxHeight: '44px', maxWidth: '160px' }}`) alongside Tailwind classes `max-h-11 max-w-[160px] object-contain` across all Admin headers, sidebars, drawers, and login pages.
+2. **Reviews CMS (`reviews` model & `lib/db/reviews-repository.ts`)**:
+   - Admin CRUD operations: `createReviewAction`, `updateReviewAction`, `deleteReviewAction` in `lib/actions/review-cms-actions.ts`.
+   - Public Integration: `ReviewCarousel.tsx` renders database-managed approved customer reviews when present, with fallback to 4 real customer review screenshots. Demo/fake reviews are filtered out from public rendering (`isDemo: false`).
 
-3. **Removal of Temporary Admin Setup Mechanism**:
-   - Permanently deleted setup files:
-     - `app/admin/setup/page.tsx` (and directory)
-     - `components/admin/AdminSetupForm.tsx`
-     - `lib/actions/admin-setup-actions.ts`
-   - Removed `isSetupPage` route bypass from `middleware.ts`. All `/admin/**` routes (except `/admin/login`) strictly enforce valid HTTP-only admin session cookies.
-   - `/admin/setup` now returns 404 Not Found.
+3. **Services CMS (`services` model & `lib/actions/service-cms-actions.ts`)**:
+   - Admin updates: `updateServiceAction` allows editing Arabic/English titles, descriptions, display order, and featured status without changing system routing slugs/keys.
 
-4. **Request Type Arabic Presentation Mapping**:
-   - Created centralized formatters in `lib/utils/request-formatters.ts` mapping all 10 Prisma `RequestType` enum values to human-readable Arabic:
-     - `flight` → 'حجز طيران'
-     - `hotel` → 'حجز فندق'
-     - `egypt_tour` → 'برنامج سياحي داخل مصر'
-     - `international_tour` → 'برنامج سياحي خارج مصر'
-     - `visa` → 'تأشيرات سفر'
-     - `security_approval` → 'موافقة أمنية'
-     - `hajj` → 'برنامج حج'
-     - `umrah` → 'برنامج عمرة'
-     - `transportation` → 'نقل ومواصلات سياحية'
-     - `general` → 'طلب عام / استفسار'
-   - Stored database values remain 100% untouched. Applied mapping across Admin Dashboard, Requests List (with Type filter dropdown), and Request Details payload inspector.
+4. **Contact & Site Settings (`contact_settings` model & `lib/actions/contact-settings-actions.ts`)**:
+   - Full end-to-end management of 5 phone numbers, 2 emails (Yahoo first), office addresses, working hours, and social/maps links. Instant cache revalidation on save.
+
+5. **Media Asset Catalog (`/admin/media`)**:
+   - Browse and path-copy interface for `/assets/` and `/images/` catalog items. Vercel serverless filesystem limitations documented (ephemeral filesystem; persistent uploads require cloud object storage e.g. S3/Cloudinary when needed).
 
 ---
 
 ## 3. NEXT STEPS FOR CONTINUATION
 
-- **Next Task:** CMS Functional Completion (Tours CRUD, Services editor, Testimonials approval, Media catalog management).
+- **Next Phase:** Advanced SEO & Search Console Verification (Phase 17).
 - **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production.
 
 ---
 
 # STOP POINT
 
-Production Admin Account Setup, CSS Root-Cause Fix, Setup Mechanism Cleanup, and Request Type Presentation Mapping are COMPLETE.
+CMS Functional Completion and Public Site Integration are COMPLETE.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ ADMIN SETUP CLEANUP & SECURITY FINALIZATION COMPLETE    ║
+║   ✅ CMS FUNCTIONAL COMPLETION COMPLETE                      ║
 ║                                                              ║
 ║   The application codebase is 100% type-checked (0 errors),  ║
 ║   build-verified (45 routes compiled), security-hardened,    ║

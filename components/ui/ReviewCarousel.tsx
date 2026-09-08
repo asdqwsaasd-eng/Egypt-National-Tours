@@ -2,26 +2,32 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { X } from 'lucide-react';
+import { X, Star, User, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { PublicReview } from '@/lib/db/reviews-repository';
 
 interface ReviewCarouselProps {
   className?: string;
   isAr?: boolean;
+  dbReviews?: PublicReview[];
 }
 
-const REVIEWS = [
+const DEFAULT_SCREENSHOT_REVIEWS = [
   { id: 'rev-01', src: '/images/site-update/reviews/customer-review-01.webp', alt: 'Customer Review 1' },
   { id: 'rev-02', src: '/images/site-update/reviews/customer-review-02.webp', alt: 'Customer Review 2' },
   { id: 'rev-03', src: '/images/site-update/reviews/customer-review-03.webp', alt: 'Customer Review 3' },
   { id: 'rev-04', src: '/images/site-update/reviews/customer-review-04.webp', alt: 'Customer Review 4' },
 ];
 
-export const ReviewCarousel: React.FC<ReviewCarouselProps> = ({ className, isAr }) => {
+export const ReviewCarousel: React.FC<ReviewCarouselProps> = ({ className, isAr, dbReviews = [] }) => {
   const [activeImage, setActiveImage] = React.useState<{ src: string; alt: string } | null>(null);
 
-  // Duplicate reviews array for seamless infinite marquee loop
-  const marqueeItems = [...REVIEWS, ...REVIEWS, ...REVIEWS];
+  const hasDbReviews = dbReviews.length > 0;
+
+  // Duplicate items for seamless infinite marquee loop
+  const marqueeItems = hasDbReviews
+    ? [...dbReviews, ...dbReviews, ...dbReviews]
+    : [...DEFAULT_SCREENSHOT_REVIEWS, ...DEFAULT_SCREENSHOT_REVIEWS, ...DEFAULT_SCREENSHOT_REVIEWS];
 
   // Lock body scroll when lightbox modal is open
   React.useEffect(() => {
@@ -79,28 +85,69 @@ export const ReviewCarousel: React.FC<ReviewCarouselProps> = ({ className, isAr 
           activeImage && '[animation-play-state:paused]'
         )}
       >
-        {marqueeItems.map((item, idx) => (
-          <button
-            key={`${item.id}-${idx}`}
-            type="button"
-            onClick={() => setActiveImage({ src: item.src, alt: isAr ? 'تقييم معتمد من عملائنا الكرام' : item.alt })}
-            className="shrink-0 w-[260px] sm:w-[320px] bg-white p-3 rounded-[var(--radius-card)] border border-border shadow-sm hover:shadow-md transition-all cursor-zoom-in group text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red flex items-center justify-center"
-            aria-label={isAr ? 'تكبير صورة التقييم' : 'Zoom in customer review screenshot'}
-          >
-            <div className="relative w-full h-[180px] sm:h-[220px]">
-              <Image
-                src={item.src}
-                alt={isAr ? 'تقييم معتمد من عملائنا الكرام' : item.alt}
-                fill
-                sizes="(max-width: 640px) 260px, 320px"
-                className="object-contain block rounded-lg group-hover:scale-[1.02] transition-transform duration-200"
-              />
-            </div>
-          </button>
-        ))}
+        {marqueeItems.map((item: any, idx: number) => {
+          if (hasDbReviews) {
+            const rev = item as PublicReview;
+            const text = isAr ? rev.reviewText.ar : rev.reviewText.en;
+            return (
+              <div
+                key={`${rev.id}-${idx}`}
+                className="shrink-0 w-[280px] sm:w-[320px] bg-white p-5 rounded-[var(--radius-card)] border border-border shadow-sm space-y-3 text-start"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-brand-red/10 text-brand-red font-extrabold flex items-center justify-center text-xs">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-xs text-text-primary">{rev.customerName}</p>
+                      {rev.country && (
+                        <p className="text-[11px] text-text-muted flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{rev.country}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center text-amber-400 gap-0.5">
+                    {Array.from({ length: rev.rating }).map((_, i) => (
+                      <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-xs text-text-secondary leading-relaxed line-clamp-4 italic">
+                  "{text}"
+                </p>
+              </div>
+            );
+          }
+
+          // Fallback static screenshot items
+          return (
+            <button
+              key={`${item.id}-${idx}`}
+              type="button"
+              onClick={() => setActiveImage({ src: item.src, alt: isAr ? 'تقييم معتمد من عملائنا الكرام' : item.alt })}
+              className="shrink-0 w-[260px] sm:w-[320px] bg-white p-3 rounded-[var(--radius-card)] border border-border shadow-sm hover:shadow-md transition-all cursor-zoom-in group text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red flex items-center justify-center"
+              aria-label={isAr ? 'تكبير صورة التقييم' : 'Zoom in customer review screenshot'}
+            >
+              <div className="relative w-full h-[180px] sm:h-[220px]">
+                <Image
+                  src={item.src}
+                  alt={isAr ? 'تقييم معتمد من عملائنا الكرام' : item.alt}
+                  fill
+                  sizes="(max-width: 640px) 260px, 320px"
+                  className="object-contain block rounded-lg group-hover:scale-[1.02] transition-transform duration-200"
+                />
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Task 3: Lightbox Modal / Zoom View */}
+      {/* Lightbox Modal / Zoom View for Screenshot Fallback */}
       {activeImage && (
         <div
           role="dialog"
@@ -113,7 +160,6 @@ export const ReviewCarousel: React.FC<ReviewCarouselProps> = ({ className, isAr 
             className="relative w-full max-w-[95vw] max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden p-3 sm:p-5 flex flex-col items-center justify-center border border-border/40"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button with accessible label */}
             <button
               type="button"
               onClick={() => setActiveImage(null)}
@@ -123,7 +169,6 @@ export const ReviewCarousel: React.FC<ReviewCarouselProps> = ({ className, isAr 
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
 
-            {/* Lightbox full image - strict object-contain to avoid any cropping */}
             <div className="relative w-full h-[75vh] sm:h-[82vh] max-w-5xl flex items-center justify-center">
               <Image
                 src={activeImage.src}

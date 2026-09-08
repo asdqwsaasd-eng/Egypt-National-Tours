@@ -7,6 +7,8 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { COMPANY, CONTACT } from '@/lib/utils/constants';
 import { SERVICE_CATEGORIES } from '@/lib/data/services';
 import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
+import { getFeaturedTours } from '@/lib/db/tours-repository';
+import { getPublishedReviews } from '@/lib/db/reviews-repository';
 import {
   ServiceIcon,
   Container,
@@ -33,7 +35,12 @@ export default async function HomePage({ params }: HomePageProps) {
   const dict = await getDictionary(locale);
   const isAr = locale === 'ar';
 
-  // Task 1: Prepare Hajj & Umrah card to replace Cairo/Alexandria promotional item on homepage
+  const [toursList, { dbReviews }] = await Promise.all([
+    getFeaturedTours(),
+    getPublishedReviews(),
+  ]);
+
+  // Hajj & Umrah card to feature on homepage
   const hajjUmrahCard = {
     id: 'hajj-umrah-card',
     title: isAr ? 'الحج والعمرة' : 'Hajj & Umrah',
@@ -48,9 +55,8 @@ export default async function HomePage({ params }: HomePageProps) {
     href: `/${locale}/hajj-umrah`,
   };
 
-  // Filter cairo-classic and nile-cruise from FEATURED_EGYPT_TOURS for the homepage grid
-  const cairoClassic = FEATURED_EGYPT_TOURS.find((t) => t.id === 'cairo-classic');
-  const nileCruise = FEATURED_EGYPT_TOURS.find((t) => t.id === 'nile-cruise-luxor-aswan');
+  const tourCard1 = toursList[0] || FEATURED_EGYPT_TOURS[0];
+  const tourCard2 = toursList[1] || FEATURED_EGYPT_TOURS[2];
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 pb-16">
@@ -129,7 +135,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ─── 2. MAIN SERVICES (Task 2: Service Cards with desktop image hover effect) ─── */}
+      {/* ─── 2. MAIN SERVICES ─── */}
       <section className="py-4">
         <Container size="default">
           <SectionHeader
@@ -191,7 +197,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ─── 4. FEATURED TOURS & PROGRAMS (Task 1: Promotes Hajj & Umrah instead of Cairo/Alexandria) ─── */}
+      {/* ─── 4. FEATURED TOURS & PROGRAMS ─── */}
       <section className="py-4">
         <Container size="default">
           <SectionHeader
@@ -205,21 +211,19 @@ export default async function HomePage({ params }: HomePageProps) {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card 1: Cairo Classic */}
-            {cairoClassic && (
+            {tourCard1 && (
               <TourCard
-                title={cairoClassic.title[locale]}
-                slug={cairoClassic.slug}
+                title={tourCard1.title[locale]}
+                slug={tourCard1.slug}
                 locale={locale}
-                imageSrc={cairoClassic.imageSrc}
-                imageAlt={cairoClassic.imageAlt[locale]}
-                duration={cairoClassic.duration[locale]}
-                destinations={cairoClassic.destinations[locale]}
-                summary={cairoClassic.summary[locale]}
+                imageSrc={tourCard1.imageSrc}
+                imageAlt={tourCard1.imageAlt[locale]}
+                duration={tourCard1.duration[locale]}
+                destinations={tourCard1.destinations[locale]}
+                summary={tourCard1.summary[locale]}
               />
             )}
 
-            {/* Card 2: Task 1 - Hajj & Umrah Card replacing Cairo/Alexandria promotional card */}
             <TourCard
               title={hajjUmrahCard.title}
               slug={hajjUmrahCard.slug}
@@ -231,17 +235,16 @@ export default async function HomePage({ params }: HomePageProps) {
               summary={hajjUmrahCard.summary}
             />
 
-            {/* Card 3: Nile Cruise */}
-            {nileCruise && (
+            {tourCard2 && (
               <TourCard
-                title={nileCruise.title[locale]}
-                slug={nileCruise.slug}
+                title={tourCard2.title[locale]}
+                slug={tourCard2.slug}
                 locale={locale}
-                imageSrc={nileCruise.imageSrc}
-                imageAlt={nileCruise.imageAlt[locale]}
-                duration={nileCruise.duration[locale]}
-                destinations={nileCruise.destinations[locale]}
-                summary={nileCruise.summary[locale]}
+                imageSrc={tourCard2.imageSrc}
+                imageAlt={tourCard2.imageAlt[locale]}
+                duration={tourCard2.duration[locale]}
+                destinations={tourCard2.destinations[locale]}
+                summary={tourCard2.summary[locale]}
               />
             )}
           </div>
@@ -311,7 +314,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ─── 6. CUSTOMER REVIEWS (Task 5: Moving Customer Reviews Ticker) ─── */}
+      {/* ─── 6. CUSTOMER REVIEWS ─── */}
       <section className="bg-cream py-16 border-y border-border overflow-hidden">
         <Container size="default">
           <div className="max-w-2xl mx-auto text-center space-y-4 mb-8">
@@ -328,8 +331,7 @@ export default async function HomePage({ params }: HomePageProps) {
             </p>
           </div>
 
-          {/* Task 5: Interactive Marquee Carousel */}
-          <ReviewCarousel isAr={isAr} />
+          <ReviewCarousel isAr={isAr} dbReviews={dbReviews} />
         </Container>
       </section>
 

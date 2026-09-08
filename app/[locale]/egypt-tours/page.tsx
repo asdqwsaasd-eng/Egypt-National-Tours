@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
-import { FEATURED_EGYPT_TOURS } from '@/lib/data/tours';
+import { getPublishedTours } from '@/lib/db/tours-repository';
 import { Container, SectionHeader, TourCard, LinkButton } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { generatePageMetadata } from '@/lib/seo/metadata';
@@ -37,6 +37,8 @@ export default async function EgyptToursPage({ params }: EgyptToursPageProps) {
   const locale = rawLocale as SupportedLocale;
   const isAr = locale === 'ar';
 
+  const tours = await getPublishedTours('egypt');
+
   return (
     <div className="py-8 pb-16">
       <Container size="default">
@@ -58,7 +60,7 @@ export default async function EgyptToursPage({ params }: EgyptToursPageProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURED_EGYPT_TOURS.map((tour) => (
+          {tours.map((tour) => (
             <TourCard
               key={tour.id}
               title={tour.title[locale]}

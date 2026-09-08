@@ -3,7 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isValidLocale, SupportedLocale } from '@/lib/i18n/config';
-import { INTERNATIONAL_TOURS } from '@/lib/data/tours';
+import { getPublishedTourBySlug } from '@/lib/db/tours-repository';
 import { Container, Badge } from '@/components/ui';
 import { Breadcrumbs } from '@/components/layout';
 import { TourProgramRequestForm } from '@/components/forms';
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: InternationalTourDetailPagePr
   if (!isValidLocale(rawLocale)) return {};
 
   const locale = rawLocale as SupportedLocale;
-  const tour = INTERNATIONAL_TOURS.find((t) => t.slug === slug);
+  const tour = await getPublishedTourBySlug(slug);
   if (!tour) return {};
 
   return generatePageMetadata({
@@ -40,7 +40,7 @@ export default async function InternationalTourDetailPage({ params }: Internatio
   const locale = rawLocale as SupportedLocale;
   const isAr = locale === 'ar';
 
-  const tour = INTERNATIONAL_TOURS.find((t) => t.slug === slug);
+  const tour = await getPublishedTourBySlug(slug);
   if (!tour) {
     notFound();
   }
@@ -82,10 +82,12 @@ export default async function InternationalTourDetailPage({ params }: Internatio
                 <Clock className="h-4 w-4 text-brand-red shrink-0" />
                 <span>{tour.duration[locale]}</span>
               </Badge>
-              <div className="flex items-center gap-1 text-text-secondary">
-                <MapPin className="h-4 w-4 text-brand-red shrink-0" />
-                <span>{tour.destinations[locale].join(', ')}</span>
-              </div>
+              {tour.destinations[locale]?.length > 0 && (
+                <div className="flex items-center gap-1 text-text-secondary">
+                  <MapPin className="h-4 w-4 text-brand-red shrink-0" />
+                  <span>{tour.destinations[locale].join(', ')}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -101,28 +103,30 @@ export default async function InternationalTourDetailPage({ params }: Internatio
               </p>
             </section>
 
-            <section className="space-y-6">
-              <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
-                {isAr ? 'برنامج الجولة اليومي' : 'Daily Itinerary'}
-              </h2>
-              <div className="space-y-4">
-                {tour.itinerary.map((dayItem) => (
-                  <div key={dayItem.day} className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="h-8 w-8 rounded-full bg-brand-gold-light text-brand-red font-bold flex items-center justify-center text-sm shrink-0">
-                        {dayItem.day}
-                      </span>
-                      <h3 className="text-lg font-bold text-text-primary">
-                        {dayItem.title[locale]}
-                      </h3>
+            {tour.itinerary?.length > 0 && (
+              <section className="space-y-6">
+                <h2 className="text-2xl font-bold text-text-primary border-b border-brand-gold/40 pb-2 w-fit">
+                  {isAr ? 'برنامج الجولة اليومي' : 'Daily Itinerary'}
+                </h2>
+                <div className="space-y-4">
+                  {tour.itinerary.map((dayItem) => (
+                    <div key={dayItem.day} className="bg-white p-6 rounded-[var(--radius-card)] border border-border space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="h-8 w-8 rounded-full bg-brand-gold-light text-brand-red font-bold flex items-center justify-center text-sm shrink-0">
+                          {dayItem.day}
+                        </span>
+                        <h3 className="text-lg font-bold text-text-primary">
+                          {dayItem.title[locale]}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-text-secondary ps-11 leading-relaxed">
+                        {dayItem.description[locale]}
+                      </p>
                     </div>
-                    <p className="text-sm text-text-secondary ps-11 leading-relaxed">
-                      {dayItem.description[locale]}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-success/5 border border-success/20 p-6 rounded-[var(--radius-card)] space-y-4">
@@ -131,7 +135,7 @@ export default async function InternationalTourDetailPage({ params }: Internatio
                   <span>{isAr ? 'الخدمات المشمولة' : "What's Included"}</span>
                 </h3>
                 <ul className="space-y-2 text-sm text-text-secondary">
-                  {tour.included[locale].map((inc, idx) => (
+                  {tour.included[locale].map((inc: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-success font-bold">✓</span>
                       <span>{inc}</span>
@@ -146,7 +150,7 @@ export default async function InternationalTourDetailPage({ params }: Internatio
                   <span>{isAr ? 'غير مشمول' : "What's Excluded"}</span>
                 </h3>
                 <ul className="space-y-2 text-sm text-text-secondary">
-                  {tour.excluded[locale].map((exc, idx) => (
+                  {tour.excluded[locale].map((exc: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-error font-bold">✗</span>
                       <span>{exc}</span>
