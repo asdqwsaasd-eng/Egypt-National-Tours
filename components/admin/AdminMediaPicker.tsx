@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { upload } from '@vercel/blob/client';
 import { Button, Alert, Badge, TextInput } from '@/components/ui';
 import {
   ImageIcon,
@@ -121,46 +120,93 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
 
     setIsUploading(true);
     setUploadError(null);
-    setUploadProgress(10);
+    setUploadProgress(5);
 
     try {
-      // True Direct-to-Blob Client Upload via @vercel/blob/client
-      const newBlob = await upload(selectedFile.name, selectedFile, {
-        access: 'public',
-        handleUploadUrl: '/api/admin/media/upload',
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent && typeof progressEvent.percentage === 'number') {
-            setUploadProgress(Math.round(progressEvent.percentage));
-          }
-        },
-      });
-
-      setUploadProgress(100);
-
-      // Register Media record in Neon DB idempotently
-      await fetch('/api/admin/media/register', {
+      // 1. Request short-lived OIDC-signed presigned PUT URL
+      const presignRes = await fetch('/api/admin/media/presign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fileName: selectedFile.name,
-          storageKey: newBlob.url,
-          mimeType: selectedFile.type,
+          fileType: selectedFile.type,
           fileSize: selectedFile.size,
         }),
       });
 
-      setIsUploading(false);
+      const presignData = await presignRes.json();
+      if (!presignRes.ok || !presignData.success) {
+        setIsUploading(false);
+        setUploadError(presignData.error || 'فشل استخراج رابط الرفع المشفر');
+        return;
+      }
 
-      setStatusMessage('تم رفع الصورة بنجاح وإضافتها إلى مكتبة الصور.');
-      onSelect(newBlob.url);
-      await fetchLibrary();
-      setTimeout(() => {
-        onClose();
-      }, 600);
+      const { presignedUrl, pathname } = presignData;
+      setUploadProgress(15);
+
+      // 2. Direct browser binary PUT transfer to Blob with real progress
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', presignedUrl, true);
+      xhr.setRequestHeader('Content-Type', selectedFile.type);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 80) + 15;
+          setUploadProgress(percent);
+        }
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadProgress(95);
+
+          // 3. Confirm & verify Blob registration in Neon PostgreSQL
+          try {
+            const compRes = await fetch('/api/admin/media/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                pathname,
+                fileName: selectedFile.name,
+                fileType: selectedFile.type,
+                fileSize: selectedFile.size,
+              }),
+            });
+
+            const compData = await compRes.json();
+            setIsUploading(false);
+
+            if (compRes.ok && compData.success) {
+              setUploadProgress(100);
+              setStatusMessage('تم رفع الصورة بنجاح وتوثيقها بمكتبة الوسائط.');
+              onSelect(compData.media.storageKey);
+              await fetchLibrary();
+              setTimeout(() => {
+                onClose();
+              }, 600);
+            } else {
+              setUploadError(compData.error || 'فشل توثيق الصورة في قاعدة البيانات');
+            }
+          } catch (err: any) {
+            setIsUploading(false);
+            setUploadError(err.message || 'حدث خطأ أثناء تأكيد التوثيق');
+          }
+        } else {
+          setIsUploading(false);
+          setUploadError(`فشل رفع الصورة إلى Vercel Blob (كود الاستجابة: ${xhr.status})`);
+        }
+      };
+
+      xhr.onerror = () => {
+        setIsUploading(false);
+        setUploadError('حدث خطأ في الاتصال بالشبكة أثناء رفع الصورة');
+      };
+
+      xhr.send(selectedFile);
     } catch (err: any) {
       setIsUploading(false);
       console.error('[AdminMediaPicker] Upload error:', err);
-      setUploadError(err.message || 'حدث خطأ أثناء رفع الصورة');
+      setUploadError(err.message || 'حدث خطأ غير متوقع أثناء الرفع');
     }
   };
 
@@ -242,7 +288,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
             }`}
           >
             <UploadCloud className="h-4 w-4" />
-            <span>رفع صورة جديدة (Vercel Blob Direct Client Upload)</span>
+            <span>رفع صورة جديدة (Vercel Blob Direct OIDC Presigned PUT)</span>
           </button>
         </div>
 
@@ -399,7 +445,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
                   انقر هنا لاختيار صورة من جهازك أو اسحب الملف إلى هنا
                 </p>
                 <p className="text-xs text-text-secondary">
-                  الرفع المباشر: JPG, PNG, WEBP (الحد الأقصى: 8 ميجابايت)
+                  الرفع المباشر عبر Vercel OIDC Presigned PUT: JPG, PNG, WEBP (الحد الأقصى: 8 ميجابايت)
                 </p>
               </div>
             </div>
