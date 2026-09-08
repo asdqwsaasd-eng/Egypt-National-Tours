@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createTourAction, updateTourAction, deleteTourAction } from '@/lib/actions/tour-cms-actions';
 import { TextInput, Button, Alert, Card, CardHeader, CardContent, Badge, SectionHeader } from '@/components/ui';
+import { AdminMediaPicker } from '@/components/admin/AdminMediaPicker';
 import {
   ArrowRight,
   Compass,
@@ -18,6 +19,8 @@ import {
   ImageIcon,
   CheckCircle2,
   Image as ImageLucide,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export interface TourFormData {
@@ -43,17 +46,6 @@ interface AdminTourFormProps {
   isEditMode?: boolean;
 }
 
-const REUSABLE_MEDIA_CATALOG = [
-  { url: '/assets/references/cairo-classic.jpg', label: 'القاهرة الكلاسيكية (Cairo Classic)' },
-  { url: '/assets/references/cairo-alexandria.jpg', label: 'القاهرة والإسكندرية (Cairo & Alexandria)' },
-  { url: '/assets/references/nile-cruise.jpg', label: 'نايل كروز الأقصر وأسوان (Nile Cruise)' },
-  { url: '/images/site-update/tours/egypt-tour-hurghada-sharm.webp', label: 'الغردقة وشرم الشيخ (Hurghada & Sharm)' },
-  { url: '/assets/references/dubai-highlights.jpg', label: 'سحر دبي والإمارات (Dubai Highlights)' },
-  { url: '/images/site-update/tours/international-tour-istanbul-week.webp', label: 'أسبوع في إسطنبول (Istanbul Week)' },
-  { url: '/images/site-update/banners/egypt-national-tours-company-banner.webp', label: 'بنر الشركة الرئيسي (Company Banner)' },
-  { url: '/images/site-update/umrah/umrah-program-banner.webp', label: 'بنر العمرة (Umrah Banner)' },
-];
-
 export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEditMode = false }) => {
   const router = useRouter();
 
@@ -71,7 +63,11 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
   const [status, setStatus] = React.useState<'draft' | 'published' | 'archived'>(
     initialData?.status || 'draft'
   );
-  const [mainMediaUrl, setMainMediaUrl] = React.useState(initialData?.mainMediaUrl || '');
+
+  // Single Source of Truth for Cover Image
+  const [mainMediaUrl, setMainMediaUrl] = React.useState<string>(
+    initialData?.mainMediaUrl || (initialData as any)?.imageSrc || ''
+  );
 
   const [destinations, setDestinations] = React.useState<Array<{ nameAr: string; nameEn: string }>>(
     initialData?.destinations && initialData.destinations.length > 0
@@ -79,7 +75,9 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
       : [{ nameAr: '', nameEn: '' }]
   );
 
-  const [showMediaModal, setShowMediaModal] = React.useState(false);
+  const [showMediaPicker, setShowMediaPicker] = React.useState(false);
+  const [showAdvancedPath, setShowAdvancedPath] = React.useState(false);
+
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -132,7 +130,7 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
       slug: slug || titleEn.toLowerCase().replace(/[^a-z0-9]/g, '-'),
       isFeatured,
       status,
-      mainMediaUrl,
+      mainMediaUrl: mainMediaUrl.trim(),
       destinations: destinations.filter((d) => d.nameAr.trim() || d.nameEn.trim()),
     };
 
@@ -450,28 +448,29 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => setShowMediaModal(true)}
+            onClick={() => setShowMediaPicker(true)}
             className="gap-1 text-xs"
           >
             <ImageIcon className="h-4 w-4 text-brand-red" />
-            <span>اختيار صورة من المكتبة</span>
+            <span>اختيار أو رفع صورة من المكتبة</span>
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           {mainMediaUrl ? (
             <div className="flex flex-col sm:flex-row items-center gap-4 bg-sand/40 p-4 rounded-xl border border-border">
-              <div className="relative aspect-[16/9] w-full sm:w-48 overflow-hidden rounded-lg border border-border shadow-xs bg-white">
+              <div className="relative aspect-[16/9] w-full sm:w-56 overflow-hidden rounded-xl border border-border shadow-xs bg-white">
                 <Image
                   src={mainMediaUrl}
                   alt="Tour Cover Preview"
                   fill
+                  sizes="(max-width: 640px) 100vw, 224px"
                   className="object-cover"
                 />
               </div>
               <div className="space-y-2 text-xs flex-1 w-full">
                 <div className="flex items-center gap-2">
                   <Badge variant="gold">مسار الصورة المعتمد</Badge>
-                  <span className="font-mono text-text-muted dir-ltr text-right text-[11px] truncate">
+                  <span className="font-mono text-text-muted dir-ltr text-right text-[11px] truncate max-w-xs sm:max-w-md">
                     {mainMediaUrl}
                   </span>
                 </div>
@@ -480,7 +479,7 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
                     type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={() => setShowMediaModal(true)}
+                    onClick={() => setShowMediaPicker(true)}
                     className="text-xs"
                   >
                     تغيير الصورة
@@ -507,85 +506,50 @@ export const AdminTourForm: React.FC<AdminTourFormProps> = ({ initialData, isEdi
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={() => setShowMediaModal(true)}
+                onClick={() => setShowMediaPicker(true)}
                 className="text-xs gap-1"
               >
                 <Plus className="h-4 w-4" />
-                <span>اختر صورة من الأصول المتاحة</span>
+                <span>اختر أو ارفع صورة جديدة</span>
               </Button>
             </div>
           )}
 
-          <div className="pt-2">
-            <TextInput
-              label="أو أدخل مسار الصورة مباشرة (Direct Image Path)"
-              placeholder="/assets/references/cairo-classic.jpg"
-              value={mainMediaUrl}
-              onChange={(e) => setMainMediaUrl(e.target.value)}
-              dir="ltr"
-              className="text-left font-mono text-xs"
-            />
+          {/* Advanced Direct Image Path Accordion */}
+          <div className="pt-2 border-t border-border">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedPath((prev) => !prev)}
+              className="text-xs font-bold text-text-muted hover:text-brand-red flex items-center gap-1 transition-colors"
+            >
+              {showAdvancedPath ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              <span>خيارات متقدمة: إدخال مسار الصورة يدويًا</span>
+            </button>
+
+            {showAdvancedPath && (
+              <div className="mt-3">
+                <TextInput
+                  label="مسار الصورة المباشر (Direct Image Path / URL)"
+                  placeholder="/assets/references/cairo-classic.jpg"
+                  value={mainMediaUrl}
+                  onChange={(e) => setMainMediaUrl(e.target.value)}
+                  dir="ltr"
+                  className="text-left font-mono text-xs"
+                />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* ─── MEDIA SELECTION MODAL ─── */}
-      {showMediaModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border border-border shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-border flex items-center justify-between bg-sand/30">
-              <h4 className="text-base font-extrabold text-text-primary flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-brand-red" />
-                <span>اختيار صورة رئيسية للرحلة من مكتبة وسائط الموقع</span>
-              </h4>
-              <button
-                type="button"
-                onClick={() => setShowMediaModal(false)}
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-sand transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-              {REUSABLE_MEDIA_CATALOG.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setMainMediaUrl(item.url);
-                    setShowMediaModal(false);
-                  }}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer space-y-2 hover:shadow-md ${
-                    mainMediaUrl === item.url
-                      ? 'border-brand-red bg-brand-red/5 ring-2 ring-brand-red/20'
-                      : 'border-border bg-white hover:border-brand-gold'
-                  }`}
-                >
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-sand/30 border border-border">
-                    <Image
-                      src={item.url}
-                      alt={item.label}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <p className="font-bold text-text-primary truncate">{item.label}</p>
-                    {mainMediaUrl === item.url && (
-                      <CheckCircle2 className="h-4 w-4 text-brand-red shrink-0" />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="p-4 border-t border-border bg-sand/20 flex justify-end">
-              <Button type="button" variant="ghost" onClick={() => setShowMediaModal(false)}>
-                إغلاق
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* ─── MEDIA PICKER MODAL ─── */}
+      {showMediaPicker && (
+        <AdminMediaPicker
+          selectedUrl={mainMediaUrl}
+          onSelect={(url) => setMainMediaUrl(url)}
+          onClose={() => setShowMediaPicker(false)}
+          isTourCoverMode
+        />
       )}
 
       {/* ─── SECTION 6: PUBLICATION & FEATURED ─── */}

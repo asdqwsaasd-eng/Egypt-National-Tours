@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-09-09T01:00:00+03:00
+> **Last Updated:** 2026-09-09T01:19:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Admin Tour Destinations Editor, Cover Image Picker & LTR Direction (**COMPLETE & DEPLOYED**)
+- **Current Phase:** Production Media CMS & Vercel Blob Integration (**COMPLETE & DEPLOYED**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -33,50 +33,52 @@
   - **Phase 17:** Admin Settings LTR Input Alignment & Production Request Type Presentation — COMPLETE (Approved)
   - **Phase 18:** Admin Tours Draft Visibility & Default Creation Status Safety — COMPLETE (Approved)
   - **Phase 19:** Admin Tour Destinations Editor, Cover Image Picker & LTR Field Direction — COMPLETE (Approved)
+  - **Phase 20:** Vercel Blob Cloud Media Storage & Interactive Media Library — COMPLETE (Approved)
 
 ---
 
-## 2. TOUR DESTINATIONS & COVER IMAGE EDITOR SUMMARY
+## 2. VERCEL BLOB MEDIA CMS ARCHITECTURE SUMMARY
 
-1. **Audit & Data Model**:
-   - Inspected Prisma schema: `Tour`, `TourDestination`, `Media`, `TourGalleryItem` models were ALREADY defined in Prisma. No schema migrations or DB resets were required.
+1. **Vercel Blob Integration (`@vercel/blob`)**:
+   - Installed `@vercel/blob` (v0.27+).
+   - Configured `next.config.ts` with `remotePatterns` for `*.public.blob.vercel-storage.com` and `*.blob.vercel-storage.com`.
+   - Pathname format: `egypt-national-tours/media/YYYY/MM/<uuid>-<sanitized-filename>`.
 
-2. **Destinations Editor (`components/admin/AdminTourForm.tsx`)**:
-   - Added interactive Destinations manager allowing the admin to add, edit, and remove destinations (Arabic and English name inputs with `dir="ltr"` for English).
-   - On save, `updateTourAction` / `createTourAction` safely deletes old destinations for the tour and inserts new `TourDestination` records.
-   - Admin tour list now displays saved destinations (e.g., `القاهرة، الجيزة`) instead of `—`.
+2. **Secure Upload Route Handler (`/api/admin/media/upload`)**:
+   - Strictly enforces authenticated `getAdminSession()`.
+   - Validates MIME type (`image/jpeg`, `image/png`, `image/webp`) & Extensions (`.jpg`, `.jpeg`, `.png`, `.webp`).
+   - Hard maximum size limit: **8 MB** with clear Arabic error: *"حجم الصورة أكبر من الحد المسموح وهو 8 ميجابايت."*.
+   - Registers new uploads automatically in Neon PostgreSQL table `media`.
 
-3. **Cover Image Selection & Thumbnail Preview**:
-   - Integrated a Media catalog picker modal displaying reusable static/media images.
-   - Shows a live thumbnail preview of the selected image with "تغيير الصورة" and "إزالة الصورة" options.
-   - Links `tour.mainMediaId` to a `Media` database record (`storageKey = imagePath`). Public pages read `t.mainMedia?.storageKey` to render selected cover images.
+3. **Interactive Media Picker & Library (`AdminMediaPicker` & `/admin/media`)**:
+   - Reusable `AdminMediaPicker` modal featuring file upload dropzone, pre-upload dimensions check (min 800×450, max 6000×6000), 16:9 Tour Cover ratio warnings, upload progress bar, and search/filter.
+   - `/admin/media` allows browsing all database Blob uploads + static assets, copying image paths, and safe-deleting unreferenced images.
 
-4. **Publishing Validation**:
-   - Validates required public content (Arabic title, English title, slug) before allowing status to be set to Published. Draft status allows saving partial work.
-
-5. **LTR Input Alignment**:
-   - Applied explicit `dir="ltr"` and `text-left` to English Title, Duration (English, e.g., `4 Days / 3 Nights`), URL Slug, and English descriptions.
+4. **Cover Image Preview Fix & Single Source of Truth**:
+   - Resolved cover image preview synchronization bug in `AdminTourForm`: `mainMediaUrl` is initialized from `initialData?.mainMediaUrl || (initialData as any)?.imageSrc || ""`.
+   - Direct path input moved into an **"خيارات متقدمة (Advanced Direct Path)"** accordion toggle.
+   - Tour `cms-draft-test-2026` remains in **Draft** status as requested.
 
 ---
 
 ## 3. NEXT STEPS FOR CONTINUATION
 
-- **Next Phase:** Advanced SEO & Search Console Verification (Phase 20).
+- **Next Step:** Connect Blob Store on Vercel Dashboard (`Vercel Dashboard → Storage → Create Blob Store`), test real production Blob upload on `cms-draft-test-2026`, then manual owner test: Draft → Published.
 - **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production.
 
 ---
 
 # STOP POINT
 
-Admin Tour Destinations Editor and Cover Image Selection are COMPLETE.
+Production Media CMS and Vercel Blob Integration are COMPLETE.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ ADMIN TOUR DESTINATIONS & COVER IMAGE EDITOR COMPLETE   ║
+║   ✅ VERCEL BLOB MEDIA CMS INTEGRATION COMPLETE              ║
 ║                                                              ║
 ║   The application codebase is 100% type-checked (0 errors),  ║
-║   build-verified (45 routes compiled), security-hardened,    ║
+║   build-verified (47 routes compiled), security-hardened,    ║
 ║   committed, and deployed live to Vercel Production.         ║
 ║                                                              ║
 ║   🛑 STOPPED AND AWAITING YOUR NEXT INSTRUCTIONS             ║
