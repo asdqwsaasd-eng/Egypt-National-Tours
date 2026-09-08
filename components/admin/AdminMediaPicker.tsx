@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
+import { upload } from '@vercel/blob/client';
 import { Button, Alert, Badge, TextInput } from '@/components/ui';
 import {
   ImageIcon,
@@ -90,7 +91,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
     setPreviewUrl(objectUrl);
     setSelectedFile(file);
 
-    // 3. Dimension & Aspect ratio checks
+    // 3. Client UX Dimension & Aspect ratio checks
     const img = new window.Image();
     img.src = objectUrl;
     img.onload = () => {
@@ -120,36 +121,50 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
 
     setIsUploading(true);
     setUploadError(null);
-    setUploadProgress(20);
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+    setUploadProgress(10);
 
     try {
-      setUploadProgress(50);
-      const res = await fetch('/api/admin/media/upload', {
-        method: 'POST',
-        body: formData,
+      // True Direct-to-Blob Client Upload with real SDK progress callback
+      const newBlob = await upload(selectedFile.name, selectedFile, {
+        access: 'public',
+        handleUploadUrl: '/api/admin/media/upload',
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent && typeof progressEvent.percentage === 'number') {
+            setUploadProgress(Math.round(progressEvent.percentage));
+          }
+        },
       });
 
-      setUploadProgress(90);
-      const data = await res.json();
+      setUploadProgress(100);
+
+      // Register Media record in Neon DB idempotently
+      await fetch('/api/admin/media/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: selectedFile.name,
+          storageKey: newBlob.url,
+          mimeType: selectedFile.type,
+          fileSize: selectedFile.size,
+        }),
+      });
+
       setIsUploading(false);
 
-      if (res.ok && data.success) {
-        setUploadProgress(100);
-        setStatusMessage('تم رفع الصورة بنجاح وإضافتها إلى مكتبة الصور.');
-        onSelect(data.url);
-        await fetchLibrary();
-        setTimeout(() => {
-          onClose();
-        }, 600);
-      } else {
-        setUploadError(data.error || 'فشل رفع الملف.');
-      }
+      setStatusMessage('تم رفع الصورة بنجاح وإضافتها إلى مكتبة الصور.');
+      onSelect(newBlob.url);
+      await fetchLibrary();
+      setTimeout(() => {
+        onClose();
+      }, 600);
     } catch (err: any) {
       setIsUploading(false);
-      setUploadError(err.message || 'حدث خطأ شبكي أثناء رفع الصورة');
+      console.error('[AdminMediaPicker] Upload error:', err);
+      if (err.message?.includes('BLOB_STORE_NOT_CONNECTED') || err.message?.includes('token') || err.message?.includes('store')) {
+        setUploadError('BLOB STORE CONNECTION REQUIRED: يتطلب رفع الصور ربط متجر Vercel Blob في لوحة التحكم (Vercel Dashboard → Storage → Create Blob Store).');
+      } else {
+        setUploadError(err.message || 'حدث خطأ أثناء رفع الصورة');
+      }
     }
   };
 
@@ -231,7 +246,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
             }`}
           >
             <UploadCloud className="h-4 w-4" />
-            <span>رفع صورة جديدة (Vercel Blob)</span>
+            <span>رفع صورة جديدة (Vercel Blob Direct Client Upload)</span>
           </button>
         </div>
 
@@ -317,7 +332,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
                         </p>
 
                         <div className="flex items-center justify-between text-[11px] text-text-secondary pt-1 border-t border-border/60">
-                          <span>{(item.fileSize / 1024).toFixed(0)} KB</span>
+                          <span>{item.fileSize > 0 ? `${(item.fileSize / 1024).toFixed(0)} KB` : 'أصل معتمد'}</span>
                           {item.isDeletable && (
                             <button
                               type="button"
@@ -388,7 +403,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
                   انقر هنا لاختيار صورة من جهازك أو اسحب الملف إلى هنا
                 </p>
                 <p className="text-xs text-text-secondary">
-                  الأنواع المتاحة: JPG, PNG, WEBP (الحد الأقصى: 8 ميجابايت)
+                  الرفع المباشر: JPG, PNG, WEBP (الحد الأقصى: 8 ميجابايت)
                 </p>
               </div>
             </div>
@@ -422,7 +437,9 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
-                      <p className="text-[10px] font-bold text-brand-red">جاري الرفع إلى Vercel Blob...</p>
+                      <p className="text-[10px] font-bold text-brand-red">
+                        جاري الرفع المباشر إلى Vercel Blob ({uploadProgress}%)...
+                      </p>
                     </div>
                   )}
 
@@ -435,7 +452,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
                       onClick={handleUploadSubmit}
                       className="px-6 font-bold"
                     >
-                      بدء الرفع والربط بالمكتبة
+                      بدء الرفع المباشر والربط بالمكتبة
                     </Button>
                   </div>
                 </div>

@@ -185,6 +185,10 @@ export async function getAdminMediaList(searchQuery?: string): Promise<{
   };
 }
 
+/**
+ * Idempotently register a media record in Neon PostgreSQL.
+ * If storageKey already exists, returns the existing record without creating duplicates.
+ */
 export async function registerMediaRecord(data: {
   fileName: string;
   storageKey: string;
@@ -197,6 +201,14 @@ export async function registerMediaRecord(data: {
 }) {
   const connected = await isDatabaseConnected();
   if (connected && prisma) {
+    const existing = await prisma.media.findFirst({
+      where: { storageKey: data.storageKey },
+    });
+
+    if (existing) {
+      return existing;
+    }
+
     return await prisma.media.create({
       data: {
         fileName: data.fileName,
