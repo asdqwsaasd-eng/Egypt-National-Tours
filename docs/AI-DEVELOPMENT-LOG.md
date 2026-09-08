@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-09-09T00:49:00+03:00
+> **Last Updated:** 2026-09-09T01:00:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Admin Tours Draft Visibility & Default Creation Safety (**COMPLETE & DEPLOYED**)
+- **Current Phase:** Admin Tour Destinations Editor, Cover Image Picker & LTR Direction (**COMPLETE & DEPLOYED**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -32,38 +32,48 @@
   - **Phase 16:** CMS Functional Completion & Live Database Connection — COMPLETE (Approved)
   - **Phase 17:** Admin Settings LTR Input Alignment & Production Request Type Presentation — COMPLETE (Approved)
   - **Phase 18:** Admin Tours Draft Visibility & Default Creation Status Safety — COMPLETE (Approved)
+  - **Phase 19:** Admin Tour Destinations Editor, Cover Image Picker & LTR Field Direction — COMPLETE (Approved)
 
 ---
 
-## 2. DRAFT VISIBILITY & SAFETY FIX SUMMARY
+## 2. TOUR DESTINATIONS & COVER IMAGE EDITOR SUMMARY
 
-1. **Admin Tours Query (`lib/db/tours-repository.ts` & `app/admin/tours/page.tsx`)**:
-   - **Root Cause**: `app/admin/tours/page.tsx` previously hardcoded rendering of static tour arrays (`FEATURED_EGYPT_TOURS` & `INTERNATIONAL_TOURS`). Newly created tours (Draft or Published) saved in Neon PostgreSQL were persisted in the database table `tours`, but the Admin page wasn't querying PostgreSQL!
-   - **Fix Implemented**: Created `getAllAdminTours(statusFilter)` in `lib/db/tours-repository.ts` which queries ALL database records (Draft, Published, Archived) with status filtering and badges.
+1. **Audit & Data Model**:
+   - Inspected Prisma schema: `Tour`, `TourDestination`, `Media`, `TourGalleryItem` models were ALREADY defined in Prisma. No schema migrations or DB resets were required.
 
-2. **New Tour Default Status Safety (`app/admin/tours/new/page.tsx`)**:
-   - Updated `/admin/tours/new` form so the status state defaults to **Draft / مسودة** (not Published). New tours require intentional admin publishing before appearing on public routes.
+2. **Destinations Editor (`components/admin/AdminTourForm.tsx`)**:
+   - Added interactive Destinations manager allowing the admin to add, edit, and remove destinations (Arabic and English name inputs with `dir="ltr"` for English).
+   - On save, `updateTourAction` / `createTourAction` safely deletes old destinations for the tour and inserts new `TourDestination` records.
+   - Admin tour list now displays saved destinations (e.g., `القاهرة، الجيزة`) instead of `—`.
 
-3. **Public Route Isolation**:
-   - Verified that public routes (`/ar/egypt-tours`, `/en/egypt-tours`, `/ar/international-tours`, `/en/international-tours`, and slug routes) strictly call `getPublishedTours()` and `getPublishedTourBySlug()`, ensuring Draft tours are NEVER displayed publicly.
+3. **Cover Image Selection & Thumbnail Preview**:
+   - Integrated a Media catalog picker modal displaying reusable static/media images.
+   - Shows a live thumbnail preview of the selected image with "تغيير الصورة" and "إزالة الصورة" options.
+   - Links `tour.mainMediaId` to a `Media` database record (`storageKey = imagePath`). Public pages read `t.mainMedia?.storageKey` to render selected cover images.
+
+4. **Publishing Validation**:
+   - Validates required public content (Arabic title, English title, slug) before allowing status to be set to Published. Draft status allows saving partial work.
+
+5. **LTR Input Alignment**:
+   - Applied explicit `dir="ltr"` and `text-left` to English Title, Duration (English, e.g., `4 Days / 3 Nights`), URL Slug, and English descriptions.
 
 ---
 
 ## 3. NEXT STEPS FOR CONTINUATION
 
-- **Next Phase:** Advanced SEO & Search Console Verification (Phase 19).
+- **Next Phase:** Advanced SEO & Search Console Verification (Phase 20).
 - **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production.
 
 ---
 
 # STOP POINT
 
-Admin Tours Draft Visibility and Default Creation Safety are COMPLETE.
+Admin Tour Destinations Editor and Cover Image Selection are COMPLETE.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ ADMIN TOURS DRAFT VISIBILITY & SAFETY COMPLETE          ║
+║   ✅ ADMIN TOUR DESTINATIONS & COVER IMAGE EDITOR COMPLETE   ║
 ║                                                              ║
 ║   The application codebase is 100% type-checked (0 errors),  ║
 ║   build-verified (45 routes compiled), security-hardened,    ║

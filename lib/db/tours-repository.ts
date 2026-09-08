@@ -141,6 +141,100 @@ export async function getAllAdminTours(statusFilter: string = 'all'): Promise<{
   };
 }
 
+export async function getAdminTourById(id: string) {
+  const connected = await isDatabaseConnected();
+  if (connected && prisma) {
+    try {
+      const dbTour = await prisma.tour.findFirst({
+        where: {
+          OR: [{ id }, { slug: id }],
+        },
+        include: {
+          destinations: { orderBy: { displayOrder: 'asc' } },
+          days: { orderBy: { dayNumber: 'asc' } },
+          mainMedia: true,
+        },
+      });
+
+      if (dbTour) {
+        return {
+          tour: {
+            id: dbTour.id,
+            tourType: dbTour.tourType as 'egypt' | 'international',
+            titleAr: dbTour.titleAr,
+            titleEn: dbTour.titleEn,
+            shortDescriptionAr: dbTour.shortDescriptionAr || '',
+            shortDescriptionEn: dbTour.shortDescriptionEn || '',
+            descriptionAr: dbTour.descriptionAr || '',
+            descriptionEn: dbTour.descriptionEn || '',
+            durationTextAr: dbTour.durationTextAr || '',
+            durationTextEn: dbTour.durationTextEn || '',
+            slug: dbTour.slug,
+            isFeatured: dbTour.isFeatured,
+            status: dbTour.status as 'draft' | 'published' | 'archived',
+            mainMediaUrl: dbTour.mainMedia?.storageKey || '',
+            destinations: dbTour.destinations.map((d) => ({
+              id: d.id,
+              nameAr: d.destinationNameAr,
+              nameEn: d.destinationNameEn,
+            })),
+            days: dbTour.days.map((d) => ({
+              id: d.id,
+              dayNumber: d.dayNumber,
+              titleAr: d.titleAr,
+              titleEn: d.titleEn,
+              descriptionAr: d.descriptionAr,
+              descriptionEn: d.descriptionEn,
+            })),
+          },
+          isDbConnected: true,
+        };
+      }
+    } catch (err) {
+      console.error('[ToursRepository] GetById error:', err);
+    }
+  }
+
+  const allStatic = [...FEATURED_EGYPT_TOURS, ...INTERNATIONAL_TOURS];
+  const found = allStatic.find((t) => t.id === id || t.slug === id);
+  if (found) {
+    return {
+      tour: {
+        id: found.id,
+        tourType: found.type as 'egypt' | 'international',
+        titleAr: found.title.ar,
+        titleEn: found.title.en,
+        shortDescriptionAr: found.summary.ar,
+        shortDescriptionEn: found.summary.en,
+        descriptionAr: found.overview.ar,
+        descriptionEn: found.overview.en,
+        durationTextAr: found.duration.ar,
+        durationTextEn: found.duration.en,
+        slug: found.slug,
+        isFeatured: true,
+        status: 'published' as const,
+        mainMediaUrl: found.imageSrc,
+        destinations: found.destinations.ar.map((ar, idx) => ({
+          id: `dest-${idx}`,
+          nameAr: ar,
+          nameEn: found.destinations.en[idx] || ar,
+        })),
+        days: found.itinerary.map((d) => ({
+          id: `day-${d.day}`,
+          dayNumber: d.day,
+          titleAr: d.title.ar,
+          titleEn: d.title.en,
+          descriptionAr: d.description.ar,
+          descriptionEn: d.description.en,
+        })),
+      },
+      isDbConnected: false,
+    };
+  }
+
+  return { tour: null, isDbConnected: false };
+}
+
 export async function getPublishedTours(type?: 'egypt' | 'international'): Promise<TourProgram[]> {
   const connected = await isDatabaseConnected();
   if (connected && prisma) {
