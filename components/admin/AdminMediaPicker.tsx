@@ -124,7 +124,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
     setUploadProgress(10);
 
     try {
-      // True Direct-to-Blob Client Upload with real SDK progress callback
+      // True Direct-to-Blob Client Upload via @vercel/blob/client
       const newBlob = await upload(selectedFile.name, selectedFile, {
         access: 'public',
         handleUploadUrl: '/api/admin/media/upload',
@@ -160,11 +160,7 @@ export const AdminMediaPicker: React.FC<AdminMediaPickerProps> = ({
     } catch (err: any) {
       setIsUploading(false);
       console.error('[AdminMediaPicker] Upload error:', err);
-      if (err.message?.includes('BLOB_STORE_NOT_CONNECTED') || err.message?.includes('token') || err.message?.includes('store')) {
-        setUploadError('BLOB STORE CONNECTION REQUIRED: يتطلب رفع الصور ربط متجر Vercel Blob في لوحة التحكم (Vercel Dashboard → Storage → Create Blob Store).');
-      } else {
-        setUploadError(err.message || 'حدث خطأ أثناء رفع الصورة');
-      }
+      setUploadError(err.message || 'حدث خطأ أثناء رفع الصورة');
     }
   };
 
