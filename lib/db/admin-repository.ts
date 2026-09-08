@@ -1,5 +1,6 @@
 import { prisma, isDatabaseConnected } from './prisma';
 import { RequestStatus, RequestType } from '@prisma/client';
+import { formatRequestTypeAr } from '@/lib/utils/request-formatters';
 
 export interface AdminRequestFilter {
   search?: string;
@@ -185,7 +186,7 @@ export async function getAdminRequests(filter: AdminRequestFilter = {}) {
       customerEmail: r.customer.email,
       customerPhone: r.customer.phone,
       customerWhatsapp: r.customer.whatsapp,
-      serviceTitle: r.service.titleAr || r.requestType,
+      serviceTitle: r.service?.titleAr || formatRequestTypeAr(r.requestType),
       detailsJson: r.detailsJson,
     }));
 

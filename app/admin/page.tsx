@@ -16,6 +16,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { RequestStatus } from '@prisma/client';
+import { formatRequestTypeAr, formatRequestStatusAr } from '@/lib/utils/request-formatters';
 import '@/app/globals.css';
 
 export default async function AdminDashboardPage() {
@@ -64,7 +65,7 @@ export default async function AdminDashboardPage() {
         reference: r.reference,
         customerName: r.customer.fullName,
         customerPhone: r.customer.phone,
-        serviceTitle: r.service.titleAr || r.requestType,
+        serviceTitle: r.service?.titleAr || formatRequestTypeAr(r.requestType),
         createdAt: r.createdAt,
         status: r.status,
       }));
@@ -103,17 +104,17 @@ export default async function AdminDashboardPage() {
   const getStatusBadge = (status: RequestStatus) => {
     switch (status) {
       case 'new_request':
-        return <Badge variant="gold">طلب جديد</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'contacted':
-        return <Badge variant="outline">تم التواصل</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
       case 'in_progress':
-        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">قيد المتابعة</Badge>;
+        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">{formatRequestStatusAr(status)}</Badge>;
       case 'completed':
-        return <Badge variant="gold">مكتمل</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">ملغي</Badge>;
+        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">{formatRequestStatusAr(status)}</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
     }
   };
 
@@ -223,7 +224,7 @@ export default async function AdminDashboardPage() {
                   <th className="p-4">الرقم المرجعي</th>
                   <th className="p-4">اسم العميل</th>
                   <th className="p-4">نوع الخدمة</th>
-                  <th className="p-4">تاريخ الطلب</th>
+                  <th className="p-4">التاريخ</th>
                   <th className="p-4">الحالة</th>
                   <th className="p-4 text-left">الإجراء</th>
                 </tr>

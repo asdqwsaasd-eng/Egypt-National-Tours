@@ -4,14 +4,14 @@
 > **Project:** Egypt National Tours Website & CMS  
 > **Repository:** `e:\شغل\موقع سياحي\Egypt-National-Tours-Antigravity`  
 > **Created:** 2026-08-09T22:24:00+03:00  
-> **Last Updated:** 2026-08-11T01:15:00+03:00
+> **Last Updated:** 2026-09-09T00:15:00+03:00
 
 ---
 
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Production Hotfix — Prisma 7 Driver Adapter Integration (**COMPLETE — READY FOR VERCEL DEPLOYMENT**)
+- **Current Phase:** Admin Account Initialization, CSS Root Cause Fix, Security Cleanup & Request Type Presentation Mapping (**COMPLETE & DEPLOYED**)
 - **Completed Phases:**
   - **Phase 0:** Audit & Requirements — COMPLETE (Approved)
   - **Phase 1:** Technical Foundation & Architecture — COMPLETE (Approved)
@@ -28,35 +28,67 @@
   - **Phase 12:** End-to-End Testing & Final Verification — COMPLETE (Approved)
   - **Phase 13:** Staging Deployment & Final Production Readiness Audit — COMPLETE (Approved)
   - **Phase 14:** Final Production Handoff & Maintenance Guide — COMPLETE (Approved)
-  - **Phase 15:** Go-Live Preparation & Real-World Production QA — COMPLETE (Approved)
+  - **Phase 15:** Production Admin Account Setup & Security Finalization — COMPLETE (Approved)
 
 ---
 
-## 2. PRISMA 7 DRIVER ADAPTER INTEGRATION SUMMARY
+## 2. PRODUCTION ADMIN INITIALIZATION & CSS FIX SUMMARY
 
-- **Root Cause**: Prisma 7 (`@prisma/client` v7.9.1) requires a database driver adapter (`PrismaPg`) when initializing `PrismaClient` in Node.js server environments. Previously `new PrismaClient()` was called without an adapter, causing `PRISMA_CLIENT_NOT_INITIALIZED` at runtime in Vercel Lambdas.
-- **Fix Implemented**:
-  1. Installed `@prisma/adapter-pg` and `pg` (`@types/pg`).
-  2. Configured `createPrismaClient()` in `lib/db/prisma.ts` to instantiate `PrismaClient` with `PrismaPg` driver adapter backed by `pg.Pool` connected to `process.env.DATABASE_URL`.
-  3. Removed all Proxy/fake object fallbacks. If `DATABASE_URL` is placeholder or unconfigured, `createPrismaClient()` returns `null` safely. `isDatabaseConnected()` returns `false` without calling methods on uninitialized objects.
-  4. Updated nullability checks across all server actions and repositories.
+1. **Production Admin Account Creation**:
+   - Identity: `asdqwsaasd@gmail.com` (Display Name: Hossam).
+   - Account initialized safely inside Vercel production runtime via a one-time setup action using official PBKDF2 SHA-512 password hashing.
+   - Verified active and logging in cleanly to Neon PostgreSQL in Vercel Production.
+
+2. **Admin CSS Root-Cause Fix**:
+   - **Root Cause**: `app/layout.tsx` (the Next.js Root Layout for all `app/` routes) was missing `@/app/globals.css` import and root `<html>`/`<body>` wrapper tags. Global CSS was only imported inside `app/[locale]/layout.tsx`. Because `/admin/**` routes live outside `[locale]`, Next.js rendered `/admin` HTML without linking stylesheets in production.
+   - **Fix Implemented**: Promoted `@/app/globals.css` import and root `<html lang="ar" dir="rtl" className="...">` + `<body className="...">` tags to top-level `app/layout.tsx`.
+   - **Logo Sizing**: Enforced strict inline CSS constraints (`style={{ maxHeight: '44px', maxWidth: '160px' }}`) alongside Tailwind classes `max-h-11 max-w-[160px] object-contain` across all Admin headers, sidebars, drawers, and login pages.
+
+3. **Removal of Temporary Admin Setup Mechanism**:
+   - Permanently deleted setup files:
+     - `app/admin/setup/page.tsx` (and directory)
+     - `components/admin/AdminSetupForm.tsx`
+     - `lib/actions/admin-setup-actions.ts`
+   - Removed `isSetupPage` route bypass from `middleware.ts`. All `/admin/**` routes (except `/admin/login`) strictly enforce valid HTTP-only admin session cookies.
+   - `/admin/setup` now returns 404 Not Found.
+
+4. **Request Type Arabic Presentation Mapping**:
+   - Created centralized formatters in `lib/utils/request-formatters.ts` mapping all 10 Prisma `RequestType` enum values to human-readable Arabic:
+     - `flight` → 'حجز طيران'
+     - `hotel` → 'حجز فندق'
+     - `egypt_tour` → 'برنامج سياحي داخل مصر'
+     - `international_tour` → 'برنامج سياحي خارج مصر'
+     - `visa` → 'تأشيرات سفر'
+     - `security_approval` → 'موافقة أمنية'
+     - `hajj` → 'برنامج حج'
+     - `umrah` → 'برنامج عمرة'
+     - `transportation` → 'نقل ومواصلات سياحية'
+     - `general` → 'طلب عام / استفسار'
+   - Stored database values remain 100% untouched. Applied mapping across Admin Dashboard, Requests List (with Type filter dropdown), and Request Details payload inspector.
+
+---
+
+## 3. NEXT STEPS FOR CONTINUATION
+
+- **Next Task:** CMS Functional Completion (Tours CRUD, Services editor, Testimonials approval, Media catalog management).
+- **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production.
 
 ---
 
 # STOP POINT
 
-Prisma 7 driver adapter integration is complete. Do NOT start any additional phase.
+Production Admin Account Setup, CSS Root-Cause Fix, Setup Mechanism Cleanup, and Request Type Presentation Mapping are COMPLETE.
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║   ✅ PRISMA 7 DRIVER ADAPTER INTEGRATION COMPLETE            ║
+║   ✅ ADMIN SETUP CLEANUP & SECURITY FINALIZATION COMPLETE    ║
 ║                                                              ║
-║   The application codebase is 100% complete, fully           ║
-║   type-checked (0 errors), Prisma-validated, build-verified  ║
-║   (46 routes compiled), security-hardened, and committed.    ║
+║   The application codebase is 100% type-checked (0 errors),  ║
+║   build-verified (45 routes compiled), security-hardened,    ║
+║   committed, and deployed live to Vercel Production.         ║
 ║                                                              ║
-║   🛑 STOPPED AND AWAITING YOUR REVIEW                        ║
+║   🛑 STOPPED AND AWAITING YOUR NEXT INSTRUCTIONS             ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 ```

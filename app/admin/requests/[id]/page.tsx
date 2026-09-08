@@ -18,6 +18,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { RequestStatus } from '@prisma/client';
+import { formatRequestTypeAr, formatRequestStatusAr, REQUEST_STATUS_LABELS_AR } from '@/lib/utils/request-formatters';
 
 interface RequestDetailPageProps {
   params: Promise<{ id: string }>;
@@ -57,8 +58,14 @@ function formatKeyLabel(key: string): string {
   return FIELD_TRANSLATIONS[key] || key;
 }
 
-function formatValueDisplay(val: unknown): React.ReactNode {
+function formatValueDisplay(val: unknown, key?: string): React.ReactNode {
   if (val === null || val === undefined) return '—';
+  if (key === 'requestType') {
+    return formatRequestTypeAr(String(val));
+  }
+  if (key === 'status') {
+    return formatRequestStatusAr(String(val));
+  }
   if (typeof val === 'boolean') return val ? 'نعم' : 'لا';
   if (Array.isArray(val)) {
     if (val.length === 0) return 'لا يوجد';
@@ -78,7 +85,7 @@ function formatValueDisplay(val: unknown): React.ReactNode {
         {Object.entries(val as Record<string, unknown>).map(([subK, subV]) => (
           <div key={subK} className="flex justify-between gap-2">
             <span className="font-bold text-text-secondary">{formatKeyLabel(subK)}:</span>
-            <span>{String(subV)}</span>
+            <span>{formatValueDisplay(subV, subK)}</span>
           </div>
         ))}
       </div>
@@ -101,17 +108,17 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
   const getStatusBadge = (status: RequestStatus) => {
     switch (status) {
       case 'new_request':
-        return <Badge variant="gold">طلب جديد</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'contacted':
-        return <Badge variant="outline">تم التواصل</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
       case 'in_progress':
-        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">قيد المتابعة</Badge>;
+        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">{formatRequestStatusAr(status)}</Badge>;
       case 'completed':
-        return <Badge variant="gold">مكتمل</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">ملغي</Badge>;
+        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">{formatRequestStatusAr(status)}</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
     }
   };
 
@@ -137,6 +144,7 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
   const customerWhatsapp = reqAny.customer?.whatsapp || reqAny.customerWhatsapp || customerPhone;
 
   const cleanWhatsappNumber = customerWhatsapp.replace(/[^0-9]/g, '');
+  const requestTypeLabel = formatRequestTypeAr(reqAny.requestType);
 
   return (
     <div className="space-y-6">
@@ -151,10 +159,13 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
             <ArrowRight className="h-5 w-5" />
           </Link>
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold text-brand-red font-mono">
                 {reqAny.reference}
               </h1>
+              <span className="px-2.5 py-0.5 rounded-full bg-sand/60 text-text-primary text-xs font-bold border border-border">
+                {requestTypeLabel}
+              </span>
               {getStatusBadge(reqAny.status)}
             </div>
             <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
@@ -177,11 +188,11 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
             defaultValue={reqAny.status}
             className="h-10 px-3 text-xs bg-sand/30 border border-border rounded-xl focus:outline-hidden text-text-primary font-extrabold"
           >
-            <option value="new_request">طلب جديد (New)</option>
-            <option value="contacted">تم التواصل (Contacted)</option>
-            <option value="in_progress">قيد المتابعة (In Progress)</option>
-            <option value="completed">مكتمل (Completed)</option>
-            <option value="cancelled">ملغي (Cancelled)</option>
+            {Object.entries(REQUEST_STATUS_LABELS_AR).map(([val, label]) => (
+              <option key={val} value={val}>
+                {label} ({val})
+              </option>
+            ))}
           </select>
           <Button type="submit" variant="primary" size="sm" className="h-10 text-xs px-4">
             تحديث الحالة
@@ -249,7 +260,7 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
                 </p>
                 <a
                   href={`https://wa.me/${cleanWhatsappNumber}?text=${encodeURIComponent(
-                    `مرحباً ${customerName}، بخصوص طلبكم رقم ${reqAny.reference} لدى إيجيبت ناشيونال تورز`
+                    `مرحباً ${customerName}، بخصوص طلبكم رقم ${reqAny.reference} (${requestTypeLabel}) لدى إيجيبت ناشيونال تورز`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -267,7 +278,7 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
             <CardHeader className="border-b border-border pb-3 mb-4">
               <h3 className="text-base font-extrabold text-text-primary flex items-center gap-2">
                 <FileText className="h-5 w-5 text-brand-gold-dark" />
-                <span>تفاصيل ومعطيات الطلب المقدم</span>
+                <span>تفاصيل ومعطيات الطلب المقدم ({requestTypeLabel})</span>
               </h3>
             </CardHeader>
             <CardContent>
@@ -280,7 +291,7 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
                           {formatKeyLabel(key)}
                         </td>
                         <td className="p-3 font-medium text-text-primary whitespace-pre-wrap">
-                          {formatValueDisplay(val)}
+                          {formatValueDisplay(val, key)}
                         </td>
                       </tr>
                     ))}
@@ -361,7 +372,7 @@ export default async function AdminRequestDetailPage({ params }: RequestDetailPa
                     <Clock className="h-3.5 w-3.5 text-text-muted shrink-0 mt-0.5" />
                     <div>
                       <p className="font-bold text-text-primary">
-                        تعديل الحالة إلى <span className="text-brand-red">{e.newValue}</span>
+                        تعديل الحالة إلى <span className="text-brand-red">{formatRequestStatusAr(e.newValue)}</span>
                       </p>
                       <p className="text-[10px] text-text-muted">
                         {new Date(e.createdAt).toLocaleString('ar-EG')}

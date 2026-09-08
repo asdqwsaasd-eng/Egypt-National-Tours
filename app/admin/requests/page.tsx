@@ -4,6 +4,7 @@ import { getAdminRequests } from '@/lib/db/admin-repository';
 import { SectionHeader, Badge, Button, Card } from '@/components/ui';
 import { Search, Eye, Filter, Calendar, User, Phone, FileText } from 'lucide-react';
 import { RequestStatus, RequestType } from '@prisma/client';
+import { formatRequestTypeAr, formatRequestStatusAr, REQUEST_TYPE_LABELS_AR, REQUEST_STATUS_LABELS_AR } from '@/lib/utils/request-formatters';
 
 interface RequestsPageProps {
   searchParams: Promise<{
@@ -28,27 +29,34 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
   const getStatusBadge = (status: RequestStatus) => {
     switch (status) {
       case 'new_request':
-        return <Badge variant="gold">طلب جديد</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'contacted':
-        return <Badge variant="outline">تم التواصل</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
       case 'in_progress':
-        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">قيد المتابعة</Badge>;
+        return <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">{formatRequestStatusAr(status)}</Badge>;
       case 'completed':
-        return <Badge variant="gold">مكتمل</Badge>;
+        return <Badge variant="gold">{formatRequestStatusAr(status)}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">ملغي</Badge>;
+        return <Badge variant="outline" className="border-red-400 text-red-600 bg-red-50">{formatRequestStatusAr(status)}</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{formatRequestStatusAr(status)}</Badge>;
     }
   };
 
   const statusOptions = [
-    { label: 'الكل (All Statuses)', value: 'all' },
-    { label: 'جديد (New)', value: 'new_request' },
-    { label: 'تم التواصل (Contacted)', value: 'contacted' },
-    { label: 'قيد المتابعة (In Progress)', value: 'in_progress' },
-    { label: 'مكتمل (Completed)', value: 'completed' },
-    { label: 'ملغي (Cancelled)', value: 'cancelled' },
+    { label: 'جميع الحالات (All Statuses)', value: 'all' },
+    ...Object.entries(REQUEST_STATUS_LABELS_AR).map(([val, label]) => ({
+      label: `${label} (${val})`,
+      value: val,
+    })),
+  ];
+
+  const typeOptions = [
+    { label: 'جميع الخدمات (All Services)', value: 'all' },
+    ...Object.entries(REQUEST_TYPE_LABELS_AR).map(([val, label]) => ({
+      label: label,
+      value: val,
+    })),
   ];
 
   return (
@@ -69,9 +77,9 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
 
       {/* Filter Bar Card */}
       <Card variant="default" padding="md" className="space-y-4">
-        <form method="GET" className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <form method="GET" className="grid grid-cols-1 sm:grid-cols-12 gap-4">
           {/* Search Field */}
-          <div className="md:col-span-6 relative">
+          <div className="sm:col-span-5 relative">
             <input
               type="text"
               name="q"
@@ -82,8 +90,23 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
             <Search className="h-4 w-4 text-text-muted absolute right-3.5 top-3.5 pointer-events-none" />
           </div>
 
+          {/* Type Filter */}
+          <div className="sm:col-span-3">
+            <select
+              name="type"
+              defaultValue={typeFilter}
+              className="w-full h-11 px-3 text-xs bg-sand/30 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-brand-gold text-text-primary font-bold"
+            >
+              {typeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Status Filter */}
-          <div className="md:col-span-3">
+          <div className="sm:col-span-2">
             <select
               name="status"
               defaultValue={statusFilter}
@@ -98,10 +121,10 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
           </div>
 
           {/* Submit Button */}
-          <div className="md:col-span-3">
+          <div className="sm:col-span-2">
             <Button type="submit" variant="primary" size="md" fullWidth className="h-11 text-xs gap-1 font-bold">
               <Filter className="h-4 w-4" />
-              <span>تطبيق التصفية</span>
+              <span>تصفية</span>
             </Button>
           </div>
         </form>
@@ -141,7 +164,7 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
                         <p className="text-[11px] text-text-muted dir-ltr text-right font-mono">{item.customerPhone}</p>
                       </td>
                       <td className="p-4 font-bold text-text-secondary">
-                        {item.serviceTitle}
+                        {formatRequestTypeAr(item.requestType)}
                       </td>
                       <td className="p-4 text-text-muted dir-ltr text-right font-medium">
                         {new Date(item.createdAt).toLocaleDateString('ar-EG', {
@@ -188,7 +211,7 @@ export default async function AdminRequestsPage({ searchParams }: RequestsPagePr
                     </div>
                     <div className="flex items-center gap-1.5 text-text-secondary font-medium pt-1">
                       <FileText className="h-3.5 w-3.5 text-brand-gold-dark" />
-                      <span>{item.serviceTitle}</span>
+                      <span>{formatRequestTypeAr(item.requestType)}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-text-muted pt-0.5">
                       <Calendar className="h-3.5 w-3.5" />
