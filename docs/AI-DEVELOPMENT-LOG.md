@@ -99,6 +99,7 @@ Allows temporarily taking public website routes offline for scheduled updates wh
 - **Bilingual Experience:** High-end dark/gold aesthetic with Arabic and English copy, direct WhatsApp (`+20 106 331 4240`), official email (`travel@egyptnationaltours.com`), and phone channels.
 - **Zero Admin Link Exposure:** No link or trace of the Admin portal is exposed to public visitors.
 - **Admin Preview Route:** Authenticated admins can preview the maintenance page anytime at `/admin/maintenance-preview`.
+- **Footer Refinement:** Removed licensing sentence from maintenance footer per owner request; preserved copyright and all other branding.
 
 ---
 

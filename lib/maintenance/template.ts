@@ -327,8 +327,6 @@ export function getMaintenanceHtml(): string {
       </div>
 
       <div class="footer-note">
-        ${COMPANY.license.ar} &bull; ${COMPANY.license.en}
-        <br>
         &copy; ${new Date().getFullYear()} ${COMPANY.name.en}. All rights reserved.
       </div>
     </div>
