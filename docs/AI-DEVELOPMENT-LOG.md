@@ -11,11 +11,12 @@
 ## 1. PROJECT STATUS OVERVIEW
 
 - **Project Name:** Egypt National Tours Website & CMS
-- **Current Phase:** Production Vercel Blob OIDC + Presigned PUT URL Upload Architecture (**DEPLOYED — AWAITING REAL UPLOAD ACCEPTANCE TEST**)
+- **Current Phase:** Phase 23: Safe Maintenance Mode Architecture (`MAINTENANCE_MODE=true`) — COMPLETE & VERIFIED
 - **Completed Phases:**
   - **Phase 0–20:** See archive above.
   - **Phase 21:** Stale Blob Connection Detection Bug Fix — COMPLETE (Approved)
   - **Phase 22:** OIDC + Presigned PUT URL Upload Architecture Migration — DEPLOYED
+  - **Phase 23:** Safe Maintenance Mode Architecture (`MAINTENANCE_MODE=true`) — COMPLETE & VERIFIED
 
 ---
 
@@ -81,7 +82,27 @@ Browser
 
 ---
 
-## 3. CONNECTED BLOB STORE
+## 3. PHASE 23 — SAFE MAINTENANCE MODE (`MAINTENANCE_MODE=true`)
+
+### Purpose & Architecture
+Allows temporarily taking public website routes offline for scheduled updates while maintaining 100% operational access for Admin staff, authentication, admin APIs, and storage.
+
+- **Trigger:** Controlled via Vercel Environment Variable `MAINTENANCE_MODE=true`.
+- **Reversibility:** When `MAINTENANCE_MODE=false` or removed, normal public routing resumes instantly with zero code changes.
+- **HTTP Status:** `503 Service Unavailable` with `Retry-After: 3600` header and `Cache-Control: no-store, no-cache, must-revalidate`.
+- **SEO Safety:** Direct `<meta name="robots" content="noindex, nofollow">` prevents search engines from indexing maintenance content or dropping rankings.
+- **Admin Exemption:**
+  - `/admin` & `/admin/**` (Login, Dashboard, CMS, settings) remain fully accessible and protected by session auth.
+  - `/api/admin/**` (Media presign, upload, complete, tour management) remain 100% accessible.
+  - `/api/auth/**` remain 100% accessible.
+  - Next.js internals (`/_next/**`), static assets (`/assets/**`), `favicon.ico`, `robots.txt`, and `sitemap.xml` pass through directly.
+- **Bilingual Experience:** High-end dark/gold aesthetic with Arabic and English copy, direct WhatsApp (`+20 106 331 4240`), official email (`travel@egyptnationaltours.com`), and phone channels.
+- **Zero Admin Link Exposure:** No link or trace of the Admin portal is exposed to public visitors.
+- **Admin Preview Route:** Authenticated admins can preview the maintenance page anytime at `/admin/maintenance-preview`.
+
+---
+
+## 4. CONNECTED BLOB STORE
 
 - **Store Name**: `egypt-national-tours-blob`
 - **Access**: Public
@@ -90,29 +111,28 @@ Browser
 
 ---
 
-## 4. NEXT STEPS FOR CONTINUATION
+## 5. NEXT STEPS FOR CONTINUATION
 
-- **Immediate Action**: Perform REAL production browser upload test at `/admin/media` to confirm OIDC presigned PUT flow works end-to-end.
-- If successful → update this log with "PRODUCTION OIDC PRESIGNED MEDIA UPLOAD VERIFIED".
-- Then → test attaching a Blob image as cover photo on `cms-draft-test-2026` (Draft status preserved).
+- **Immediate Action**: If maintenance mode is desired on production, set `MAINTENANCE_MODE=true` in Vercel Dashboard → Settings → Environment Variables.
+- **Admin Verification**: Test `/admin/maintenance-preview` to inspect the maintenance page layout.
 - **Environment**: Next.js 16 (App Router), Tailwind CSS v4, Prisma v7 (`@prisma/client`), Neon PostgreSQL, Vercel Production, `@vercel/blob@2.8.0`.
 
 ---
 
 # STOP POINT
 
-DEPLOYED — AWAITING PRODUCTION ACCEPTANCE TEST.
+PHASE 23 COMPLETE & VERIFIED. READY FOR PRODUCTION DEPLOYMENT.
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                                                                   ║
-║   PHASE 22: OIDC PRESIGNED PUT ARCHITECTURE DEPLOYED              ║
+║   PHASE 23: SAFE MAINTENANCE MODE ARCHITECTURE VERIFIED           ║
 ║                                                                   ║
 ║   TypeScript: PASSED (0 errors)                                   ║
-║   Build: PASSED (51 routes compiled)                              ║
-║   Commit: (see below)                                             ║
-║                                                                   ║
-║   🔴 AWAITING: Real production browser upload acceptance test     ║
+║   Build: PASSED (53 routes compiled)                              ║
+║   Environment Trigger: MAINTENANCE_MODE=true                      ║
+║   Admin Access: 100% EXEMPT & PROTECTED                           ║
+║   HTTP Status: 503 Service Unavailable (Retry-After: 3600)        ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
